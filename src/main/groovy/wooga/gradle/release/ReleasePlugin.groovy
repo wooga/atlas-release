@@ -87,7 +87,21 @@ class ReleasePlugin implements Plugin<Project> {
             postReleaseTask.dependsOn publishTask
         }
 
+        configureVersionCode(project)
         configureUnityPackageIfPresent(project)
+    }
+
+    def configureVersionCode(Project project) {
+        def version = project.version.toString()
+        def versionMatch = version =~ /(\d+)\.(\d+)\.(\d+)/
+        String versionMajor = versionMatch[0][1]
+        String versionMinor = versionMatch[0][2]
+        String versionPatch = versionMatch[0][3]
+        int versionCode = versionMajor.toInteger() * 10000 + versionMinor.toInteger() * 100 + versionPatch.toInteger()
+
+        project.rootProject.allprojects {
+            ext.versionCode = versionCode
+        }
     }
 
     private configureUnityPackageIfPresent(Project project) {
