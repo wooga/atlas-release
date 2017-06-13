@@ -154,14 +154,4 @@ class ReleasePlugin implements Plugin<Project> {
         project.pluginManager.apply(PaketPlugin)
         project.pluginManager.apply(PaketUnityPlugin)
     }
-
-    boolean isClassPresent(String name) {
-        try {
-            Class.forName(name)
-            return true
-        } catch (Throwable ex) {
-            logger.debug("Class $name is not present")
-            return false
-        }
-    }
 }
