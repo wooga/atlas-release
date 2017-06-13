@@ -25,6 +25,8 @@ import nebula.test.ProjectSpec
 import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.operation.BranchAddOp
+import org.ajoberstar.grgit.operation.BranchChangeOp
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.cache.internal.VersionStrategy
 import spock.lang.Unroll
@@ -201,5 +203,35 @@ class ReleasePluginSpec extends ProjectSpec {
         '0.1.0'            |             3 |            5 | "SNAPSHOT" | "patch" | "0.1.1-master00005"
     }
 
+    @Unroll('verify version branch rename for branch #branchName')
+    def "applies branch rename for nuget repos"() {
 
+        given: "a project with specified SNAPSHOT release stage"
+
+        project.ext.set('release.stage', "SNAPSHOT")
+
+        and: "a history"
+
+        if(branchName != "master") {
+            git.checkout(branch: "$branchName", startPoint: 'master', createBranch: true)
+        }
+
+        git.tag.add(name: "v1.0.0")
+        git.commit(message: 'feature commit')
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        project.version.toString() == expectedVersion
+
+        where:
+        branchName              | expectedVersion
+        "master"                | "1.1.0-master00001"
+        "with/slash"            | "1.1.0-branchWithSlash00001"
+        "numbers0123456789"     | "1.1.0-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
+        "with/slash"            | "1.1.0-branchWithSlash00001"
+        "with_underscore"       | "1.1.0-branchWithUnderscore00001"
+        "with-dash"             | "1.1.0-branchWithDash00001"
+    }
 }
