@@ -34,7 +34,6 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.paket.unity.PaketUnityPlugin
-import wooga.gradle.unity.UnityPlugin
 
 class ReleasePlugin implements Plugin<Project> {
 
@@ -96,13 +95,12 @@ class ReleasePlugin implements Plugin<Project> {
         project.subprojects { sub ->
             sub.afterEvaluate {
                 logger.info("check subproject {} for unity plugin", sub.name)
-                if (isClassPresent("wooga.gradle.unity.UnityPlugin")) {
-                    if (sub.plugins.hasPlugin(UnityPlugin)) {
-                        logger.info("subproject {} has unity plugin.", sub.name)
-                        logger.info("configure dependencies {}", sub.path)
-                        dependencies.add(ARCHIVES_CONFIGURATION, dependencies.project(path: sub.path, configuration: UnityPlugin.UNITY_PACKAGE_CONFIGURATION_NAME))
-                    }
+                if (sub.plugins.hasPlugin("net.wooga.unity")) {
+                    logger.info("subproject {} has unity plugin.", sub.name)
+                    logger.info("configure dependencies {}", sub.path)
+                    dependencies.add(ARCHIVES_CONFIGURATION, dependencies.project(path: sub.path, configuration: "unitypackage"))
                 }
+
             }
         }
     }
