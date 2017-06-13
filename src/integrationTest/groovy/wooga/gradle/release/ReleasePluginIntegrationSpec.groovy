@@ -27,6 +27,7 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
     def setup() {
         git = Grgit.init(dir: projectDir)
         git.commit(message: 'initial commit')
+        git.tag.add(name: "v0.0.1")
     }
 
     @Unroll("verify versionCode generation from version #tagVersion")
@@ -94,5 +95,48 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         '2.10.99-branch' |  21099
         '0.3.0-a0000'    |    300
         '12.34.200-2334' | 123600
+    }
+
+    @Unroll("verify dependency setup to #testType unity sub-projects")
+    def "verify dependency setup to unity sub-projects"() {
+        given: "some subprojects with net.wooga.unity applied"
+
+        [range].each {
+            addSubproject("testSub$it", """
+                plugins {
+                    id "net.wooga.unity" version "0.3.0"
+                }
+             """.stripIndent())
+        }
+
+        and: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("unityPack")
+
+        then:
+        [range].collect {
+            result.wasExecuted(":testSub$it:exportUnityPackage")
+        }.every()
+
+        where:
+        range << [1..1, 1..4]
+        testType = range.size() > 1 ? "multiple" : "single"
+    }
+
+    def "verify dependency setup to missing unity sub-projects"() {
+        given: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("unityPack")
+
+        then:
+        result.standardOutput.contains("unityPack NO-SOURCE")
     }
 }
