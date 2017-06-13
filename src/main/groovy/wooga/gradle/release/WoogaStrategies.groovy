@@ -18,16 +18,45 @@ package wooga.gradle.release
 
 import nebula.plugin.release.NetflixOssStrategies
 import org.ajoberstar.gradle.git.release.opinion.Strategies
+import org.ajoberstar.gradle.git.release.semver.PartialSemVerStrategy
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategy
+import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
 import org.ajoberstar.gradle.git.release.semver.StrategyUtil
 
+import static org.ajoberstar.gradle.git.release.semver.StrategyUtil.closure
+import static org.ajoberstar.gradle.git.release.semver.StrategyUtil.parseIntOrZero
+
 class WoogaStrategies {
+
+    static final PartialSemVerStrategy COUNT_INCREMENTED = closure { SemVerStrategyState state ->
+        def nearest = state.nearestVersion
+        def currentPreIdents = state.inferredPreRelease ? state.inferredPreRelease.split('\\.') as List : []
+        if (nearest.any == nearest.normal || nearest.any.normalVersion != state.inferredNormal) {
+            currentPreIdents << '1'
+        } else {
+            def indexOfFirstDiget = nearest.any.preReleaseVersion.findIndexOf { it ==~ /\d/ }
+            def preReleaseversion = nearest.any.preReleaseVersion
+
+            def nearestPreIdents = [preReleaseversion.substring(0,indexOfFirstDiget),preReleaseversion.substring(indexOfFirstDiget)]
+            if (nearestPreIdents.size() <= currentPreIdents.size()) {
+                currentPreIdents << '1'
+            } else if (currentPreIdents == nearestPreIdents[0..(currentPreIdents.size() - 1)]) {
+                def count = parseIntOrZero(nearestPreIdents[currentPreIdents.size()])
+                currentPreIdents << Integer.toString(count + 1)
+            } else {
+                currentPreIdents << '1'
+            }
+        }
+        return state.copyWith(inferredPreRelease: currentPreIdents.join('.'))
+    }
 
     static final SemVerStrategy PRE_RELEASE = Strategies.PRE_RELEASE.copyWith(
             normalStrategy: NetflixOssStrategies.scopes,
             preReleaseStrategy: StrategyUtil.all(StrategyUtil.closure({ state ->
-                def stage = Strategies.PreRelease.STAGE_FIXED.infer(state).inferredPreRelease
-                def count = Strategies.PreRelease.COUNT_INCREMENTED.infer(state).inferredPreRelease
+                state = Strategies.PreRelease.STAGE_FIXED.infer(state)
+                def stage = state.inferredPreRelease
+                def count = WoogaStrategies.COUNT_INCREMENTED.infer(state).inferredPreRelease
+                count = count.split(/\./).last()
                 def integration = "$count".padLeft(5, '0')
                 state.copyWith(inferredPreRelease: "$stage$integration")
             }))

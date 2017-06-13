@@ -161,4 +161,45 @@ class ReleasePluginSpec extends ProjectSpec {
                 wooga.gradle.release.ReleasePlugin.TEST_TASK
         ]
     }
+
+    @Unroll('verify version strategy for #tagVersion, #scope and #stage')
+    def "uses custom wooga semver strategies"() {
+
+        given: "a project with specified release stage and scope"
+
+        project.ext.set('release.stage', stage)
+        project.ext.set('release.scope', scope)
+
+        and: "a history"
+
+        commitsBefore.times {
+            git.commit(message: 'feature commit')
+        }
+
+        git.tag.add(name: "v$tagVersion")
+
+        commitsAfter.times {
+            git.commit(message: 'fix commit')
+        }
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        project.version.toString() == expectedVersion
+
+        where:
+
+        tagVersion         | commitsBefore | commitsAfter | stage      | scope   | expectedVersion
+        '1.0.0'            |             1 |            3 | "SNAPSHOT" | "minor" | "1.1.0-master00003"
+        '1.0.0'            |             1 |            3 | "rc"       | "minor" | "1.1.0-rc00001"
+        '1.0.0'            |             1 |            3 | "final"    | "minor" | "1.1.0"
+        '1.0.0'            |             1 |            3 | "final"    | "major" | "2.0.0"
+        '1.0.0-rc00001'    |            10 |            5 | "rc"       | "major" | "1.0.0-rc00002"
+        '1.0.0-rc00022'    |             0 |            1 | "rc"       | "major" | "1.0.0-rc00023"
+        '0.1.0-rc00002'    |            22 |            5 | "final"    | "minor" | "0.1.0"
+        '0.1.0'            |             3 |            5 | "SNAPSHOT" | "patch" | "0.1.1-master00005"
+    }
+
+
 }
