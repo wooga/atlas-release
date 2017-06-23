@@ -1,12 +1,69 @@
 atlas-release
 ===========
 
-[![Build Status](https://travis-ci.org/wooga/atlas-release.svg?branch=master)](https://travis-ci.org/wooga/atlas-release)
-[![Coverage Status](https://coveralls.io/repos/github/wooga/atlas-release/badge.svg?branch=master)](https://coveralls.io/github/wooga/atlas-release?branch=master)
-[![Apache 2.0](https://img.shields.io/github/license/nebula-plugins/nebula-release-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+![Wooga Internal](https://img.shields.io/badge/wooga-internal-lightgray.svg?style=flat-square)
+[![Build Status](https://img.shields.io/travis/wooga/atlas-release/master.svg?style=flat-square)](https://travis-ci.org/wooga/atlas-release)
+[![Coveralls Status](https://img.shields.io/coveralls/wooga/atlas-release/master.svg?style=flat-square)](https://coveralls.io/github/wooga/atlas-release?branch=master)
+[![Apache 2.0](https://img.shields.io/badge/license-Apache%202-blue.svg?style=flat-square)](https://raw.githubusercontent.com/wooga/atlas-release/master/LICENSE)
+[![GitHub tag](https://img.shields.io/github/tag/wooga/atlas-release.svg?style=flat-square)]()
+[![GitHub release](https://img.shields.io/github/release/wooga/atlas-release.svg?style=flat-square)]()
 
-# Applying the plugin
+This plugin is an wooga internal helper plugin to configure the build setup for internal wooga library packages.
 
-    plugins {
-        id 'net.wooga.release' version '0.1.0'
-    }
+Conventions
+-----------
+
+* Applies [net.wooga.paket][atlas-paket]
+* Applies [nebula.release][nebula-release]
+* Applies [org.ajoberstar.release-base][gradle-git]
+* Applies [cz.malohlava.visteg][visteg]
+* adds archive dependencies to `unitypackage`'s when [net.wooga.unity][atlas-unity] project is applied to subproject
+* adds `setup` task to lifecycle to setup paket dependencies and other installation routines
+* configures version strategies for use with [Paket][paket] and [nuget][nuget]
+
+Usage
+-------------------
+
+**build.gradle**
+```groovy
+plugins {
+    id 'net.wooga.release' version '0.4.0'
+}
+```
+
+Gradle and Java Compatibility
+=============================
+
+Built with Oracle JDK7
+Tested with Oracle JDK8
+
+| Gradle Version | Works |
+| :------------: | :---: |
+| 3.4.1          | yes   |
+| 3.5            | yes   |
+
+LICENSE
+=======
+
+Copyright 2017 Wooga GmbH
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+<http://www.apache.org/licenses/LICENSE-2.0>
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+<!-- Links -->
+[atlas-paket]:      https://github.com/wooga/atlas-paket
+[atlas-unity]:      https://github.com/wooga/atlas-unity
+[nebula-release]:  https://github.com/nebula-plugins/nebula-release-plugin
+[gradle-git]:       https://github.com/ajoberstar/gradle-git
+[visteg]:           https://github.com/mmalohlava/gradle-visteg
+[paket]:            https://fsprojects.github.io/Paket/
+[nuget]:            https://www.nuget.org/
