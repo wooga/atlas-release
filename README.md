@@ -37,10 +37,18 @@ Gradle and Java Compatibility
 Built with Oracle JDK7
 Tested with Oracle JDK8
 
-| Gradle Version | Works |
-| :------------: | :---: |
-| 3.4.1          | yes   |
-| 3.5            | yes   |
+| Gradle Version | Works       |
+| :------------- | :---------: |
+| <= 2.13        | ![no]       |
+| 2.14           | ![yes]      |
+| 3.0            | ![yes]      |
+| 3.1            | ![yes]      |
+| 3.2            | ![yes]      |
+| 3.4            | ![yes]      |
+| 3.4.1          | ![yes]      |
+| 3.5            | ![yes]      |
+| 3.5.1          | ![yes]      |
+| 4.0            | ![yes]      |
 
 LICENSE
 =======
@@ -67,3 +75,6 @@ limitations under the License.
 [visteg]:           https://github.com/mmalohlava/gradle-visteg
 [paket]:            https://fsprojects.github.io/Paket/
 [nuget]:            https://www.nuget.org/
+
+[yes]:                  http://atlas-resources.wooga.com/icons/icon_check.svg "yes"
+[no]:                   http://atlas-resources.wooga.com/icons/icon_uncheck.svg "no"

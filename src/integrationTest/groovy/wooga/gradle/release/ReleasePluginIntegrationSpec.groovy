@@ -139,4 +139,25 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         then:
         result.standardOutput.contains("unityPack NO-SOURCE")
     }
+
+    def gradleVersions() {
+        ["2.14", "3.0", "3.2", "3.4", "3.4.1", "3.5", "3.5.1", "4.0"]
+    }
+
+    @Unroll("verify plugin activation with gradle #gradleVersionToTest")
+    def "activates with multiple gradle versions"() {
+        given: "a buildfile with unity plugin applied"
+        buildFile << """
+            group = 'test'
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        gradleVersion = gradleVersionToTest
+
+        expect:
+        runTasksSuccessfully("tasks")
+
+        where:
+        gradleVersionToTest << gradleVersions()
+    }
 }
