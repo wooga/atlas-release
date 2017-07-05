@@ -28,8 +28,13 @@ import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.operation.BranchAddOp
 import org.ajoberstar.grgit.operation.BranchChangeOp
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.cache.internal.VersionStrategy
 import spock.lang.Unroll
+import wooga.gradle.github.base.GithubBasePlugin
+import wooga.gradle.github.publish.GithubPublishPlugin
+import wooga.gradle.paket.PaketPlugin
+import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.WoogaStrategies
 
 class ReleasePluginActivationSpec extends PluginProjectSpec {
@@ -56,28 +61,26 @@ class ReleasePluginSpec extends ProjectSpec {
         git.tag.add(name: 'v0.0.1')
     }
 
-    def "adds nebular release plugin"() {
+    @Unroll("applies plugin #pluginName")
+    def 'Applies other plugins'(String pluginName, Class pluginType) {
         given:
         assert !project.plugins.hasPlugin(PLUGIN_NAME)
-        assert !project.plugins.hasPlugin(ReleasePlugin)
+        assert !project.plugins.hasPlugin(pluginType)
 
         when:
         project.plugins.apply(PLUGIN_NAME)
 
         then:
-        project.plugins.hasPlugin(ReleasePlugin)
-    }
+        project.plugins.hasPlugin(pluginType)
 
-    def "adds gradle-git through nebular release plugin"() {
-        given:
-        assert !project.plugins.hasPlugin(PLUGIN_NAME)
-        assert !project.plugins.hasPlugin(BaseReleasePlugin)
-
-        when:
-        project.plugins.apply(PLUGIN_NAME)
-
-        then:
-        project.plugins.hasPlugin(BaseReleasePlugin)
+        where:
+        pluginName          | pluginType
+        "releasePlugin"     | ReleasePlugin
+        "baseReleasePlugin" | BaseReleasePlugin
+        "vistec"            | VisTaskExecGraphPlugin
+        "githubPublish"     | GithubPublishPlugin
+        "paket"             | PaketPlugin
+        "paket-unity"       | PaketUnityPlugin
     }
 
     def findStrategyByName(List<VersionStrategy> strategies, name) {
@@ -95,9 +98,9 @@ class ReleasePluginSpec extends ProjectSpec {
         findStrategyByName(strategies, strategyName) == strategy
 
         where:
-        strategyName    | strategy
-        "snapshot"      | WoogaStrategies.SNAPSHOT
-        "pre-release"   | WoogaStrategies.PRE_RELEASE
+        strategyName  | strategy
+        "snapshot"    | WoogaStrategies.SNAPSHOT
+        "pre-release" | WoogaStrategies.PRE_RELEASE
     }
 
     def "veryfy default version strategies"() {
@@ -192,15 +195,15 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
 
-        tagVersion         | commitsBefore | commitsAfter | stage      | scope   | expectedVersion
-        '1.0.0'            |             1 |            3 | "SNAPSHOT" | "minor" | "1.1.0-master00003"
-        '1.0.0'            |             1 |            3 | "rc"       | "minor" | "1.1.0-rc00001"
-        '1.0.0'            |             1 |            3 | "final"    | "minor" | "1.1.0"
-        '1.0.0'            |             1 |            3 | "final"    | "major" | "2.0.0"
-        '1.0.0-rc00001'    |            10 |            5 | "rc"       | "major" | "1.0.0-rc00002"
-        '1.0.0-rc00022'    |             0 |            1 | "rc"       | "major" | "1.0.0-rc00023"
-        '0.1.0-rc00002'    |            22 |            5 | "final"    | "minor" | "0.1.0"
-        '0.1.0'            |             3 |            5 | "SNAPSHOT" | "patch" | "0.1.1-master00005"
+        tagVersion      | commitsBefore | commitsAfter | stage      | scope   | expectedVersion
+        '1.0.0'         | 1             | 3            | "SNAPSHOT" | "minor" | "1.1.0-master00003"
+        '1.0.0'         | 1             | 3            | "rc"       | "minor" | "1.1.0-rc00001"
+        '1.0.0'         | 1             | 3            | "final"    | "minor" | "1.1.0"
+        '1.0.0'         | 1             | 3            | "final"    | "major" | "2.0.0"
+        '1.0.0-rc00001' | 10            | 5            | "rc"       | "major" | "1.0.0-rc00002"
+        '1.0.0-rc00022' | 0             | 1            | "rc"       | "major" | "1.0.0-rc00023"
+        '0.1.0-rc00002' | 22            | 5            | "final"    | "minor" | "0.1.0"
+        '0.1.0'         | 3             | 5            | "SNAPSHOT" | "patch" | "0.1.1-master00005"
     }
 
     @Unroll('verify version branch rename for branch #branchName')
@@ -212,7 +215,7 @@ class ReleasePluginSpec extends ProjectSpec {
 
         and: "a history"
 
-        if(branchName != "master") {
+        if (branchName != "master") {
             git.checkout(branch: "$branchName", startPoint: 'master', createBranch: true)
         }
 
@@ -226,12 +229,12 @@ class ReleasePluginSpec extends ProjectSpec {
         project.version.toString() == expectedVersion
 
         where:
-        branchName              | expectedVersion
-        "master"                | "1.1.0-master00001"
-        "with/slash"            | "1.1.0-branchWithSlash00001"
-        "numbers0123456789"     | "1.1.0-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
-        "with/slash"            | "1.1.0-branchWithSlash00001"
-        "with_underscore"       | "1.1.0-branchWithUnderscore00001"
-        "with-dash"             | "1.1.0-branchWithDash00001"
+        branchName          | expectedVersion
+        "master"            | "1.1.0-master00001"
+        "with/slash"        | "1.1.0-branchWithSlash00001"
+        "numbers0123456789" | "1.1.0-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
+        "with/slash"        | "1.1.0-branchWithSlash00001"
+        "with_underscore"   | "1.1.0-branchWithUnderscore00001"
+        "with-dash"         | "1.1.0-branchWithDash00001"
     }
 }
