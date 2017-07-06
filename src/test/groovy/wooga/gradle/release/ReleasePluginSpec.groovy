@@ -25,12 +25,18 @@ import nebula.test.ProjectSpec
 import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.operation.BranchAddOp
-import org.ajoberstar.grgit.operation.BranchChangeOp
+import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.specs.Spec
 import org.gradle.cache.internal.VersionStrategy
 import spock.lang.Unroll
+import wooga.gradle.github.publish.GithubPublishPlugin
+import wooga.gradle.paket.PaketPlugin
+import wooga.gradle.paket.pack.tasks.PaketPack
+import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.WoogaStrategies
+
 
 class ReleasePluginActivationSpec extends PluginProjectSpec {
     Grgit git
@@ -56,28 +62,26 @@ class ReleasePluginSpec extends ProjectSpec {
         git.tag.add(name: 'v0.0.1')
     }
 
-    def "adds nebular release plugin"() {
+    @Unroll("applies plugin #pluginName")
+    def 'Applies other plugins'(String pluginName, Class pluginType) {
         given:
         assert !project.plugins.hasPlugin(PLUGIN_NAME)
-        assert !project.plugins.hasPlugin(ReleasePlugin)
+        assert !project.plugins.hasPlugin(pluginType)
 
         when:
         project.plugins.apply(PLUGIN_NAME)
 
         then:
-        project.plugins.hasPlugin(ReleasePlugin)
-    }
+        project.plugins.hasPlugin(pluginType)
 
-    def "adds gradle-git through nebular release plugin"() {
-        given:
-        assert !project.plugins.hasPlugin(PLUGIN_NAME)
-        assert !project.plugins.hasPlugin(BaseReleasePlugin)
-
-        when:
-        project.plugins.apply(PLUGIN_NAME)
-
-        then:
-        project.plugins.hasPlugin(BaseReleasePlugin)
+        where:
+        pluginName          | pluginType
+        "releasePlugin"     | ReleasePlugin
+        "baseReleasePlugin" | BaseReleasePlugin
+        "vistec"            | VisTaskExecGraphPlugin
+        "githubPublish"     | GithubPublishPlugin
+        "paket"             | PaketPlugin
+        "paket-unity"       | PaketUnityPlugin
     }
 
     def findStrategyByName(List<VersionStrategy> strategies, name) {
@@ -95,9 +99,9 @@ class ReleasePluginSpec extends ProjectSpec {
         findStrategyByName(strategies, strategyName) == strategy
 
         where:
-        strategyName    | strategy
-        "snapshot"      | WoogaStrategies.SNAPSHOT
-        "pre-release"   | WoogaStrategies.PRE_RELEASE
+        strategyName  | strategy
+        "snapshot"    | WoogaStrategies.SNAPSHOT
+        "pre-release" | WoogaStrategies.PRE_RELEASE
     }
 
     def "veryfy default version strategies"() {
@@ -192,15 +196,15 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
 
-        tagVersion         | commitsBefore | commitsAfter | stage      | scope   | expectedVersion
-        '1.0.0'            |             1 |            3 | "SNAPSHOT" | "minor" | "1.1.0-master00003"
-        '1.0.0'            |             1 |            3 | "rc"       | "minor" | "1.1.0-rc00001"
-        '1.0.0'            |             1 |            3 | "final"    | "minor" | "1.1.0"
-        '1.0.0'            |             1 |            3 | "final"    | "major" | "2.0.0"
-        '1.0.0-rc00001'    |            10 |            5 | "rc"       | "major" | "1.0.0-rc00002"
-        '1.0.0-rc00022'    |             0 |            1 | "rc"       | "major" | "1.0.0-rc00023"
-        '0.1.0-rc00002'    |            22 |            5 | "final"    | "minor" | "0.1.0"
-        '0.1.0'            |             3 |            5 | "SNAPSHOT" | "patch" | "0.1.1-master00005"
+        tagVersion      | commitsBefore | commitsAfter | stage      | scope   | expectedVersion
+        '1.0.0'         | 1             | 3            | "SNAPSHOT" | "minor" | "1.1.0-master00003"
+        '1.0.0'         | 1             | 3            | "rc"       | "minor" | "1.1.0-rc00001"
+        '1.0.0'         | 1             | 3            | "final"    | "minor" | "1.1.0"
+        '1.0.0'         | 1             | 3            | "final"    | "major" | "2.0.0"
+        '1.0.0-rc00001' | 10            | 5            | "rc"       | "major" | "1.0.0-rc00002"
+        '1.0.0-rc00022' | 0             | 1            | "rc"       | "major" | "1.0.0-rc00023"
+        '0.1.0-rc00002' | 22            | 5            | "final"    | "minor" | "0.1.0"
+        '0.1.0'         | 3             | 5            | "SNAPSHOT" | "patch" | "0.1.1-master00005"
     }
 
     @Unroll('verify version branch rename for branch #branchName')
@@ -212,7 +216,7 @@ class ReleasePluginSpec extends ProjectSpec {
 
         and: "a history"
 
-        if(branchName != "master") {
+        if (branchName != "master") {
             git.checkout(branch: "$branchName", startPoint: 'master', createBranch: true)
         }
 
@@ -226,12 +230,96 @@ class ReleasePluginSpec extends ProjectSpec {
         project.version.toString() == expectedVersion
 
         where:
-        branchName              | expectedVersion
-        "master"                | "1.1.0-master00001"
-        "with/slash"            | "1.1.0-branchWithSlash00001"
-        "numbers0123456789"     | "1.1.0-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
-        "with/slash"            | "1.1.0-branchWithSlash00001"
-        "with_underscore"       | "1.1.0-branchWithUnderscore00001"
-        "with-dash"             | "1.1.0-branchWithDash00001"
+        branchName          | expectedVersion
+        "master"            | "1.1.0-master00001"
+        "with/slash"        | "1.1.0-branchWithSlash00001"
+        "numbers0123456789" | "1.1.0-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
+        "with/slash"        | "1.1.0-branchWithSlash00001"
+        "with_underscore"   | "1.1.0-branchWithUnderscore00001"
+        "with-dash"         | "1.1.0-branchWithDash00001"
+    }
+
+    def createFile(String fileName, File directory) {
+        directory.mkdirs()
+        return new File(directory, fileName)
+    }
+
+    File createMockPaketTemplate(String id, File directory) {
+        def f = createFile("paket.template", directory)
+        f << """
+        type file
+        id $id
+        author wooga
+        """.stripIndent()
+        return f
+    }
+
+    def "configures paketPack tasks dependsOn if available"() {
+        given: "multiple paket.template file"
+        createMockPaketTemplate("Wooga.Test1", new File(projectDir, "sub1"))
+        createMockPaketTemplate("Wooga.Test2", new File(projectDir, "sub2"))
+        createMockPaketTemplate("Wooga.Test3", new File(projectDir, "sub3"))
+
+        and: "no paket pack tasks"
+        assert !project.tasks.withType(PaketPack)
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        def paketPackTasks = project.tasks.withType(PaketPack)
+        paketPackTasks.size() == 3
+        paketPackTasks.every {
+            it.dependsOn.contains(project.tasks.getByName(wooga.gradle.release.ReleasePlugin.SETUP_TASK))
+        }
+    }
+
+    def "configures paketPack artifacts as local dependencies"() {
+        given: "multiple paket.template file"
+        createMockPaketTemplate("Wooga.Test1", new File(projectDir, "sub1"))
+        createMockPaketTemplate("Wooga.Test2", new File(projectDir, "sub2"))
+        createMockPaketTemplate("Wooga.Test3", new File(projectDir, "sub3"))
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+        project.evaluate()
+
+        then:
+        Configuration archive = project.configurations.getByName(wooga.gradle.release.ReleasePlugin.ARCHIVES_CONFIGURATION)
+        def artifacts = archive.allArtifacts
+        artifacts.size() == 3
+        artifacts.every { it.name.contains("Wooga.Test") }
+        artifacts.every { it.extension == "nupkg" }
+    }
+
+    @Unroll
+    def "verify githubPublish onlyIf spec when project.status:#testState and github repository #repository"() {
+        given: "gradle project with plugin applied and evaluated"
+        project.plugins.apply(PLUGIN_NAME)
+        project.evaluate()
+
+        and: "configured repository branch"
+        if (repository) {
+            project.github.repository = repository
+        }
+
+        when:
+        project.status = testState
+
+        then:
+        def githubPublishTask = project.tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
+        Spec<? super Task> testSpec = githubPublishTask.getOnlyIf()
+        testSpec.isSatisfiedBy(githubPublishTask) == expectedResult
+
+        where:
+        testState      | repository       | expectedResult
+        'release'      | "wooga/testRepo" | true
+        'release'      | null             | false
+        'candidate'    | "wooga/testRepo" | true
+        'candidate'    | null             | false
+        'snapshot'     | "wooga/testRepo" | false
+        'snapshot'     | null             | false
+        'random value' | "wooga/testRepo" | false
+        'random value' | null             | false
     }
 }
