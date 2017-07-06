@@ -25,17 +25,16 @@ import nebula.test.ProjectSpec
 import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.operation.BranchAddOp
-import org.ajoberstar.grgit.operation.BranchChangeOp
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.cache.internal.VersionStrategy
 import spock.lang.Unroll
-import wooga.gradle.github.base.GithubBasePlugin
 import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.PaketPlugin
+import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.WoogaStrategies
+
 
 class ReleasePluginActivationSpec extends PluginProjectSpec {
     Grgit git
@@ -236,5 +235,58 @@ class ReleasePluginSpec extends ProjectSpec {
         "with/slash"        | "1.1.0-branchWithSlash00001"
         "with_underscore"   | "1.1.0-branchWithUnderscore00001"
         "with-dash"         | "1.1.0-branchWithDash00001"
+    }
+
+    def createFile(String fileName, File directory) {
+        directory.mkdirs()
+        return new File(directory, fileName)
+    }
+
+    File createMockPaketTemplate(String id, File directory) {
+        def f = createFile("paket.template", directory)
+        f << """
+        type file
+        id $id
+        author wooga
+        """.stripIndent()
+        return f
+    }
+
+    def "configures paketPack tasks dependsOn if available"() {
+        given: "multiple paket.template file"
+        createMockPaketTemplate("Wooga.Test1", new File(projectDir, "sub1"))
+        createMockPaketTemplate("Wooga.Test2", new File(projectDir, "sub2"))
+        createMockPaketTemplate("Wooga.Test3", new File(projectDir, "sub3"))
+
+        and: "no paket pack tasks"
+        assert !project.tasks.withType(PaketPack)
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        def paketPackTasks = project.tasks.withType(PaketPack)
+        paketPackTasks.size() == 3
+        paketPackTasks.every {
+            it.dependsOn.contains(project.tasks.getByName(wooga.gradle.release.ReleasePlugin.SETUP_TASK))
+        }
+    }
+
+    def "configures paketPack artifacts as local dependencies"() {
+        given: "multiple paket.template file"
+        createMockPaketTemplate("Wooga.Test1", new File(projectDir, "sub1"))
+        createMockPaketTemplate("Wooga.Test2", new File(projectDir, "sub2"))
+        createMockPaketTemplate("Wooga.Test3", new File(projectDir, "sub3"))
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+        project.evaluate()
+
+        then:
+        Configuration archive = project.configurations.getByName(wooga.gradle.release.ReleasePlugin.ARCHIVES_CONFIGURATION)
+        def artifacts = archive.allArtifacts
+        artifacts.size() == 3
+        artifacts.every { it.name.contains("Wooga.Test") }
+        artifacts.every { it.extension == "nupkg" }
     }
 }
