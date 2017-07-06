@@ -27,7 +27,7 @@ Usage
 **build.gradle**
 ```groovy
 plugins {
-    id 'net.wooga.release' version '0.4.0'
+    id 'net.wooga.release' version '0.5.0'
 }
 ```
 
