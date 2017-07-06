@@ -25,8 +25,10 @@ import nebula.test.ProjectSpec
 import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.grgit.Grgit
+import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.specs.Spec
 import org.gradle.cache.internal.VersionStrategy
 import spock.lang.Unroll
 import wooga.gradle.github.publish.GithubPublishPlugin
@@ -288,5 +290,36 @@ class ReleasePluginSpec extends ProjectSpec {
         artifacts.size() == 3
         artifacts.every { it.name.contains("Wooga.Test") }
         artifacts.every { it.extension == "nupkg" }
+    }
+
+    @Unroll
+    def "verify githubPublish onlyIf spec when project.status:#testState and github repository #repository"() {
+        given: "gradle project with plugin applied and evaluated"
+        project.plugins.apply(PLUGIN_NAME)
+        project.evaluate()
+
+        and: "configured repository branch"
+        if (repository) {
+            project.github.repository = repository
+        }
+
+        when:
+        project.status = testState
+
+        then:
+        def githubPublishTask = project.tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
+        Spec<? super Task> testSpec = githubPublishTask.getOnlyIf()
+        testSpec.isSatisfiedBy(githubPublishTask) == expectedResult
+
+        where:
+        testState      | repository       | expectedResult
+        'release'      | "wooga/testRepo" | true
+        'release'      | null             | false
+        'candidate'    | "wooga/testRepo" | true
+        'candidate'    | null             | false
+        'snapshot'     | "wooga/testRepo" | false
+        'snapshot'     | null             | false
+        'random value' | "wooga/testRepo" | false
+        'random value' | null             | false
     }
 }
