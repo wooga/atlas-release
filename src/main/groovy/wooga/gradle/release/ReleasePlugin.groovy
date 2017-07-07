@@ -101,6 +101,7 @@ class ReleasePlugin implements Plugin<Project> {
             assembleTask.dependsOn unityPack
             releaseTask.dependsOn assembleTask
             postReleaseTask.dependsOn publishTask
+            publishTask.mustRunAfter postReleaseTask
 
             githubPublishTask.onlyIf(new Spec<Task>() {
                 @Override
