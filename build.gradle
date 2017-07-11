@@ -81,6 +81,8 @@ dependencies {
         exclude module: 'logback-classic'
     }
 
+    testCompile 'gradle.plugin.net.wooga.gradle:atlas-unity:0.10.0'
+
     compile 'com.netflix.nebula:nebula-release-plugin:5.+'
     compile 'org.ajoberstar:gradle-git:1.7.+'
     compile 'cz.malohlava:visteg:1.0.+'

@@ -22,6 +22,7 @@ import cz.malohlava.VisTegPluginExtension
 import nebula.core.ProjectType
 import nebula.plugin.release.NetflixOssStrategies
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -32,6 +33,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Delete
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import wooga.gradle.github.publish.GithubPublish
 import wooga.gradle.github.publish.GithubPublishPlugin
@@ -47,6 +49,7 @@ class ReleasePlugin implements Plugin<Project> {
 
     static final String ARCHIVES_CONFIGURATION = "archives"
     static final String UNTIY_PACK_TASK = "unityPack"
+    static final String CLEAN_META_FILES_TASK = "cleanMetaFiles"
     static final String SETUP_TASK = "setup"
     static final String RC_TASK = "rc"
     static final String TEST_TASK = "test"
@@ -138,15 +141,26 @@ class ReleasePlugin implements Plugin<Project> {
 
     private configureUnityPackageIfPresent(Project project) {
         DependencyHandler dependencies = project.dependencies
+        Class unityPlugin
+        try {
+            unityPlugin = Class.forName("wooga.gradle.unity.UnityPlugin")
+        }
+        catch(ClassNotFoundException exception) {
+            return
+        }
+
         project.subprojects { sub ->
-            sub.afterEvaluate {
-                logger.info("check subproject {} for unity plugin", sub.name)
-                if (sub.plugins.hasPlugin("net.wooga.unity")) {
+            sub.plugins.withType(unityPlugin,new Action() {
+                @Override
+                void execute(Object o) {
                     logger.info("subproject {} has unity plugin.", sub.name)
                     logger.info("configure dependencies {}", sub.path)
                     dependencies.add(ARCHIVES_CONFIGURATION, dependencies.project(path: sub.path, configuration: "unitypackage"))
+                    logger.info("create cleanMetaFiles task")
+
+                    sub.tasks.create(name: CLEAN_META_FILES_TASK, type: Delete)
                 }
-            }
+            })
         }
     }
 

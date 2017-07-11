@@ -274,6 +274,18 @@ class ReleasePluginSpec extends ProjectSpec {
         }
     }
 
+    def "creates cleanupMetaFiles in subprojects with unity plugin applied"() {
+        given: "sub project with unity plugin applied"
+        def subProject = addSubproject("unity.test")
+        subProject.plugins.apply("net.wooga.unity")
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        subProject.tasks.getByName("cleanMetaFiles")
+    }
+
     def "configures paketPack artifacts as local dependencies"() {
         given: "multiple paket.template file"
         createMockPaketTemplate("Wooga.Test1", new File(projectDir, "sub1"))

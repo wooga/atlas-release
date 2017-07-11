@@ -104,9 +104,8 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
 
         [range].each {
             addSubproject("testSub$it", """
-                plugins {
-                    id "net.wooga.unity" version "0.3.0"
-                }
+                apply plugin: 'net.wooga.unity'
+                
              """.stripIndent())
         }
 
