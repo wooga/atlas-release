@@ -141,18 +141,10 @@ class ReleasePlugin implements Plugin<Project> {
 
     private configureUnityPackageIfPresent(Project project) {
         DependencyHandler dependencies = project.dependencies
-        Class unityPlugin
-        try {
-            unityPlugin = Class.forName("wooga.gradle.unity.UnityPlugin")
-        }
-        catch (ClassNotFoundException exception) {
-            return
-        }
-
         project.subprojects { sub ->
-            sub.plugins.withType(unityPlugin, new Action() {
-                @Override
-                void execute(Object o) {
+            sub.afterEvaluate {
+                logger.info("check subproject {} for unity plugin", sub.name)
+                if (sub.plugins.hasPlugin("net.wooga.unity")) {
                     logger.info("subproject {} has unity plugin.", sub.name)
                     logger.info("configure dependencies {}", sub.path)
                     dependencies.add(ARCHIVES_CONFIGURATION, dependencies.project(path: sub.path, configuration: "unitypackage"))
@@ -173,7 +165,7 @@ class ReleasePlugin implements Plugin<Project> {
                         }
                     })
                 }
-            })
+            }
         }
     }
 

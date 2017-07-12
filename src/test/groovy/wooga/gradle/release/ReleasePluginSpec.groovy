@@ -282,6 +282,8 @@ class ReleasePluginSpec extends ProjectSpec {
 
         when:
         project.plugins.apply(PLUGIN_NAME)
+        subProject.evaluate()
+        project.evaluate()
 
         then:
         subProject.tasks.getByName("cleanMetaFiles")
@@ -309,6 +311,10 @@ class ReleasePluginSpec extends ProjectSpec {
 
         when:
         project.plugins.apply(PLUGIN_NAME)
+        subProject.evaluate()
+        subProject2.evaluate()
+        subProject3.evaluate()
+        project.evaluate()
 
         then:
         def paketPackTasks = project.tasks.withType(PaketPack)
