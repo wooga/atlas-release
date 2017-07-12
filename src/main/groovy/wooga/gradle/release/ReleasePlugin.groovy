@@ -123,7 +123,7 @@ class ReleasePlugin implements Plugin<Project> {
 
         configureVersionCode(project)
         configureUnityPackageIfPresent(project)
-        configurePaketPackageIfPresent(project)
+        configurePaketConfigurationArtifacts(project)
     }
 
     def configureVersionCode(Project project) {
@@ -145,12 +145,12 @@ class ReleasePlugin implements Plugin<Project> {
         try {
             unityPlugin = Class.forName("wooga.gradle.unity.UnityPlugin")
         }
-        catch(ClassNotFoundException exception) {
+        catch (ClassNotFoundException exception) {
             return
         }
 
         project.subprojects { sub ->
-            sub.plugins.withType(unityPlugin,new Action() {
+            sub.plugins.withType(unityPlugin, new Action() {
                 @Override
                 void execute(Object o) {
                     logger.info("subproject {} has unity plugin.", sub.name)
@@ -158,13 +158,19 @@ class ReleasePlugin implements Plugin<Project> {
                     dependencies.add(ARCHIVES_CONFIGURATION, dependencies.project(path: sub.path, configuration: "unitypackage"))
                     logger.info("create cleanMetaFiles task")
 
-                    sub.tasks.create(name: CLEAN_META_FILES_TASK, type: Delete)
+                    Delete cleanTask = sub.tasks.create(name: CLEAN_META_FILES_TASK, type: Delete)
+                    project.tasks.withType(PaketPack, new Action<PaketPack>() {
+                        @Override
+                        void execute(PaketPack paketPack) {
+                            paketPack.dependsOn cleanTask
+                        }
+                    })
                 }
             })
         }
     }
 
-    private configurePaketPackageIfPresent(Project project) {
+    private configurePaketConfigurationArtifacts(Project project) {
         project.afterEvaluate {
             Configuration paketConfiguration = project.configurations.getByName(PaketBasePlugin.PAKET_CONFIGURATION)
             paketConfiguration.allArtifacts.each {

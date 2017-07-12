@@ -53,6 +53,7 @@ class ReleasePluginActivationSpec extends PluginProjectSpec {
 
 class ReleasePluginSpec extends ProjectSpec {
     public static final String PLUGIN_NAME = 'net.wooga.release'
+    public static final String CLEAN_META_FILES_TASK = "cleanMetaFiles"
 
     Grgit git
 
@@ -284,6 +285,45 @@ class ReleasePluginSpec extends ProjectSpec {
 
         then:
         subProject.tasks.getByName("cleanMetaFiles")
+    }
+
+    def "configures paketPack tasks dependsOn cleanupMetaFiles when unity plugin is applied"() {
+        given: "multiple paket.template file"
+        createMockPaketTemplate("Wooga.Test1", new File(projectDir, "sub1"))
+        createMockPaketTemplate("Wooga.Test2", new File(projectDir, "sub2"))
+        createMockPaketTemplate("Wooga.Test3", new File(projectDir, "sub3"))
+
+        and: "sub project with unity plugin applied"
+        def subProject = addSubproject("unity.test")
+        subProject.plugins.apply("net.wooga.unity")
+
+        and: "sub project 2 with unity plugin applied"
+        def subProject2 = addSubproject("unity.test2")
+        subProject2.plugins.apply("net.wooga.unity")
+
+        and: "sub project 3 without unity plugin applied"
+        def subProject3 = addSubproject("sub3.test")
+
+        and: "a custom cleanMetaFiles in this non unity project"
+        subProject3.tasks.create("cleanMetaFiles")
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        def paketPackTasks = project.tasks.withType(PaketPack)
+        paketPackTasks.size() == 3
+        paketPackTasks.every {
+            it.dependsOn.contains(subProject.tasks.getByName(CLEAN_META_FILES_TASK))
+        }
+
+        paketPackTasks.every {
+            it.dependsOn.contains(subProject2.tasks.getByName(CLEAN_META_FILES_TASK))
+        }
+
+        paketPackTasks.every {
+            !it.dependsOn.contains(subProject3.tasks.getByName(CLEAN_META_FILES_TASK))
+        }
     }
 
     def "configures paketPack artifacts as local dependencies"() {
