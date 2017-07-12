@@ -158,7 +158,14 @@ class ReleasePlugin implements Plugin<Project> {
                     dependencies.add(ARCHIVES_CONFIGURATION, dependencies.project(path: sub.path, configuration: "unitypackage"))
                     logger.info("create cleanMetaFiles task")
 
-                    Delete cleanTask = sub.tasks.create(name: CLEAN_META_FILES_TASK, type: Delete)
+                    Delete cleanTask = (Delete) sub.tasks.create(name: CLEAN_META_FILES_TASK, type: Delete)
+                    def files = project.fileTree(new File(sub.projectDir, 'Assets/'))
+                    files.include("**/*.meta")
+                    files.exclude("**/*.dll.meta")
+                    files.exclude("**/*.so.meta")
+
+                    cleanTask.delete(files)
+
                     project.tasks.withType(PaketPack, new Action<PaketPack>() {
                         @Override
                         void execute(PaketPack paketPack) {

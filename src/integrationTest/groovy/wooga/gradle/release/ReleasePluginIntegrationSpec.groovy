@@ -20,6 +20,7 @@ import nebula.test.IntegrationSpec
 import org.ajoberstar.grgit.Grgit
 import spock.lang.Ignore
 import spock.lang.Unroll
+import wooga.gradle.unity.UnityPlugin
 
 class ReleasePluginIntegrationSpec extends IntegrationSpec {
 
@@ -54,13 +55,13 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
 
         where:
         tagVersion       | versionCode
-        '1.1.0'          |  10200
-        '2.10.99'        |  21100
-        '0.3.0'          |    400
+        '1.1.0'          | 10200
+        '2.10.99'        | 21100
+        '0.3.0'          | 400
         '12.34.200'      | 123500
-        '1.1.0-rc0001'   |  10100
-        '2.10.99-branch' |  21099
-        '0.3.0-a0000'    |    300
+        '1.1.0-rc0001'   | 10100
+        '2.10.99-branch' | 21099
+        '0.3.0-a0000'    | 300
         '12.34.200-2334' | 123600
     }
 
@@ -88,13 +89,13 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
 
         where:
         tagVersion       | versionCode
-        '1.1.0'          |  10200
-        '2.10.99'        |  21100
-        '0.3.0'          |    400
+        '1.1.0'          | 10200
+        '2.10.99'        | 21100
+        '0.3.0'          | 400
         '12.34.200'      | 123500
-        '1.1.0-rc0001'   |  10100
-        '2.10.99-branch' |  21099
-        '0.3.0-a0000'    |    300
+        '1.1.0-rc0001'   | 10100
+        '2.10.99-branch' | 21099
+        '0.3.0-a0000'    | 300
         '12.34.200-2334' | 123600
     }
 
@@ -162,5 +163,44 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
 
         where:
         gradleVersionToTest << gradleVersions()
+    }
+
+    def "cleanMetaFiles task removes all .meta files in given directory structure"() {
+        given: "a subproject with unity plugin"
+        File unitySub = addSubproject("unity.test", """
+            ${applyPlugin(UnityPlugin)}
+        """.stripIndent())
+
+        and: "some .meta files"
+        def assetsDir = new File(unitySub, "Assets/")
+        assetsDir.mkdirs()
+        def aSubDir = new File(assetsDir, "sub")
+        aSubDir.mkdirs()
+
+        def filesToDelete = [createFile("test.meta", assetsDir),
+                             createFile(".meta", assetsDir),
+                             createFile("test.meta", aSubDir),
+                             createFile(".meta", aSubDir)]
+
+        def filesToKeep = [createFile("test.dll.meta", assetsDir),
+                           createFile("test.so.meta", assetsDir),
+                           createFile("test.dll.meta", aSubDir),
+                           createFile("test.so.meta", aSubDir),
+                           createFile("test.meta", unitySub),
+                           createFile(".meta", unitySub)]
+
+        and: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("cleanMetaFiles")
+
+        then:
+        result.wasExecuted(":unity.test:cleanMetaFiles")
+        !result.wasUpToDate(":unity.test:cleanMetaFiles")
+        filesToDelete.every { !it.exists() }
+        filesToKeep.every { it.exists() }
     }
 }
