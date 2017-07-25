@@ -203,7 +203,9 @@ class ReleasePlugin implements Plugin<Project> {
 
             releaseExtension.with {
                 versionStrategy(WoogaStrategies.SNAPSHOT)
+                versionStrategy(WoogaStrategies.DEVELOPMENT)
                 versionStrategy(WoogaStrategies.PRE_RELEASE)
+                versionStrategy(WoogaStrategies.FINAL)
                 defaultVersionStrategy = NetflixOssStrategies.DEVELOPMENT
             }
         }
