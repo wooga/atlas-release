@@ -18,6 +18,7 @@ package wooga.gradle.release
 
 import nebula.plugin.release.NetflixOssStrategies
 import org.ajoberstar.gradle.git.release.opinion.Strategies
+import org.ajoberstar.gradle.git.release.semver.ChangeScope
 import org.ajoberstar.gradle.git.release.semver.PartialSemVerStrategy
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategy
 import org.ajoberstar.gradle.git.release.semver.SemVerStrategyState
@@ -27,6 +28,11 @@ import static org.ajoberstar.gradle.git.release.semver.StrategyUtil.closure
 import static org.ajoberstar.gradle.git.release.semver.StrategyUtil.parseIntOrZero
 
 class WoogaStrategies {
+
+    private static final scopes = StrategyUtil.one(Strategies.Normal.USE_SCOPE_PROP,
+            Strategies.Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_X, Strategies.Normal.ENFORCE_BRANCH_MAJOR_X,
+            Strategies.Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X, Strategies.Normal.ENFORCE_BRANCH_MAJOR_MINOR_X,
+            Strategies.Normal.USE_NEAREST_ANY, Strategies.Normal.useScope(ChangeScope.PATCH))
 
     static final PartialSemVerStrategy COUNT_INCREMENTED = closure { SemVerStrategyState state ->
         def nearest = state.nearestVersion
@@ -51,7 +57,7 @@ class WoogaStrategies {
     }
 
     static final SemVerStrategy PRE_RELEASE = Strategies.PRE_RELEASE.copyWith(
-            normalStrategy: NetflixOssStrategies.scopes,
+            normalStrategy: scopes,
             preReleaseStrategy: StrategyUtil.all(StrategyUtil.closure({ state ->
                 state = Strategies.PreRelease.STAGE_FIXED.infer(state)
                 def stage = state.inferredPreRelease
@@ -62,10 +68,15 @@ class WoogaStrategies {
             }))
     )
 
+    static final SemVerStrategy FINAL = Strategies.FINAL.copyWith(normalStrategy: scopes)
+    static final SemVerStrategy DEVELOPMENT = Strategies.DEVELOPMENT.copyWith(
+            normalStrategy: scopes,
+            buildMetadataStrategy: NetflixOssStrategies.BuildMetadata.DEVELOPMENT_METADATA_STRATEGY)
+
     static final SemVerStrategy SNAPSHOT = Strategies.PRE_RELEASE.copyWith(
             name: 'snapshot',
             stages: ['snapshot','SNAPSHOT'] as SortedSet,
-            normalStrategy: NetflixOssStrategies.scopes,
+            normalStrategy: scopes,
             preReleaseStrategy: StrategyUtil.all(StrategyUtil.closure({state ->
 
                 String branchName = state.currentBranch.name

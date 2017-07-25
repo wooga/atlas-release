@@ -232,12 +232,12 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
         branchName          | expectedVersion
-        "master"            | "1.1.0-master00001"
-        "with/slash"        | "1.1.0-branchWithSlash00001"
-        "numbers0123456789" | "1.1.0-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
-        "with/slash"        | "1.1.0-branchWithSlash00001"
-        "with_underscore"   | "1.1.0-branchWithUnderscore00001"
-        "with-dash"         | "1.1.0-branchWithDash00001"
+        "master"            | "1.0.1-master00001"
+        "with/slash"        | "1.0.1-branchWithSlash00001"
+        "numbers0123456789" | "1.0.1-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
+        "with/slash"        | "1.0.1-branchWithSlash00001"
+        "with_underscore"   | "1.0.1-branchWithUnderscore00001"
+        "with-dash"         | "1.0.1-branchWithDash00001"
     }
 
     def createFile(String fileName, File directory) {
