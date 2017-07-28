@@ -117,8 +117,9 @@ class ReleasePlugin implements Plugin<Project> {
 
             githubPublishTask.from(archives)
             githubPublishTask.dependsOn archives
-            githubPublishTask.tagName = "v${project.version}"
-            githubPublishTask.setReleaseName(project.version.toString())
+            githubPublishTask.setTagName({ project.version })
+            githubPublishTask.setReleaseName({ project.version.toString() })
+            githubPublishTask.setPrerelease({ project.status != 'release' })
         }
 
         configureVersionCode(project)
