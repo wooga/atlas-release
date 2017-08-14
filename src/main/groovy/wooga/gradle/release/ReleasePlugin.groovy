@@ -22,6 +22,7 @@ import cz.malohlava.VisTegPluginExtension
 import nebula.core.ProjectType
 import nebula.plugin.release.NetflixOssStrategies
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
+import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,13 +36,17 @@ import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
 import org.gradle.language.base.plugins.LifecycleBasePlugin
+import org.kohsuke.github.GHRepository
 import wooga.gradle.github.publish.GithubPublish
 import wooga.gradle.github.publish.GithubPublishPlugin
+import wooga.gradle.github.publish.PublishBodyStrategy
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.base.PaketBasePlugin
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
+import wooga.gradle.release.utils.ReleaseBodyStrategy
+import wooga.gradle.release.utils.ReleaseNotesGenerator
 
 class ReleasePlugin implements Plugin<Project> {
 
@@ -106,6 +111,8 @@ class ReleasePlugin implements Plugin<Project> {
             postReleaseTask.dependsOn publishTask
             publishTask.mustRunAfter releaseTask
 
+            ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
+
             githubPublishTask.onlyIf(new Spec<Task>() {
                 @Override
                 boolean isSatisfiedBy(Task task) {
@@ -119,6 +126,10 @@ class ReleasePlugin implements Plugin<Project> {
             githubPublishTask.dependsOn archives
             githubPublishTask.tagName = "v${project.version}"
             githubPublishTask.setReleaseName(project.version.toString())
+            //infer the ReleaseVersion in the private class DelayedVersion to be able to access the `inferredVersion` property
+            //the release plugin sets this object as version to all projects
+            project.version.toString()
+            githubPublishTask.body(new ReleaseBodyStrategy(project.version.inferredVersion as ReleaseVersion, releaseExtension.grgit))
         }
 
         configureVersionCode(project)
