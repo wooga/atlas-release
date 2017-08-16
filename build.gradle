@@ -83,6 +83,7 @@ dependencies {
 
     testCompile 'gradle.plugin.net.wooga.gradle:atlas-unity:0.10.0'
 
+    compile 'com.github.spullara.mustache.java:compiler:0.8.18'
     compile 'com.netflix.nebula:nebula-release-plugin:5.+'
     compile 'org.ajoberstar:gradle-git:1.7.+'
     compile 'cz.malohlava:visteg:1.0.+'

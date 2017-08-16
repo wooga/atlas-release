@@ -227,11 +227,12 @@ class ReleaseNotesGeneratorTest extends Specification {
         """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
     }
 
-    def "creates empty notes when pull requests have no changeset list"() {
+    def "prints commit log when pull requests have no changeset list"() {
         given: "a git log with pull requests commits"
 
         git.commit(message: 'commit')
         git.commit(message: 'commit (#1)')
+        git.tag.add(name: 'v1.0.0')
         git.commit(message: 'commit')
         git.commit(message: 'commit (#2)')
         git.commit(message: 'commit (#3)')
@@ -249,7 +250,12 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version)
 
         then:
-        notes == ""
+        notes == ("""
+        * commit
+        * commit (#3)
+        * commit (#2)
+        * commit
+        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
     }
 
     def "creates full release notes for specific version"() {

@@ -16,6 +16,9 @@
 
 package wooga.gradle.release.utils
 
+import com.github.mustachejava.DefaultMustacheFactory
+import com.github.mustachejava.Mustache
+import com.github.mustachejava.MustacheFactory
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
@@ -26,6 +29,19 @@ import org.kohsuke.github.GHRepository
  * A generator class to create release notes from git log and pull request bodies.
  */
 class ReleaseNotesGenerator {
+
+    private class PullRequestChange {
+        String category
+        String text
+        int number
+
+    }
+
+    private class ReleaseNoteBody {
+        List<Commit> logs
+        List<PullRequestChange> pullrequestChanges
+        boolean hasPreviousVersion
+    }
 
     public static final String INITAL_RELEASE_MSG = "* ![NEW] Initial Release\n"
     public static final String LABEL_MAJOR_CHANGE = "Major Change"
@@ -228,37 +244,68 @@ class ReleaseNotesGenerator {
      * @return a <code>String</code> containing the generated release notes
      */
     String generateReleaseNotes(ReleaseVersion version) {
-        StringBuilder builder = new StringBuilder()
+        generateReleaseNotes(version, "github_release")
+    }
+
+    String generateReleaseNotes(ReleaseVersion version, String template) {
+        //generate the model
+        ReleaseNoteBody noteBodyModel = new ReleaseNoteBody()
+
         List<String> includes = createIncludes(version)
         List<String> excludes = createExcludes(version)
 
-        if (!version.previousVersion) {
-            builder << INITAL_RELEASE_MSG
-        }
+        noteBodyModel.hasPreviousVersion = (version.previousVersion != null)
+        noteBodyModel.logs = git.log(includes: includes, excludes: excludes)
 
-        List<Commit> log = git.log(includes: includes, excludes: excludes)
-        List<GHPullRequest> pullRequests = fetchPullRequestsFromLog(log)
-
-        List<String> changeList = []
-        pullRequests.inject(changeList) { ch, pr ->
+        List<GHPullRequest> pullRequests = fetchPullRequestsFromLog(noteBodyModel.logs)
+        def pChanges = new ArrayList<PullRequestChange>()
+        pullRequests.inject(pChanges) { List<PullRequestChange> list, pr ->
             def changes = pr.body.readLines().findAll { it.trim().startsWith("* ![") }
-            changes = changes.collect { it + " [#${pr.number}]" }
-            ch << changes.join(NEW_LINE)
+            changes = changes.collect {
+                PullRequestChange change = new PullRequestChange()
+                change.number = pr.number
+
+                def match = (it =~ /\!\[(.*?)\] (.*)/)
+                change.category = match[0][1]
+                change.text = match[0][2]
+                change
+            }
+
+            list.addAll(changes)
+            list
         }
 
-        if (changeList.size() == 0) {
-            changeList << log.collect({ "* ${it.shortMessage}" }).join(NEW_LINE)
-        }
+        noteBodyModel.pullrequestChanges = pChanges
 
-        changeList.removeAll([""])
+        //render model
+        StringWriter writer = new StringWriter()
 
-        if (changeList.size() > 0) {
-            builder << changeList.join(NEW_LINE)
-            builder << NEW_LINE
-            builder << ICON_IDS
-        }
+        MustacheFactory mf = new DefaultMustacheFactory()
+        Mustache mustache = mf.compile("${template}.mustache")
+        mustache.execute(writer, noteBodyModel).flush()
+        writer.toString()
 
-        builder.toString().trim()
+//
+//        List<String> changeList = []
+//        pullRequests.inject(changeList) { ch, pr ->
+//            def changes = pr.body.readLines().findAll { it.trim().startsWith("* ![") }
+//            changes = changes.collect { it + " [#${pr.number}]" }
+//            ch << changes.join(NEW_LINE)
+//        }
+//
+//        if (changeList.size() == 0) {
+//            changeList << log.collect({ "* ${it.shortMessage}" }).join(NEW_LINE)
+//        }
+//
+//        changeList.removeAll([""])
+//
+//        if (changeList.size() > 0) {
+//            builder << changeList.join(NEW_LINE)
+//            builder << NEW_LINE
+//            builder << ICON_IDS
+//        }
+//
+//        builder.toString().trim()
     }
 
     protected List<GHPullRequest> fetchPullRequestsFromLog(List<Commit> log) {

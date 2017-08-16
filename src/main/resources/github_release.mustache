@@ -1,0 +1,13 @@
+{{^hasPreviousVersion}}
+* ![NEW] Initial Release
+{{/hasPreviousVersion}}
+{{#pullrequestChanges}}
+* ![{{category}}] {{text}} [#{{number}}]
+{{/pullrequestChanges}}
+{{^pullrequestChanges}}
+    {{#logs}}
+* {{shortMessage}}
+    {{/logs}}
+{{/pullrequestChanges}}
+
+{{> iconlist}}
