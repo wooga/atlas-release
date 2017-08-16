@@ -35,7 +35,6 @@ class ReleaseNotesGeneratorTest extends Specification {
         git.commit(message: 'initial commit')
 
         hub = Mock(GHRepository)
-
         releaseNoteGenerator = new ReleaseNotesGenerator(git, hub)
     }
 
@@ -151,6 +150,7 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         and: "mocked pull requests"
         hub.getPullRequest(1) >> mockPullRequest(1)
+        hub.getPullRequest(2) >> { throw new FileNotFoundException("missing") }
         hub.getPullRequest(3) >> mockPullRequest(3)
 
         when:
@@ -205,6 +205,11 @@ class ReleaseNotesGeneratorTest extends Specification {
         and: "a version"
         def version = new ReleaseVersion("1.1.0", "1.0.0", false)
 
+        and: "mocked pull requests"
+        hub.getPullRequest(1) >> { throw new FileNotFoundException("missing") }
+        hub.getPullRequest(2) >> { throw new FileNotFoundException("missing") }
+        hub.getPullRequest(3) >> { throw new FileNotFoundException("missing") }
+
         when:
         def notes = releaseNoteGenerator.generateReleaseNotes(version)
 
@@ -232,6 +237,7 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         and: "mocked pull requests"
         hub.getPullRequest(1) >> mockPullRequest(1, false)
+        hub.getPullRequest(2) >> { throw new FileNotFoundException("missing") }
         hub.getPullRequest(3) >> mockPullRequest(3, false)
 
         when:
