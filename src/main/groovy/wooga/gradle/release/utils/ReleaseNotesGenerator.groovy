@@ -104,7 +104,15 @@ class ReleaseNotesGenerator {
             def m = (it.shortMessage =~ pattern)
             m[0][1].toInteger()
         }
-        def prs = prNumbers.collect { hub.getPullRequest(it) }
+        def prs = prNumbers.collect {
+            def pm
+            try {
+                pm = hub.getPullRequest(it)
+            }
+            finally {
+                return pm
+            }
+        }
         prs.removeAll([null])
         prs
     }
