@@ -126,6 +126,7 @@ class ReleasePlugin implements Plugin<Project> {
             githubPublishTask.dependsOn archives
             githubPublishTask.tagName = "v${project.version}"
             githubPublishTask.setReleaseName(project.version.toString())
+            githubPublishTask.setPrerelease({ project.status != 'release' })
             //infer the ReleaseVersion in the private class DelayedVersion to be able to access the `inferredVersion` property
             //the release plugin sets this object as version to all projects
             project.version.toString()
