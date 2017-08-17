@@ -79,6 +79,6 @@ class ReleaseBodyStrategySpec extends Specification {
         * ![ADD] some stuff [#2]
         * ![REMOVE] some stuff [#2]
         * ![FIX] some stuff [#2]
-        """.stripIndent().stripMargin() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent().stripMargin() + ReleaseNotesGeneratorTest.ICON_IDS).trim()
     }
 }

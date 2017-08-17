@@ -26,10 +26,30 @@ import spock.lang.Specification
 
 class ReleaseNotesGeneratorTest extends Specification {
 
+    public static final String ICON_IDS = """
+    <!-- START icon Id's -->
+        
+    [NEW]:http://resources.atlas.wooga.com/icons/icon_new.svg "New"
+    [ADD]:http://resources.atlas.wooga.com/icons/icon_add.svg "Add"
+    [IMPROVE]:http://resources.atlas.wooga.com/icons/icon_improve.svg "IMPROVE"
+    [CHANGE]:http://resources.atlas.wooga.com/icons/icon_change.svg "Change"
+    [FIX]:http://resources.atlas.wooga.com/icons/icon_fix.svg "Fix"
+    [UPDATE]:http://resources.atlas.wooga.com/icons/icon_update.svg "Update"
+    
+    [BREAK]:http://resources.atlas.wooga.com/icons/icon_break.svg "Remove"
+    [REMOVE]:http://resources.atlas.wooga.com/icons/icon_remove.svg "Remove"
+    [IOS]:http://resources.atlas.wooga.com/icons/icon_iOS.svg "iOS"
+    [ANDROID]:http://resources.atlas.wooga.com/icons/icon_android.svg "Android"
+    [WEBGL]:http://resources.atlas.wooga.com/icons/icon_webGL.svg "Web:GL"
+    
+    <!-- END icon Id's -->
+    """.stripIndent()
+
     Grgit git
     TagService tag
     GHRepository hub
     ReleaseNotesGenerator releaseNoteGenerator
+    String packageId = "Wooga.Test"
 
     def setup() {
         git = Grgit.init(dir: File.createTempDir())
@@ -38,7 +58,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub = Mock(GHRepository)
         hub.fullName >> "wooga/TestRepo"
 
-        releaseNoteGenerator = new ReleaseNotesGenerator(git, hub)
+        releaseNoteGenerator = new ReleaseNotesGenerator(git, hub, packageId)
     }
 
     def mockPullRequest(int number, Boolean changeSet = true) {
@@ -102,7 +122,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#2]
         * ![REMOVE] some stuff [#2]
         * ![FIX] some stuff [#2]
-        """.stripIndent().stripMargin() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent().stripMargin() + ICON_IDS).trim()
     }
 
     def "creates release notes with full log when previousVersion tag can't be found"() {
@@ -137,7 +157,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#1]
         * ![REMOVE] some stuff [#1]
         * ![FIX] some stuff [#1]
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
     }
 
     def "skips pull requests it can't find"() {
@@ -169,7 +189,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#1]
         * ![REMOVE] some stuff [#1]
         * ![FIX] some stuff [#1]
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
     }
 
     def "creates initial change message when previosVersion is not set"() {
@@ -193,7 +213,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#1]
         * ![REMOVE] some stuff [#1]
         * ![FIX] some stuff [#1]
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
     }
 
     def "prints commit log when pull requests are empty"() {
@@ -224,7 +244,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * commit (#3)
         * commit (#2)
         * commit
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
     }
 
     def "prints commit log when pull requests have no changeset list"() {
@@ -255,7 +275,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * commit (#3)
         * commit (#2)
         * commit
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
     }
 
     def "creates full release notes for specific version"() {
@@ -281,26 +301,24 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub.getPullRequest(3) >> mockPullRequest(3)
 
         when:
-        def notes = releaseNoteGenerator.generateFullReleaseNotes(version, packageId)
+        def notes = releaseNoteGenerator.generateFullReleaseNotes(version)
 
         then:
         notes == ("""
-        # $currentVersion - $date
+        # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
 
-        Major Changes
-        =============
-        
-        Pullrequest 2
-        -------------
-        
-        ### Description
+        ## Major Changes ##
+                
+        ### Pullrequest 2 ###
+                
+        #### Description
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         
-        ### Changes
+        #### Changes
         * ![ADD] some stuff
         * ![REMOVE] some stuff
         * ![FIX] some stuff
@@ -309,15 +327,13 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        Additional Changes in $currentVersion
-        ===========================
-
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
+        ## Additional Changes in $currentVersion ##
+        
         * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
-        How to install
-        ==============
-
+        ## How to install ##
+        
         ```bash
         # latest stable
         nuget $packageId ~> 1
@@ -328,10 +344,9 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
 
         where:
-        packageId = "Wooga.Test"
         currentVersion = "1.1.0"
         date = new Date().format("dd MMMM yyyy")
         version = new ReleaseVersion(currentVersion, "1.0.0", false)
@@ -367,26 +382,24 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub.getPullRequest(4) >> majorPR2
 
         when:
-        def notes = releaseNoteGenerator.generateFullReleaseNotes(version, packageId)
+        def notes = releaseNoteGenerator.generateFullReleaseNotes(version)
 
         then:
         notes == ("""
-        # $currentVersion - $date
+        # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
 
-        Major Changes
-        =============
-        
-        Pullrequest 2
-        -------------
-        
-        ### Description
+        ## Major Changes ##
+                
+        ### Pullrequest 4 ###
+                
+        #### Description
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         
-        ### Changes
+        #### Changes
         * ![ADD] some stuff
         * ![REMOVE] some stuff
         * ![FIX] some stuff
@@ -395,15 +408,14 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        Pullrequest 4
-        -------------
-        
-        ### Description
+        ### Pullrequest 2 ###
+                
+        #### Description
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         
-        ### Changes
+        #### Changes
         * ![ADD] some stuff
         * ![REMOVE] some stuff
         * ![FIX] some stuff
@@ -412,15 +424,13 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        Additional Changes in $currentVersion
-        ===========================
-
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
+        ## Additional Changes in $currentVersion ##
+        
         * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
-        How to install
-        ==============
-
+        ## How to install ##
+        
         ```bash
         # latest stable
         nuget $packageId ~> 1
@@ -431,10 +441,9 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
 
         where:
-        packageId = "Wooga.Test"
         currentVersion = "1.1.0"
         date = new Date().format("dd MMMM yyyy")
         version = new ReleaseVersion(currentVersion, "1.0.0", false)
@@ -468,26 +477,24 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub.getPullRequest(4) >> majorPR2
 
         when:
-        def notes = releaseNoteGenerator.generateFullReleaseNotes(version, packageId)
+        def notes = releaseNoteGenerator.generateFullReleaseNotes(version)
 
         then:
         notes == ("""
-        # $currentVersion - $date
+        # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
 
-        Major Changes
-        =============
-        
-        Pullrequest 2
-        -------------
-        
-        ### Description
+        ## Major Changes ##
+                
+        ### Pullrequest 4 ###
+                
+        #### Description
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         
-        ### Changes
+        #### Changes
         * ![ADD] some stuff
         * ![REMOVE] some stuff
         * ![FIX] some stuff
@@ -496,15 +503,14 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        Pullrequest 4
-        -------------
-        
-        ### Description
+        ### Pullrequest 2 ###
+                
+        #### Description
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
         
-        ### Changes
+        #### Changes
         * ![ADD] some stuff
         * ![REMOVE] some stuff
         * ![FIX] some stuff
@@ -513,9 +519,8 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        How to install
-        ==============
-
+        ## How to install ##
+        
         ```bash
         # latest stable
         nuget $packageId ~> 1
@@ -526,10 +531,9 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
 
         where:
-        packageId = "Wooga.Test"
         currentVersion = "1.1.0"
         date = new Date().format("dd MMMM yyyy")
         version = new ReleaseVersion(currentVersion, "1.0.0", false)
@@ -552,24 +556,22 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub.getPullRequest(3) >> mockPullRequest(3)
 
         when:
-        def notes = releaseNoteGenerator.generateFullReleaseNotes(version, packageId)
+        def notes = releaseNoteGenerator.generateFullReleaseNotes(version)
 
         then:
         notes == ("""
-        # $currentVersion - $date
+        # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
 
-        Changes in $currentVersion
-        ================
-
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
-        * [#2](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
+        ## Changes in $currentVersion ##
+        
         * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [#2](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
+        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
-        How to install
-        ==============
-
+        ## How to install ##
+        
         ```bash
         # latest stable
         nuget $packageId ~> 1
@@ -580,10 +582,9 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
 
         where:
-        packageId = "Wooga.Test"
         currentVersion = "1.1.0"
         date = new Date().format("dd MMMM yyyy")
         version = new ReleaseVersion(currentVersion, "1.0.0", false)
@@ -607,27 +608,25 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub.getPullRequest(3) >> mockPullRequest(3)
 
         when:
-        def notes = releaseNoteGenerator.generateFullReleaseNotes(version, packageId)
+        def notes = releaseNoteGenerator.generateFullReleaseNotes(version)
 
         then:
         notes == ("""
-        # $currentVersion - $date
+        # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
 
-        Changes in $currentVersion
-        ================
+        ## Changes in $currentVersion ##
 
-        * Ugly message
+        * ugly message
         * Update that
         * Fix ugly bug
         * Add cool stuff
         * Change this
-        * Initial commit
+        * initial commit
 
-        How to install
-        ==============
-
+        ## How to install ##
+        
         ```bash
         # latest stable
         nuget $packageId ~> 1
@@ -638,53 +637,11 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent() + ICON_IDS).trim()
 
         where:
-        packageId = "Wooga.Test"
         currentVersion = "1.1.0"
         date = new Date().format("dd MMMM yyyy")
         version = new ReleaseVersion(currentVersion, "1.0.0", false)
-    }
-
-    // ALL Versions
-
-    def "creates full release notes for all versions"() {
-        given: "a git log with pull requests commits"
-
-        git.commit(message: 'commit')
-        git.commit(message: 'commit (#1)')
-        git.commit(message: 'commit')
-        git.tag.add(name: "v1.0.0")
-        git.commit(message: 'commit (#2)')
-        git.commit(message: 'commit (#3)')
-        git.commit(message: 'commit')
-        git.tag.add(name: "v1.1.0")
-
-        and: "mocked pull requests"
-
-        def majorLabel = Mock(GHLabel)
-        majorLabel.name >> "Major Change"
-
-        def majorPR = mockPullRequest(2)
-        majorPR.labels >> [majorLabel]
-
-        hub.getPullRequest(1) >> mockPullRequest(1)
-        hub.getPullRequest(2) >> majorPR
-        hub.getPullRequest(3) >> mockPullRequest(3)
-
-        when:
-        def notes = releaseNoteGenerator.generateFullReleaseNotes(versions, packageId)
-
-        then:
-        notes == releaseNoteGenerator.generateFullReleaseNotes(versions[1], packageId, false) + "\n\n" + releaseNoteGenerator.generateFullReleaseNotes(versions[0], packageId)
-
-        where:
-        packageId = "Wooga.Test"
-        date = new Date().format("dd MMMM yyyy")
-        versions = [
-                new ReleaseVersion("1.0.0", null, false),
-                new ReleaseVersion("1.1.0", "1.0.0", false)
-        ]
     }
 }

@@ -1,0 +1,45 @@
+# {{version}} - {{releaseDate}} #
+
+{{releaseUrl}}
+{{#hasMajorChanges}}
+
+## Major Changes ##
+{{/hasMajorChanges}}
+{{#majorChanges}}
+
+### {{title}} ###
+
+{{&body}}
+{{/majorChanges}}
+{{#hasMajorChanges}}
+    {{#hasAdditionalChanges}}
+
+## Additional Changes in {{version}} ##
+
+    {{/hasAdditionalChanges}}
+{{/hasMajorChanges}}
+{{^hasMajorChanges}}
+
+## Changes in {{version}} ##
+
+{{/hasMajorChanges}}
+{{#additionalChanges}}
+* [#{{number}}]({{issueUrl}}) {{title}}
+{{/additionalChanges}}
+{{^pullrequests}}{{> logs}}
+{{/pullrequests}}
+
+## How to install ##
+
+```bash
+# latest stable
+nuget {{packageId}} ~> {{version.major}}
+# latest stable with only patch updates
+nuget {{packageId}} ~> {{version.major}}.{{version.minor}}
+# latest build from master
+nuget {{packageId}} ~> {{version.major}} master
+# latest build with release candidates
+nuget {{packageId}} ~> {{version.major}} rc
+```
+
+{{> iconList}}
