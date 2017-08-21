@@ -351,14 +351,14 @@ class ReleasePluginSpec extends ProjectSpec {
     }
 
     @Unroll
-    def "verify githubPublish onlyIf spec when project.status:#testState and github repository #repository"() {
+    def "verify githubPublish onlyIf spec when project.status:#testState and github repository #repositoryName"() {
         given: "gradle project with plugin applied and evaluated"
         project.plugins.apply(PLUGIN_NAME)
         project.evaluate()
 
         and: "configured repository branch"
-        if (repository) {
-            project.github.repository = repository
+        if (repositoryName) {
+            project.github.repositoryName = repositoryName
         }
 
         when:
@@ -370,7 +370,7 @@ class ReleasePluginSpec extends ProjectSpec {
         testSpec.isSatisfiedBy(githubPublishTask) == expectedResult
 
         where:
-        testState      | repository       | expectedResult
+        testState      | repositoryName   | expectedResult
         'release'      | "wooga/testRepo" | true
         'release'      | null             | false
         'candidate'    | "wooga/testRepo" | true

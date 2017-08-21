@@ -22,16 +22,24 @@ import com.github.mustachejava.MustacheFactory
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.grgit.Tag
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.kohsuke.github.GHAsset
+import org.kohsuke.github.GHCommitQueryBuilder
 import org.kohsuke.github.GHPullRequest
+import org.kohsuke.github.GHQueryBuilder
+import org.kohsuke.github.GHRelease
 import org.kohsuke.github.GHRepository
+import org.kohsuke.github.GHTag
 
 /**
  * A generator class to create release notes from git log and pull request bodies.
  */
 class ReleaseNotesGenerator {
-
+    private static final Logger logger = Logging.getLogger(ReleaseNotesGenerator)
     enum Template {
-        githubRelease, releaseNote
+        githubRelease, releaseNotes
     }
 
     private Grgit git
@@ -50,46 +58,62 @@ class ReleaseNotesGenerator {
     }
 
     /**
-     * Generates the full release notes for a given version of this repo
-     *
-     * @param version The <code>ReleaseVersion</code> to create the release note for
-     * @return a <code>String</code> containing the generated release notes
-     */
-    String generateFullReleaseNotes(ReleaseVersion version) {
-        this.packageId = packageId
-        generateReleaseNotes(version, Template.releaseNote)
-    }
-
-    /**
-     * Generates a release note body message with given <code>version</code>.
-     * The generator will parse the git log from <code>HEAD</code> to previous version
+     * Generates a release note body message with given <code>version</code> and <code>Template</code>.
+     * The generator will parse the git log from <code>HEAD</code> or current version to previous version
      * and reads change lists from referenced pull requests. If no pull requests commits
      * can be found, it will list the git log.
      * @param version The <code>ReleaseVersion</code> to create the release note for
+     * @param template value to use to generate the release notes
      * @return a <code>String</code> containing the generated release notes
      */
-    String generateReleaseNotes(ReleaseVersion version) {
-        generateReleaseNotes(version, Template.githubRelease)
-    }
 
     String generateReleaseNotes(ReleaseVersion version, Template template) {
-        generateReleaseNotes(version, template.toString())
+        generateReleaseNotes([version], template)
     }
 
-    String generateReleaseNotes(ReleaseVersion version, String template) {
-        List<String> includes = createIncludes(version)
-        List<String> excludes = createExcludes(version)
+    /**
+     * Generates a release note body message with given <code>versions</code> and <code>Template</code>.
+     * The generator will parse the git log from <code>HEAD</code> or current version to previous version
+     * and reads change lists from referenced pull requests. If no pull requests commits
+     * can be found, it will list the git log.
+     * @param versions A <code>List<ReleaseVersion></code> object to create the release notes for
+     * @param template value to use to generate the release notes
+     * @return a <code>String</code> containing the generated release notes
+     */
 
-        List<Commit> logs = git.log(includes: includes, excludes: excludes)
-        List<GHPullRequest> pullRequests = fetchPullRequestsFromLog(logs)
+    String generateReleaseNotes(List<ReleaseVersion> versions, Template template) {
+        ReleaseNoteBodies model = new ReleaseNoteBodies(versions.collect { releaseNoteBodyFromVersion(it) })
+        render(model, template)
+    }
 
-        ReleaseNoteBody noteBodyModel = new ReleaseNoteBody(version, new Date(), packageId, hub, logs, pullRequests)
-
+    protected String render(ReleaseNoteBodies noteBodyModel, Template template) {
         StringWriter writer = new StringWriter()
         MustacheFactory mf = new DefaultMustacheFactory()
         Mustache mustache = mf.compile("${template}.mustache")
         mustache.execute(writer, noteBodyModel).flush()
         writer.toString()
+    }
+
+    protected ReleaseNoteBody releaseNoteBodyFromVersion(ReleaseVersion version) {
+        List<String> includes = createIncludes(version)
+        List<String> excludes = createExcludes(version)
+
+        logger.info("fetching logs includes ${includes} excludes ${excludes} for version ${version.version}")
+        GHRelease release
+        Date releaseDate = new Date()
+        if (!includes.contains("HEAD")) {
+            release = hub.listReleases().asList().find { it.name == version.version }
+            if (release) {
+                releaseDate = release.createdAt
+            }
+        }
+
+        List<Commit> logs = git.log(includes: includes, excludes: excludes)
+        List<GHPullRequest> pullRequests = fetchPullRequestsFromLog(logs)
+        List<GHAsset> releaseAssets = (release == null) ? new ArrayList<GHAsset>() : release.assets
+
+        ReleaseNoteBody noteBodyModel = new ReleaseNoteBody(version, releaseDate, packageId, hub, logs, pullRequests, releaseAssets)
+        noteBodyModel
     }
 
     protected List<GHPullRequest> fetchPullRequestsFromLog(List<Commit> log) {

@@ -39,6 +39,7 @@ class ReleaseBodyStrategySpec extends Specification {
         def pr = Mock(GHPullRequest)
         pr.body >> bodyOut.toString()
         pr.number >> number
+        pr.repository >> repository
         return pr
     }
 

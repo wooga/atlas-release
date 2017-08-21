@@ -2,6 +2,7 @@ package wooga.gradle.release.utils
 
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Commit
+import org.kohsuke.github.GHAsset
 import org.kohsuke.github.GHLabel
 import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHRepository
@@ -47,7 +48,7 @@ class ReleaseNoteBody {
 
         PullRequest(GHPullRequest pr) {
             title = pr.title
-            issueUrl = pr.issueUrl.toString()
+            issueUrl = "https://github.com/${pr.repository.fullName}/pull/${pr.number}"
             body = pr.body.replaceAll("(?m)^#", "###").trim()
             number = pr.number
             labels = pr.labels
@@ -75,6 +76,7 @@ class ReleaseNoteBody {
 
     List<Commit> logs
     List<PullRequest> pullrequests
+    List<GHAsset> releaseAssets
 
     String releaseDate
     Version version
@@ -85,7 +87,7 @@ class ReleaseNoteBody {
 
     boolean hasPreviousVersion
 
-    ReleaseNoteBody(ReleaseVersion version, Date releaseDate, String packageId, GHRepository repo, List<Commit> logs, List<GHPullRequest> prs) {
+    ReleaseNoteBody(ReleaseVersion version, Date releaseDate, String packageId, GHRepository repo, List<Commit> logs, List<GHPullRequest> prs, List<GHAsset> releaseAssets) {
         this.logs = logs
         this.hasPreviousVersion = version.previousVersion != null
         this.version = new Version(version.version)
@@ -95,6 +97,7 @@ class ReleaseNoteBody {
         this.pullrequests = prs.toSorted({ a, b -> b.number <=> a.number }).collect {
             new PullRequest(it)
         }
+        this.releaseAssets = releaseAssets.toSorted({ a, b -> a.name <=> b.name })
     }
 
     Callable<List<PullRequest>> additionalChanges() {
@@ -138,6 +141,15 @@ class ReleaseNoteBody {
             @Override
             Boolean call() throws Exception {
                 return !additionalChanges().call().empty
+            }
+        }
+    }
+
+    Callable<Boolean> hasReleaseAssets() {
+        new Callable<Boolean>() {
+            @Override
+            Boolean call() throws Exception {
+                return !releaseAssets.empty
             }
         }
     }

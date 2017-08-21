@@ -17,6 +17,6 @@ class ReleaseBodyStrategy implements PublishBodyStrategy {
 
     @Override
     String getBody(GHRepository repository) {
-        return new ReleaseNotesGenerator(git, repository).generateReleaseNotes(version)
+        return new ReleaseNotesGenerator(git, repository).generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
     }
 }

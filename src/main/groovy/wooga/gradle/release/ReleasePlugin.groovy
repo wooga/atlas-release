@@ -23,6 +23,7 @@ import nebula.core.ProjectType
 import nebula.plugin.release.NetflixOssStrategies
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,8 +36,10 @@ import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.TaskContainer
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.kohsuke.github.GHRepository
+import wooga.gradle.github.GithubPlugin
 import wooga.gradle.github.publish.GithubPublish
 import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.github.publish.PublishBodyStrategy
@@ -45,6 +48,7 @@ import wooga.gradle.paket.base.PaketBasePlugin
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
+import wooga.gradle.release.tasks.GenerateReleaseNotes
 import wooga.gradle.release.utils.ReleaseBodyStrategy
 import wooga.gradle.release.utils.ReleaseNotesGenerator
 
@@ -60,9 +64,13 @@ class ReleasePlugin implements Plugin<Project> {
     static final String TEST_TASK = "test"
     static final String GROUP = "Wooga"
 
+    TaskContainer tasks
+    Project project
+
     @Override
     void apply(Project project) {
-        def tasks = project.tasks
+        this.project = project
+        this.tasks = project.tasks
 
         applyNebularRelease(project)
         applyVisteg(project)
@@ -131,11 +139,27 @@ class ReleasePlugin implements Plugin<Project> {
             //the release plugin sets this object as version to all projects
             project.version.toString()
             githubPublishTask.body(new ReleaseBodyStrategy(project.version.inferredVersion as ReleaseVersion, releaseExtension.grgit))
+
+            //create release note tasks
+            createReleaseNoteTasks(releaseExtension.grgit)
         }
 
         configureVersionCode(project)
         configureUnityPackageIfPresent(project)
         configurePaketConfigurationArtifacts(project)
+    }
+
+    void createReleaseNoteTasks(Grgit git) {
+        GenerateReleaseNotes appendLatestRelease = (GenerateReleaseNotes) tasks.create("appendReleaseNotes", GenerateReleaseNotes)
+        appendLatestRelease.appendLatestRelease = true
+
+        def generateReleaseNotes = tasks.create("generateReleaseNotes", GenerateReleaseNotes)
+
+        [appendLatestRelease, generateReleaseNotes].each {
+            it.git = git
+            it.releaseNotes = project.file("RELEASE_NOTES.md")
+            it.group = "Release Notes"
+        }
     }
 
     def configureVersionCode(Project project) {
@@ -214,17 +238,17 @@ class ReleasePlugin implements Plugin<Project> {
             ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
 
             releaseExtension.with {
-                versionStrategy(WoogaStrategies.SNAPSHOT)
-                versionStrategy(WoogaStrategies.DEVELOPMENT)
-                versionStrategy(WoogaStrategies.PRE_RELEASE)
-                versionStrategy(WoogaStrategies.FINAL)
-                defaultVersionStrategy = NetflixOssStrategies.DEVELOPMENT
+                releaseExtension.versionStrategy(WoogaStrategies.SNAPSHOT)
+                releaseExtension.versionStrategy(WoogaStrategies.DEVELOPMENT)
+                releaseExtension.versionStrategy(WoogaStrategies.PRE_RELEASE)
+                releaseExtension.versionStrategy(WoogaStrategies.FINAL)
+                releaseExtension.defaultVersionStrategy = NetflixOssStrategies.DEVELOPMENT
             }
         }
     }
 
     private void applyWoogaPlugins(Project project) {
-        project.pluginManager.apply(GithubPublishPlugin)
+        project.pluginManager.apply(GithubPlugin)
         project.pluginManager.apply(PaketPlugin)
         project.pluginManager.apply(PaketUnityPlugin)
     }

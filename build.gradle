@@ -88,7 +88,7 @@ dependencies {
     compile 'org.ajoberstar:gradle-git:1.7.+'
     compile 'cz.malohlava:visteg:1.0.+'
     compile 'gradle.plugin.net.wooga.gradle:atlas-paket:0.7.0'
-    compile 'gradle.plugin.net.wooga.gradle:atlas-github:0.5.0'
+    compile 'gradle.plugin.net.wooga.gradle:atlas-github:0.6.0'
 
     compile gradleApi()
     compile localGroovy()

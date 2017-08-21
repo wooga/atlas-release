@@ -28,6 +28,14 @@
 {{/additionalChanges}}
 {{^pullrequests}}{{> logs}}
 {{/pullrequests}}
+{{#hasReleaseAssets}}
+
+## Assets ##
+
+{{#releaseAssets}}
+* [{{name}}]({{browserDownloadUrl}})
+{{/releaseAssets}}
+{{/hasReleaseAssets}}
 
 ## How to install ##
 
@@ -41,5 +49,3 @@ nuget {{packageId}} ~> {{version.major}} master
 # latest build with release candidates
 nuget {{packageId}} ~> {{version.major}} rc
 ```
-
-{{> iconList}}
