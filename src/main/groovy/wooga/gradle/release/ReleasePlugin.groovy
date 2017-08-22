@@ -49,6 +49,7 @@ import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.tasks.GenerateReleaseNotes
+import wooga.gradle.release.tasks.UpdateReleaseNotes
 import wooga.gradle.release.utils.ReleaseBodyStrategy
 import wooga.gradle.release.utils.ReleaseNotesGenerator
 
@@ -150,6 +151,8 @@ class ReleasePlugin implements Plugin<Project> {
     }
 
     void createReleaseNoteTasks(Grgit git) {
+        GithubPublish githubPublishTask = (GithubPublish) tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
+
         GenerateReleaseNotes appendLatestRelease = (GenerateReleaseNotes) tasks.create("appendReleaseNotes", GenerateReleaseNotes)
         appendLatestRelease.appendLatestRelease = true
 
@@ -160,6 +163,23 @@ class ReleasePlugin implements Plugin<Project> {
             it.releaseNotes = project.file("RELEASE_NOTES.md")
             it.group = "Release Notes"
         }
+
+        UpdateReleaseNotes updateReleaseNotes = (UpdateReleaseNotes) tasks.create("updateReleaseNotes", UpdateReleaseNotes)
+        updateReleaseNotes.releaseNotes(project.file("RELEASE_NOTES.md"))
+        updateReleaseNotes.dependsOn(appendLatestRelease)
+        updateReleaseNotes.group = "Release Notes"
+        updateReleaseNotes.onlyIf(new Spec<Task>() {
+            @Override
+            boolean isSatisfiedBy(Task element) {
+                Boolean satisfied = project.status == 'release'
+                println("'release.stage' check satisfied $satisfied")
+                return satisfied
+            }
+        })
+
+        Task publishTask = tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
+        publishTask.dependsOn(updateReleaseNotes)
+        updateReleaseNotes.mustRunAfter(githubPublishTask)
     }
 
     def configureVersionCode(Project project) {

@@ -12,14 +12,6 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
         git.tag.add(name: "v0.1.0")
     }
 
-    def createRelease(String name) {
-        def releaseBuilder = testRepo.createRelease(name)
-        releaseBuilder.name(name)
-        releaseBuilder.draft(false)
-        releaseBuilder.prerelease(false)
-        releaseBuilder.create()
-    }
-
     def "skips when no release is available"() {
         given: "a RELEASE_NOTES.md file"
         def releaseNotes = createFile("RELEASE_NOTES.md")

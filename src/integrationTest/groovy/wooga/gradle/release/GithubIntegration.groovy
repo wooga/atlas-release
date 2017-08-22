@@ -55,9 +55,12 @@ abstract class GithubIntegration extends IntegrationSpec {
         testRepo = builder.create()
     }
 
-    def createRelease(String tagName) {
-        def builder = testRepo.createRelease(tagName)
-        builder.create()
+    def createRelease(String name) {
+        def releaseBuilder = testRepo.createRelease(name)
+        releaseBuilder.name(name)
+        releaseBuilder.draft(false)
+        releaseBuilder.prerelease(false)
+        releaseBuilder.create()
     }
 
     def setupSpec() {
