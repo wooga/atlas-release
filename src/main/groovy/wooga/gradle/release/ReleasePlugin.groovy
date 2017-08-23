@@ -147,13 +147,13 @@ class ReleasePlugin implements Plugin<Project> {
         GithubPublish githubPublishTask = (GithubPublish) tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
 
         GenerateReleaseNotes appendLatestRelease = (GenerateReleaseNotes) tasks.create("appendReleaseNotes", GenerateReleaseNotes)
-        appendLatestRelease.appendLatestRelease = true
+        appendLatestRelease.appendLatestRelease(true)
 
         def generateReleaseNotes = tasks.create("generateReleaseNotes", GenerateReleaseNotes)
 
         [appendLatestRelease, generateReleaseNotes].each {
-            it.git = git
-            it.releaseNotes = project.file("RELEASE_NOTES.md")
+            it.git(git)
+            it.releaseNotes(project.file("RELEASE_NOTES.md"))
             it.group = "Release Notes"
         }
 

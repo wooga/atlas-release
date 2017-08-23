@@ -45,6 +45,32 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
         releaseNotes.text == "# 0.1.0 - 01 June 2012 #"
     }
 
+    def "can set appendLatestRelease lazy"() {
+        given: "a RELEASE_NOTES.md file"
+        def releaseNotes = createFile("RELEASE_NOTES.md")
+        releaseNotes << """
+        # 0.1.0 - 01 June 2012 #
+        """.stripIndent().trim()
+
+        and: "one release"
+        createRelease("0.1.0")
+
+        and: "updated task"
+
+        buildFile << """
+        appendReleaseNotes {
+            appendLatestRelease({true})
+        }
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("appendReleaseNotes")
+
+        then:
+        result.standardOutput.contains("release already contained in release notes")
+        releaseNotes.text == "# 0.1.0 - 01 June 2012 #"
+    }
+
 
     def "append release notes with single release"() {
         given: "a RELEASE_NOTES.md file"
