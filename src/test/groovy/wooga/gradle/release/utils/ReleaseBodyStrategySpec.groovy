@@ -39,6 +39,7 @@ class ReleaseBodyStrategySpec extends Specification {
         def pr = Mock(GHPullRequest)
         pr.body >> bodyOut.toString()
         pr.number >> number
+        pr.repository >> repository
         return pr
     }
 
@@ -72,13 +73,13 @@ class ReleaseBodyStrategySpec extends Specification {
         def body = releaseBodyStrategy.getBody(repository)
 
         then:
-        body == ("""
+        body.normalize() == ("""
         * ![ADD] some stuff [#3]
         * ![REMOVE] some stuff [#3]
         * ![FIX] some stuff [#3]
         * ![ADD] some stuff [#2]
         * ![REMOVE] some stuff [#2]
         * ![FIX] some stuff [#2]
-        """.stripIndent().stripMargin() + ReleaseNotesGenerator.ICON_IDS).trim()
+        """.stripIndent().stripMargin() + ReleaseNotesGeneratorTest.ICON_IDS).trim()
     }
 }

@@ -1,0 +1,14 @@
+{{#versions}}
+{{^hasPreviousVersion}}
+* ![{{initialChange.category}}] {{initialChange.text}}
+{{/hasPreviousVersion}}
+{{#pullrequests}}
+    {{#changeList}}
+* ![{{category}}] {{text}} [#{{number}}]
+    {{/changeList}}
+{{/pullrequests}}
+{{^hasChangeList}}{{> logs}}
+{{/hasChangeList}}
+
+{{/versions}}
+{{> iconlist}}
