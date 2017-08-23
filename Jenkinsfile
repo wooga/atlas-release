@@ -7,9 +7,12 @@ pipeline {
     }
 
     environment {
-        artifactoryCredentials  = credentials('artifactory_publish')
-        nugetkey                = credentials('artifactory_deploy')
-        TRAVIS_JOB_NUMBER       = "${BUILD_NUMBER}.WIN"
+        artifactoryCredentials            = credentials('artifactory_publish')
+        nugetkey                          = credentials('artifactory_deploy')
+        TRAVIS_JOB_NUMBER                 = "${BUILD_NUMBER}.WIN"
+        GITHUB                            = credentials('github_integration')
+        ATLAS_GITHUB_INTEGRATION_USER     = "${GITHUB_USR}"
+        ATLAS_GITHUB_INTEGRATION_PASSWORD = "${GITHUB_PSW}"
     }
 
     stages {
