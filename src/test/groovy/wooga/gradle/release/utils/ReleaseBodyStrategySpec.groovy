@@ -73,7 +73,7 @@ class ReleaseBodyStrategySpec extends Specification {
         def body = releaseBodyStrategy.getBody(repository)
 
         then:
-        body == ("""
+        body.normalize() == ("""
         * ![ADD] some stuff [#3]
         * ![REMOVE] some stuff [#3]
         * ![FIX] some stuff [#3]

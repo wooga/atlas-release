@@ -145,7 +145,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         * ![ADD] some stuff [#3]
         * ![REMOVE] some stuff [#3]
         * ![FIX] some stuff [#3]
@@ -177,7 +177,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         * ![ADD] some stuff [#3]
         * ![REMOVE] some stuff [#3]
         * ![FIX] some stuff [#3]
@@ -212,7 +212,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         * ![ADD] some stuff [#3]
         * ![REMOVE] some stuff [#3]
         * ![FIX] some stuff [#3]
@@ -238,7 +238,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         * ![NEW] Initial Release
         * ![ADD] some stuff [#1]
         * ![REMOVE] some stuff [#1]
@@ -269,7 +269,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         * commit
         * commit (#3)
         * commit (#2)
@@ -300,7 +300,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         * commit
         * commit (#3)
         * commit (#2)
@@ -334,7 +334,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.releaseNotes)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
@@ -415,7 +415,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.releaseNotes)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
@@ -502,7 +502,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.releaseNotes)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
@@ -597,7 +597,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.releaseNotes)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
@@ -676,7 +676,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.releaseNotes)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
@@ -732,7 +732,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.releaseNotes)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         # $currentVersion - $date #
 
         https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
@@ -792,7 +792,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         def notes = releaseNoteGenerator.generateReleaseNotes(versions, ReleaseNotesGenerator.Template.releaseNotes)
 
         then:
-        notes == ("""
+        notes.normalize() == ("""
         # ${versionA.version} - $dateA #
 
         https://github.com/wooga/TestRepo/releases/tag/v${versionA.version}
