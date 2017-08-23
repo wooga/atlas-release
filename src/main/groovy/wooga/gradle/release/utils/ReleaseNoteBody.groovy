@@ -82,6 +82,7 @@ class ReleaseNoteBody {
     Version version
     String releaseUrl
     String packageId
+    GHRepository repo
 
     ChangeNote initialChange = new ChangeNote("NEW", "Initial Release")
 
@@ -89,6 +90,7 @@ class ReleaseNoteBody {
 
     ReleaseNoteBody(ReleaseVersion version, Date releaseDate, String packageId, GHRepository repo, List<Commit> logs, List<GHPullRequest> prs, List<GHAsset> releaseAssets) {
         this.logs = logs
+        this.repo = repo
         this.hasPreviousVersion = version.previousVersion != null
         this.version = new Version(version.version)
         this.releaseDate = releaseDate.format(DATE_FORMAT)

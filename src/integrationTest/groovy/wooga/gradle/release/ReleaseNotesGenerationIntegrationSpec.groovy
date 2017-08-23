@@ -87,7 +87,7 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
 
         then:
         releaseNotes.text.contains("** FIRST RELEASE **")
-        releaseNotes.text.contains("# 0.1.0 -")
+        releaseNotes.text.contains("# [0.1.0 -")
     }
 
     def "append release notes with multiple releases"() {
@@ -106,8 +106,8 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
 
         then:
         releaseNotes.text.contains("** FIRST RELEASE **")
-        releaseNotes.text.contains("# 0.1.0 -")
-        !releaseNotes.text.contains("# 0.0.1 -")
+        releaseNotes.text.contains("# [0.1.0 -")
+        !releaseNotes.text.contains("# [0.0.1 -")
     }
 
     def "generate release notes with multiple releases"() {
@@ -135,10 +135,10 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
 
         then:
         !releaseNotes.text.contains("** FIRST RELEASE **")
-        releaseNotes.text.contains("# 1.0.0 -")
-        releaseNotes.text.contains("# 1.1.0 -")
-        releaseNotes.text.contains("# 1.2.0 -")
+        releaseNotes.text.contains("# [1.0.0 -")
+        releaseNotes.text.contains("# [1.1.0 -")
+        releaseNotes.text.contains("# [1.2.0 -")
 
-        releaseNotes.text =~ /(?s)(# 1\.2\.0).*(1\.1\.0).*(1\.0\.0)/
+        releaseNotes.text =~ /(?s)(1\.2\.0).*(1\.1\.0).*(1\.0\.0)/
     }
 }

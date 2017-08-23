@@ -248,14 +248,13 @@ class ReleaseNotesGeneratorTest extends Specification {
 
     def "prints commit log when pull requests are empty"() {
         given: "a git log with pull requests commits and tags"
-
         git.commit(message: 'commit')
         git.commit(message: 'commit (#1)')
         git.tag.add(name: 'v1.0.0')
-        git.commit(message: 'commit')
-        git.commit(message: 'commit (#2)')
-        git.commit(message: 'commit (#3)')
-        git.commit(message: 'commit')
+        def c1 = git.commit(message: 'commit')
+        def c2 = git.commit(message: 'commit (#2)')
+        def c3 = git.commit(message: 'commit (#3)')
+        def c4 = git.commit(message: 'commit')
 
         and: "a version"
         def version = new ReleaseVersion("1.1.0", "1.0.0", false)
@@ -270,10 +269,10 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        * commit
-        * commit (#3)
-        * commit (#2)
-        * commit
+        * [`${c4.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c4.id}) ${c4.shortMessage}
+        * [`${c3.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c3.id}) ${c3.shortMessage}
+        * [`${c2.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c2.id}) ${c2.shortMessage}
+        * [`${c1.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c1.id}) ${c1.shortMessage}
         """.stripIndent() + ICON_IDS).trim()
     }
 
@@ -283,10 +282,10 @@ class ReleaseNotesGeneratorTest extends Specification {
         git.commit(message: 'commit')
         git.commit(message: 'commit (#1)')
         git.tag.add(name: 'v1.0.0')
-        git.commit(message: 'commit')
-        git.commit(message: 'commit (#2)')
-        git.commit(message: 'commit (#3)')
-        git.commit(message: 'commit')
+        def c1 = git.commit(message: 'commit')
+        def c2 = git.commit(message: 'commit (#2)')
+        def c3 = git.commit(message: 'commit (#3)')
+        def c4 = git.commit(message: 'commit')
 
         and: "a version"
         def version = new ReleaseVersion("1.1.0", "1.0.0", false)
@@ -301,10 +300,10 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        * commit
-        * commit (#3)
-        * commit (#2)
-        * commit
+        * [`${c4.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c4.id}) ${c4.shortMessage}
+        * [`${c3.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c3.id}) ${c3.shortMessage}
+        * [`${c2.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c2.id}) ${c2.shortMessage}
+        * [`${c1.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c1.id}) ${c1.shortMessage}
         """.stripIndent() + ICON_IDS).trim()
     }
 
@@ -335,9 +334,7 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        # $currentVersion - $date #
-
-        https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
+        # [$currentVersion - $date](https://github.com/wooga/TestRepo/releases/tag/v$currentVersion) #
 
         ## Major Changes ##
                 
@@ -357,10 +354,10 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        ## Additional Changes in $currentVersion ##
+        ## Additional Changes ##
         
-        * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
+        * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
         ## How to install ##
         
@@ -416,9 +413,7 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        # $currentVersion - $date #
-
-        https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
+        # [$currentVersion - $date](https://github.com/wooga/TestRepo/releases/tag/v$currentVersion) #
 
         ## Major Changes ##
                 
@@ -438,10 +433,10 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        ## Additional Changes in $currentVersion ##
+        ## Additional Changes ##
         
-        * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
+        * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
         ## Assets ##
         
@@ -503,9 +498,7 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        # $currentVersion - $date #
-
-        https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
+        # [$currentVersion - $date](https://github.com/wooga/TestRepo/releases/tag/v$currentVersion) #
 
         ## Major Changes ##
                 
@@ -541,10 +534,10 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
-        ## Additional Changes in $currentVersion ##
+        ## Additional Changes ##
         
-        * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
+        * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
         ## How to install ##
         
@@ -598,9 +591,7 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        # $currentVersion - $date #
-
-        https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
+        # [$currentVersion - $date](https://github.com/wooga/TestRepo/releases/tag/v$currentVersion) #
 
         ## Major Changes ##
                 
@@ -677,15 +668,13 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        # $currentVersion - $date #
+        # [$currentVersion - $date](https://github.com/wooga/TestRepo/releases/tag/v$currentVersion) #
 
-        https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
-
-        ## Changes in $currentVersion ##
+        ## Changes ##
         
-        * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
-        * [#2](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
+        * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [`#2`](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
+        * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
         ## How to install ##
         
@@ -711,12 +700,12 @@ class ReleaseNotesGeneratorTest extends Specification {
         given: "a git log with pull requests commits"
 
         git.tag.add(name: 'v1.0.0')
-        git.commit(message: 'initial commit')
-        git.commit(message: 'Change this')
-        git.commit(message: 'Add cool stuff')
-        git.commit(message: 'Fix ugly bug')
-        git.commit(message: 'Update that')
-        git.commit(message: 'ugly message')
+        def c1 = git.commit(message: 'initial commit')
+        def c2 = git.commit(message: 'Change this')
+        def c3 = git.commit(message: 'Add cool stuff')
+        def c4 = git.commit(message: 'Fix ugly bug')
+        def c5 = git.commit(message: 'Update that')
+        def c6 = git.commit(message: 'ugly message')
         git.tag.add(name: "v${currentVersion}")
 
         and: "mocked pull requests"
@@ -733,18 +722,16 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        # $currentVersion - $date #
+        # [$currentVersion - $date](https://github.com/wooga/TestRepo/releases/tag/v$currentVersion) #
 
-        https://github.com/wooga/TestRepo/releases/tag/v$currentVersion
+        ## Changes ##
 
-        ## Changes in $currentVersion ##
-
-        * ugly message
-        * Update that
-        * Fix ugly bug
-        * Add cool stuff
-        * Change this
-        * initial commit
+        * [`${c6.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c6.id}) ${c6.shortMessage}
+        * [`${c5.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c5.id}) ${c5.shortMessage}
+        * [`${c4.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c4.id}) ${c4.shortMessage}
+        * [`${c3.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c3.id}) ${c3.shortMessage}
+        * [`${c2.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c2.id}) ${c2.shortMessage}
+        * [`${c1.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c1.id}) ${c1.shortMessage}
 
         ## How to install ##
         
@@ -793,14 +780,12 @@ class ReleaseNotesGeneratorTest extends Specification {
 
         then:
         notes.normalize() == ("""
-        # ${versionA.version} - $dateA #
-
-        https://github.com/wooga/TestRepo/releases/tag/v${versionA.version}
+        # [$versionA.version - $dateA](https://github.com/wooga/TestRepo/releases/tag/v$versionA.version) #
         
-        ## Changes in ${versionA.version} ##
+        ## Changes ##
         
-        * [#3](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
-        * [#2](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
+        * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
+        * [`#2`](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
                 
         ## How to install ##
         
@@ -815,13 +800,11 @@ class ReleaseNotesGeneratorTest extends Specification {
         nuget Wooga.Test ~> 1 rc
         ```
         
-        # ${versionB.version} - $dateB #
+        # [$versionB.version - $dateB](https://github.com/wooga/TestRepo/releases/tag/v$versionB.version) #
         
-        https://github.com/wooga/TestRepo/releases/tag/v${versionB.version}
+        ## Changes ##
         
-        ## Changes in ${versionB.version} ##
-        
-        * [#1](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
+        * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
         
         ## How to install ##
         

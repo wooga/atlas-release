@@ -1,6 +1,4 @@
-# {{version}} - {{releaseDate}} #
-
-{{releaseUrl}}
+# [{{version}} - {{releaseDate}}]({{releaseUrl}}) #
 {{#hasMajorChanges}}
 
 ## Major Changes ##
@@ -14,17 +12,17 @@
 {{#hasMajorChanges}}
     {{#hasAdditionalChanges}}
 
-## Additional Changes in {{version}} ##
+## Additional Changes ##
 
     {{/hasAdditionalChanges}}
 {{/hasMajorChanges}}
 {{^hasMajorChanges}}
 
-## Changes in {{version}} ##
+## Changes ##
 
 {{/hasMajorChanges}}
 {{#additionalChanges}}
-* [#{{number}}]({{issueUrl}}) {{title}}
+* [`#{{number}}`]({{issueUrl}}) {{title}}
 {{/additionalChanges}}
 {{^pullrequests}}{{> logs}}
 {{/pullrequests}}
