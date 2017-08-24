@@ -95,7 +95,7 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
         def releaseNotes = createFile("RELEASE_NOTES.md")
         releaseNotes << """
         ** FIRST RELEASE **
-        """.stripIndent()
+        """.stripIndent().trim()
 
         and: "one release"
         createRelease("0.0.1")
@@ -108,6 +108,24 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
         releaseNotes.text.contains("** FIRST RELEASE **")
         releaseNotes.text.contains("# [0.1.0 -")
         !releaseNotes.text.contains("# [0.0.1 -")
+    }
+
+    def "append release notes seperated by empty line"() {
+        given: "a RELEASE_NOTES.md file"
+        def releaseNotes = createFile("RELEASE_NOTES.md")
+        releaseNotes << """
+        ** FIRST RELEASE **
+        """.stripIndent().trim()
+
+        and: "one release"
+        createRelease("0.1.0")
+
+        when:
+        def result = runTasksSuccessfully("appendReleaseNotes")
+
+        then:
+        releaseNotes.text.normalize().contains("\n\n** FIRST RELEASE **")
+        releaseNotes.text.contains("# [0.1.0 -")
     }
 
     def "generate release notes with multiple releases"() {
@@ -140,5 +158,32 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
         releaseNotes.text.contains("# [1.2.0 -")
 
         releaseNotes.text =~ /(?s)(1\.2\.0).*(1\.1\.0).*(1\.0\.0)/
+    }
+
+    def "generate release notes ending with empty line"() {
+        given: "a RELEASE_NOTES.md file"
+        def releaseNotes = createFile("RELEASE_NOTES.md")
+        releaseNotes << """
+        ** FIRST RELEASE **
+        """.stripIndent()
+
+        and: "logs"
+        git.commit(message: 'a change')
+        git.tag.add(name: "v1.0.0")
+        git.commit(message: 'a change')
+        git.tag.add(name: "v1.1.0")
+        git.commit(message: 'a change')
+        git.tag.add(name: "v1.2.0")
+
+        and: "some releases"
+        createRelease("1.0.0")
+        createRelease("1.1.0")
+        createRelease("1.2.0")
+
+        when:
+        def result = runTasksSuccessfully("generateReleaseNotes")
+
+        then:
+        releaseNotes.text.readLines().last() == ""
     }
 }

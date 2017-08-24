@@ -131,12 +131,11 @@ class GenerateReleaseNotes extends AbstractGithubTask {
         File tempFile = File.createTempFile("releaseNotes_", "", notesFile.parentFile)
         tempFile.deleteOnExit()
         tempFile.append(notes)
+        tempFile.append(System.lineSeparator())
+        tempFile.append(System.lineSeparator())
 
         if (getAppendLatestRelease()) {
             tempFile.append(notesFile.newReader())
-        }
-        else {
-            tempFile.append("\n")
         }
 
         notesFile.delete()
