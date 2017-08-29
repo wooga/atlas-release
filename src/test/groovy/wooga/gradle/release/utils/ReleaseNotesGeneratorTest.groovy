@@ -33,18 +33,18 @@ class ReleaseNotesGeneratorTest extends Specification {
     public static final String ICON_IDS = """
     <!-- START icon Id's -->
         
-    [NEW]:http://resources.atlas.wooga.com/icons/icon_new.svg "New"
-    [ADD]:http://resources.atlas.wooga.com/icons/icon_add.svg "Add"
-    [IMPROVE]:http://resources.atlas.wooga.com/icons/icon_improve.svg "IMPROVE"
-    [CHANGE]:http://resources.atlas.wooga.com/icons/icon_change.svg "Change"
-    [FIX]:http://resources.atlas.wooga.com/icons/icon_fix.svg "Fix"
-    [UPDATE]:http://resources.atlas.wooga.com/icons/icon_update.svg "Update"
+    [NEW]:https://atlas-resources.wooga.com/icons/icon_new.svg "New"
+    [ADD]:https://atlas-resources.wooga.com/icons/icon_add.svg "Add"
+    [IMPROVE]:https://atlas-resources.wooga.com/icons/icon_improve.svg "IMPROVE"
+    [CHANGE]:https://atlas-resources.wooga.com/icons/icon_change.svg "Change"
+    [FIX]:https://atlas-resources.wooga.com/icons/icon_fix.svg "Fix"
+    [UPDATE]:https://atlas-resources.wooga.com/icons/icon_update.svg "Update"
     
-    [BREAK]:http://resources.atlas.wooga.com/icons/icon_break.svg "Remove"
-    [REMOVE]:http://resources.atlas.wooga.com/icons/icon_remove.svg "Remove"
-    [IOS]:http://resources.atlas.wooga.com/icons/icon_iOS.svg "iOS"
-    [ANDROID]:http://resources.atlas.wooga.com/icons/icon_android.svg "Android"
-    [WEBGL]:http://resources.atlas.wooga.com/icons/icon_webGL.svg "Web:GL"
+    [BREAK]:https://atlas-resources.wooga.com/icons/icon_break.svg "Remove"
+    [REMOVE]:https://atlas-resources.wooga.com/icons/icon_remove.svg "Remove"
+    [IOS]:https://atlas-resources.wooga.com/icons/icon_iOS.svg "iOS"
+    [ANDROID]:https://atlas-resources.wooga.com/icons/icon_android.svg "Android"
+    [WEBGL]:https://atlas-resources.wooga.com/icons/icon_webGL.svg "Web:GL"
     
     <!-- END icon Id's -->
     """.stripIndent()
