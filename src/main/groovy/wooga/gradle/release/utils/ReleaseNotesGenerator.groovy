@@ -91,7 +91,7 @@ class ReleaseNotesGenerator {
         MustacheFactory mf = new DefaultMustacheFactory()
         Mustache mustache = mf.compile("${template}.mustache")
         mustache.execute(writer, noteBodyModel).flush()
-        writer.toString()
+        writer.toString().normalize().denormalize()
     }
 
     protected ReleaseNoteBody releaseNoteBodyFromVersion(ReleaseVersion version) {
