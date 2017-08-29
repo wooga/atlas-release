@@ -91,7 +91,8 @@ class ReleaseNotesGeneratorTest extends Specification {
             Yada Yada Yada Yada Yada
             Yada Yada Yada Yada Yada
             Yada Yada Yada Yada Yada
-            """.stripIndent()
+
+            """.stripIndent() << ICON_IDS
         }
 
         def pr = Mock(GHPullRequest)
