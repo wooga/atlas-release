@@ -46,10 +46,17 @@ class ReleaseNoteBody {
 
         List<ChangeNote> changeList
 
+        String cleanupBody(String body) {
+            body.replaceAll("(?m)^#", "###")
+                    .replaceAll(/\[.*?\]:http(s)?:\/\/((resources\.)?atlas(-resources)?)\.wooga\.com\/icons.*/, "")
+                    .replaceAll(/(?m)<!--.*?-->/, "")
+                    .trim()
+        }
+
         PullRequest(GHPullRequest pr) {
             title = pr.title
             issueUrl = "https://github.com/${pr.repository.fullName}/pull/${pr.number}"
-            body = pr.body.replaceAll("(?m)^#", "###").trim()
+            body = cleanupBody(pr.body)
             number = pr.number
             labels = pr.labels
 

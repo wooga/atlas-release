@@ -25,7 +25,6 @@ import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHRelease
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.PagedIterable
-import org.kohsuke.github.PagedIterator
 import spock.lang.Specification
 
 class ReleaseNotesGeneratorTest extends Specification {
@@ -48,6 +47,19 @@ class ReleaseNotesGeneratorTest extends Specification {
     
     <!-- END icon Id's -->
     """.stripIndent()
+
+    public static final String MIX_URL_ICON_IDS = """
+    <!-- START icon Id's -->
+
+    [NEW]:https://resources.atlas.wooga.com/icons/icon_new.svg "New"
+    [ADD]:https://atlas-resources.wooga.com/icons/icon_add.svg "Add"
+    [IMPROVE]:http://resources.atlas.wooga.com/icons/icon_improve.svg "IMPROVE"
+    [CHANGE]:http://atlas-resources.wooga.com/icons/icon_change.svg "Change"
+
+    <!-- END icon Id's -->
+    """.stripIndent()
+
+
 
     Grgit git
     TagService tag
@@ -91,7 +103,8 @@ class ReleaseNotesGeneratorTest extends Specification {
             Yada Yada Yada Yada Yada
             Yada Yada Yada Yada Yada
             Yada Yada Yada Yada Yada
-            """.stripIndent()
+
+            """.stripIndent() << MIX_URL_ICON_IDS
         }
 
         def pr = Mock(GHPullRequest)
