@@ -62,12 +62,12 @@ class UpdateReleaseNotes extends AbstractGithubTask {
     protected update() {
         GHCommit lastCommit = ++repository.listCommits().iterator()
         GHContent content = repository.getFileContent(project.relativePath(getReleaseNotes()), lastCommit.getSHA1())
-
-        if (content.read().text == getReleaseNotes().text) {
+        def body = getReleaseNotes().text.normalize()
+        if (content.read().text == body) {
             logger.info("no content change in release notes")
             throw new StopActionException()
         }
 
-        content.update(getReleaseNotes().text, getCommitMessage())
+        content.update(body, getCommitMessage())
     }
 }

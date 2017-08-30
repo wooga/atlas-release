@@ -186,4 +186,43 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
         then:
         releaseNotes.text.readLines().last() == ""
     }
+
+    def "generates normalized release notes"() {
+        given: "a RELEASE_NOTES.md file"
+        def releaseNotes = createFile("RELEASE_NOTES.md")
+        releaseNotes << """
+        ** FIRST RELEASE **
+        """.stripIndent()
+
+        and: "some pull requests"
+        def prBody = """
+        ## Description
+        A small test of a pullrequest
+                
+        ## Changes
+        * ![ADD] some stuff
+        * ![REMOVE] some stuff
+        * ![FIX] some stuff
+        """.stripIndent().normalize().readLines().join("\r\n")
+        def pr1 = createClosedPullRequest("test pm", prBody)
+
+        and: "logs"
+        git.commit(message: "a change #${pr1.number}")
+        git.tag.add(name: "v1.0.0")
+        git.commit(message: 'a change')
+        git.tag.add(name: "v1.1.0")
+        git.commit(message: 'a change')
+        git.tag.add(name: "v1.2.0")
+
+        and: "some releases"
+        createRelease("1.0.0")
+        createRelease("1.1.0")
+        createRelease("1.2.0")
+
+        when:
+        runTasksSuccessfully("generateReleaseNotes")
+
+        then:
+        releaseNotes.text.normalize().denormalize() == releaseNotes.text
+    }
 }
