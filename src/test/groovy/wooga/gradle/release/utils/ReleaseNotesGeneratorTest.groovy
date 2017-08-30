@@ -19,9 +19,12 @@ package wooga.gradle.release.utils
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.service.TagService
+import org.apache.tools.ant.filters.StringInputStream
 import org.kohsuke.github.GHAsset
+import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHLabel
 import org.kohsuke.github.GHPullRequest
+import org.kohsuke.github.GHRef
 import org.kohsuke.github.GHRelease
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.PagedIterable
@@ -59,7 +62,38 @@ class ReleaseNotesGeneratorTest extends Specification {
     <!-- END icon Id's -->
     """.stripIndent()
 
-
+    public static final String PAKET_TEMPALTE = """
+    type file
+    id Wooga.Test
+    owners Wooga
+    authors Wooga
+    projectUrl
+        https://github.com/wooga/wdk-unity-Test
+    iconUrl
+        http://wooga.github.io/wdk-unity-Test/img/logo.png
+    licenseUrl
+        https://github.com/wooga/wdk-unity-Test/blob/master/LICENSE.txt
+    requireLicenseAcceptance
+        false
+    copyright
+        Copyright 2017
+    tags
+        wdk
+    summary
+        Wooga Test SDK
+    description
+        Wooga Test SDK
+    files
+        Assets/Wooga/**/* ==> content
+        !../**/AssemblyInfo.cs
+        ../README.md ==> content
+    dependencies
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+    """.stripIndent().trim()
 
     Grgit git
     TagService tag
@@ -80,6 +114,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub = Mock(GHRepository)
         hub.fullName >> "wooga/TestRepo"
         hub.listReleases() >> iterable
+
+        GHContent ghContent = Mock()
+        ghContent.read() >> {new StringInputStream(PAKET_TEMPALTE)}
+
+        GHRef ref = Mock()
+
+        hub.getRef(_) >> ref
+
+        hub.getFileContent(_, _) >> ghContent
+
         releaseNoteGenerator = new ReleaseNotesGenerator(git, hub, packageId)
     }
 

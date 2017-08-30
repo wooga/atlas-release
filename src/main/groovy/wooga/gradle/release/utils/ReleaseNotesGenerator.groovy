@@ -22,16 +22,12 @@ import com.github.mustachejava.MustacheFactory
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Commit
 import org.ajoberstar.grgit.Grgit
-import org.ajoberstar.grgit.Tag
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.kohsuke.github.GHAsset
-import org.kohsuke.github.GHCommitQueryBuilder
 import org.kohsuke.github.GHPullRequest
-import org.kohsuke.github.GHQueryBuilder
 import org.kohsuke.github.GHRelease
 import org.kohsuke.github.GHRepository
-import org.kohsuke.github.GHTag
 
 /**
  * A generator class to create release notes from git log and pull request bodies.
@@ -108,11 +104,13 @@ class ReleaseNotesGenerator {
             }
         }
 
+        List<PacketDependency> dependencies = fetchTemplateDependencies(hub, packageId, version)
+
         List<Commit> logs = git.log(includes: includes, excludes: excludes)
         List<GHPullRequest> pullRequests = fetchPullRequestsFromLog(logs)
         List<GHAsset> releaseAssets = (release == null) ? new ArrayList<GHAsset>() : release.assets
 
-        ReleaseNoteBody noteBodyModel = new ReleaseNoteBody(version, releaseDate, packageId, hub, logs, pullRequests, releaseAssets)
+        ReleaseNoteBody noteBodyModel = new ReleaseNoteBody(version, releaseDate, packageId, hub, logs, pullRequests, releaseAssets, dependencies)
         noteBodyModel
     }
 
@@ -170,5 +168,85 @@ class ReleaseNotesGenerator {
         } catch (e) {
             return false
         }
+    }
+
+    private List<PacketDependency> fetchTemplateDependencies(GHRepository hub, String packageId, ReleaseVersion version) {
+
+        String[] paths = ["$packageId/paket.template", "paket.template"]
+        String content
+
+        paths.each {
+            if (!content) {
+                content = GetTemplateContent(hub, it, version)
+            }
+        }
+
+        if (!content) {
+            return []
+        }
+
+        PaketTemplateReader templateReader = new PaketTemplateReader(content)
+        return templateReader.getDependencies()
+
+    }
+
+    private String GetTemplateContent(GHRepository hub, String path, ReleaseVersion version) {
+        try {
+            def content = hub.getFileContent(path, "tags/v$version.version").read().text
+            return content
+        }
+        catch (IOException exception) {
+            logger.error("could not find paket template file at $path $exception.message")
+            return null
+        }
+    }
+}
+
+class PacketDependency {
+    String packageId
+    String version
+
+    PacketDependency(String packageId, String version) {
+        this.packageId = packageId
+        this.version = version
+    }
+
+    String toString() {
+        "$packageId $version"
+    }
+}
+
+class PaketTemplateReader {
+
+    private def content
+
+    PaketTemplateReader(String input) {
+        content = [:]
+
+        def regex = /(?m)^(\w+)( |\n[ ]{4})(((\n[ ]{4})?.*)+)/
+        def r = input.findAll(regex)
+
+        r.each {
+            def matcher
+            matcher = it =~ regex
+            content[matcher[0][1]] = matcher[0][3]
+        }
+    }
+
+    List<PacketDependency> getDependencies() {
+        List<PacketDependency> result = []
+
+        if (content['dependencies'] != null || content['dependencies'] == "") {
+            content['dependencies'].eachLine { line ->
+                String[] segments = line.trim().split(" ", 2)
+                result << new PacketDependency(segments[0], segments.length > 1 ? segments[1] : null)
+            }
+        }
+
+        result
+    }
+
+    String getPackageId() {
+        content['id']
     }
 }
