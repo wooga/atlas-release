@@ -48,7 +48,7 @@ class ReleaseNoteBody {
 
         String cleanupBody(String body) {
             body.replaceAll("(?m)^#", "###")
-                    .replaceAll(/\[.*?\]:http:\/\/resources.atlas.wooga.com\/icons\/.*/, "")
+                    .replaceAll(/\[.*?\]:http(s)?:\/\/((resources\.)?atlas(-resources)?)\.wooga\.com\/icons.*/, "")
                     .replaceAll(/(?m)<!--.*?-->/, "")
                     .trim()
         }
