@@ -69,6 +69,29 @@ class ReleaseNotesUpdateIntegrationSpec extends GithubIntegrationWithDefaultAuth
         initialContent = "# 1.0.0 - Test #"
     }
 
+    def "normalize release note content"() {
+        given: "release notes file on remote repo"
+        testRepo.createContent(initialContent, "initial release notes", fileName)
+
+        and: "local release notes with CRLF line endings"
+        releaseNotes.write("""
+        # 1.0.0 - Test #
+        
+        # Changes
+        Some changes described here
+        """.stripIndent().trim().readLines().join("\r\n"))
+
+        when:
+        runTasksSuccessfully("customUpdateNotes")
+
+        then:
+        def lastCommit = ++testRepo.listCommits().iterator()
+        !testRepo.getFileContent(fileName, lastCommit.getSHA1()).read().text.matches("(?s).*\r\n.*")
+
+        where:
+        initialContent = "# 1.0.0 - Test #"
+    }
+
     @Unroll
     def "updates release note with message #commitMessageObject value set via #methodName"() {
         given: "release notes file on remote repo"

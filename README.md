@@ -76,5 +76,5 @@ limitations under the License.
 [paket]:            https://fsprojects.github.io/Paket/
 [nuget]:            https://www.nuget.org/
 
-[yes]:                  http://atlas-resources.wooga.com/icons/icon_check.svg "yes"
-[no]:                   http://atlas-resources.wooga.com/icons/icon_uncheck.svg "no"
+[yes]:                  https://atlas-resources.wooga.com/icons/icon_check.svg "yes"
+[no]:                   https://atlas-resources.wooga.com/icons/icon_uncheck.svg "no"

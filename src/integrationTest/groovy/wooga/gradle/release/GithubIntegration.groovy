@@ -63,6 +63,29 @@ abstract class GithubIntegration extends IntegrationSpec {
         releaseBuilder.create()
     }
 
+    def createClosedPullRequest(String name, String body, Boolean majorChange = true) {
+        final String branchName = "testBranch"
+        final String refName = "refs/heads/$branchName"
+
+        def ref = testRepo.createRef(refName, testRepo.getBranch("master").getSHA1())
+        testRepo.createContent("test file content", "test file", "Test.md", branchName)
+        def pr = testRepo.createPullRequest(name, branchName, "master", body)
+
+        if (majorChange) {
+            try {
+                testRepo.createLabel("Major Change", "000000")
+            }
+            catch (IOException exception) {
+            }
+
+            pr.setLabels("Major Change")
+        }
+
+        pr.close()
+        ref.delete()
+        pr
+    }
+
     def setupSpec() {
         client = GitHub.connectUsingOAuth(testUserToken)
         createTestRepo()
@@ -85,7 +108,7 @@ abstract class GithubIntegration extends IntegrationSpec {
                 it.delete()
             }
         }
-        catch(Error e) {
+        catch (Error e) {
 
         }
 
