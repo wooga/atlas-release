@@ -416,6 +416,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -499,6 +509,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         
         * [binary.obj](http://github_asset/binary.obj)
         * [sources.zip](http://github_asset/sources.zip)
+
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
 
         ## How to install ##
         
@@ -596,6 +616,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -684,6 +714,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -733,6 +773,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#2`](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+        
         ## How to install ##
         
         ```bash
@@ -790,8 +840,18 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`${c2.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c2.id}) ${c2.shortMessage}
         * [`${c1.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c1.id}) ${c1.shortMessage}
 
-        ## How to install ##
+        ## Dependencies ##
         
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
+        ## How to install ##
+
         ```bash
         # latest stable
         nuget $packageId ~> 1
@@ -844,6 +904,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
         * [`#2`](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
                 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -863,6 +933,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
         
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
