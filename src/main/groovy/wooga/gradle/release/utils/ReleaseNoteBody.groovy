@@ -91,11 +91,13 @@ class ReleaseNoteBody {
     String packageId
     GHRepository repo
 
+    List<PacketDependency> dependencies
+
     ChangeNote initialChange = new ChangeNote("NEW", "Initial Release")
 
     boolean hasPreviousVersion
 
-    ReleaseNoteBody(ReleaseVersion version, Date releaseDate, String packageId, GHRepository repo, List<Commit> logs, List<GHPullRequest> prs, List<GHAsset> releaseAssets) {
+    ReleaseNoteBody(ReleaseVersion version, Date releaseDate, String packageId, GHRepository repo, List<Commit> logs, List<GHPullRequest> prs, List<GHAsset> releaseAssets, List<PacketDependency> dependencies) {
         this.logs = logs
         this.repo = repo
         this.hasPreviousVersion = version.previousVersion != null
@@ -107,6 +109,7 @@ class ReleaseNoteBody {
             new PullRequest(it)
         }
         this.releaseAssets = releaseAssets.toSorted({ a, b -> a.name <=> b.name })
+        this.dependencies = dependencies
     }
 
     Callable<List<PullRequest>> additionalChanges() {
@@ -159,6 +162,15 @@ class ReleaseNoteBody {
             @Override
             Boolean call() throws Exception {
                 return !releaseAssets.empty
+            }
+        }
+    }
+
+    Callable<Boolean> hasDependencies(){
+        new Callable<Boolean>() {
+            @Override
+            Boolean call() throws Exception {
+                !dependencies.empty
             }
         }
     }

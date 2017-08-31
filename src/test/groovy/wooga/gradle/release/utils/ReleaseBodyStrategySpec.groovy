@@ -2,7 +2,10 @@ package wooga.gradle.release.utils
 
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Grgit
+import org.apache.tools.ant.filters.StringInputStream
+import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHPullRequest
+import org.kohsuke.github.GHRef
 import org.kohsuke.github.GHRepository
 import spock.lang.Specification
 
@@ -51,6 +54,13 @@ class ReleaseBodyStrategySpec extends Specification {
         version = new ReleaseVersion("1.1.0", "1.0.0", false)
 
         releaseBodyStrategy = new ReleaseBodyStrategy(version, git)
+
+        GHContent ghContent = Mock()
+        ghContent.read() >> {new StringInputStream(TestContent.PAKET_TEMPLATE_V1)}
+
+        GHRef ref = Mock()
+        repository.getRef(_) >> ref
+        repository.getFileContent(_, _) >> ghContent
     }
 
     def "verify calls ReleaseNotesGenerator to generate release notes body"() {
@@ -80,6 +90,6 @@ class ReleaseBodyStrategySpec extends Specification {
         * ![ADD] some stuff [#2]
         * ![REMOVE] some stuff [#2]
         * ![FIX] some stuff [#2]
-        """.stripIndent().stripMargin() + ReleaseNotesGeneratorTest.ICON_IDS).trim()
+        """.stripIndent().stripMargin() + TestContent.ICON_IDS).trim()
     }
 }

@@ -19,46 +19,18 @@ package wooga.gradle.release.utils
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.ajoberstar.grgit.Grgit
 import org.ajoberstar.grgit.service.TagService
+import org.apache.tools.ant.filters.StringInputStream
 import org.kohsuke.github.GHAsset
+import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHLabel
 import org.kohsuke.github.GHPullRequest
+import org.kohsuke.github.GHRef
 import org.kohsuke.github.GHRelease
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.PagedIterable
 import spock.lang.Specification
 
 class ReleaseNotesGeneratorTest extends Specification {
-
-    public static final String ICON_IDS = """
-    <!-- START icon Id's -->
-        
-    [NEW]:https://atlas-resources.wooga.com/icons/icon_new.svg "New"
-    [ADD]:https://atlas-resources.wooga.com/icons/icon_add.svg "Add"
-    [IMPROVE]:https://atlas-resources.wooga.com/icons/icon_improve.svg "IMPROVE"
-    [CHANGE]:https://atlas-resources.wooga.com/icons/icon_change.svg "Change"
-    [FIX]:https://atlas-resources.wooga.com/icons/icon_fix.svg "Fix"
-    [UPDATE]:https://atlas-resources.wooga.com/icons/icon_update.svg "Update"
-    
-    [BREAK]:https://atlas-resources.wooga.com/icons/icon_break.svg "Remove"
-    [REMOVE]:https://atlas-resources.wooga.com/icons/icon_remove.svg "Remove"
-    [IOS]:https://atlas-resources.wooga.com/icons/icon_iOS.svg "iOS"
-    [ANDROID]:https://atlas-resources.wooga.com/icons/icon_android.svg "Android"
-    [WEBGL]:https://atlas-resources.wooga.com/icons/icon_webGL.svg "Web:GL"
-    
-    <!-- END icon Id's -->
-    """.stripIndent()
-
-    public static final String MIX_URL_ICON_IDS = """
-    <!-- START icon Id's -->
-
-    [NEW]:https://resources.atlas.wooga.com/icons/icon_new.svg "New"
-    [ADD]:https://atlas-resources.wooga.com/icons/icon_add.svg "Add"
-    [IMPROVE]:http://resources.atlas.wooga.com/icons/icon_improve.svg "IMPROVE"
-    [CHANGE]:http://atlas-resources.wooga.com/icons/icon_change.svg "Change"
-
-    <!-- END icon Id's -->
-    """.stripIndent()
-
 
 
     Grgit git
@@ -80,6 +52,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         hub = Mock(GHRepository)
         hub.fullName >> "wooga/TestRepo"
         hub.listReleases() >> iterable
+
+        GHContent ghContent = Mock()
+        ghContent.read() >> {new StringInputStream(TestContent.PAKET_TEMPLATE_V1)}
+
+        GHRef ref = Mock()
+
+        hub.getRef(_) >> ref
+
+        hub.getFileContent(_, _) >> ghContent
+
         releaseNoteGenerator = new ReleaseNotesGenerator(git, hub, packageId)
     }
 
@@ -104,7 +86,7 @@ class ReleaseNotesGeneratorTest extends Specification {
             Yada Yada Yada Yada Yada
             Yada Yada Yada Yada Yada
 
-            """.stripIndent() << MIX_URL_ICON_IDS
+            """.stripIndent() << TestContent.MIX_URL_ICON_IDS
         }
 
         def pr = Mock(GHPullRequest)
@@ -165,7 +147,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#2]
         * ![REMOVE] some stuff [#2]
         * ![FIX] some stuff [#2]
-        """.stripIndent().stripMargin() + ICON_IDS).trim()
+        """.stripIndent().stripMargin() + TestContent.ICON_IDS).trim()
     }
 
     def "creates release notes with full log when previousVersion tag can't be found"() {
@@ -200,7 +182,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#1]
         * ![REMOVE] some stuff [#1]
         * ![FIX] some stuff [#1]
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
     }
 
     def "skips pull requests it can't find"() {
@@ -232,7 +214,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#1]
         * ![REMOVE] some stuff [#1]
         * ![FIX] some stuff [#1]
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
     }
 
     def "creates initial change message when previosVersion is not set"() {
@@ -256,7 +238,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * ![ADD] some stuff [#1]
         * ![REMOVE] some stuff [#1]
         * ![FIX] some stuff [#1]
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
     }
 
     def "prints commit log when pull requests are empty"() {
@@ -286,7 +268,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`${c3.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c3.id}) ${c3.shortMessage}
         * [`${c2.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c2.id}) ${c2.shortMessage}
         * [`${c1.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c1.id}) ${c1.shortMessage}
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
     }
 
     def "prints commit log when pull requests have no changeset list"() {
@@ -317,7 +299,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`${c3.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c3.id}) ${c3.shortMessage}
         * [`${c2.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c2.id}) ${c2.shortMessage}
         * [`${c1.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c1.id}) ${c1.shortMessage}
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
     }
 
     def "creates full release notes for specific version"() {
@@ -372,6 +354,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -384,7 +376,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
 
         where:
         currentVersion = "1.1.0"
@@ -456,6 +448,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [binary.obj](http://github_asset/binary.obj)
         * [sources.zip](http://github_asset/sources.zip)
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -468,7 +470,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
 
         where:
         currentVersion = "1.1.0"
@@ -552,6 +554,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -564,7 +576,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
 
         where:
         currentVersion = "1.1.0"
@@ -640,6 +652,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         Yada Yada Yada Yada Yada
         Yada Yada Yada Yada Yada
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -652,7 +674,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
 
         where:
         currentVersion = "1.1.0"
@@ -689,6 +711,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#2`](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+        
         ## How to install ##
         
         ```bash
@@ -701,7 +733,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
 
         where:
         currentVersion = "1.1.0"
@@ -746,8 +778,18 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`${c2.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c2.id}) ${c2.shortMessage}
         * [`${c1.abbreviatedId}`](https://github.com/wooga/TestRepo/commit/${c1.id}) ${c1.shortMessage}
 
-        ## How to install ##
+        ## Dependencies ##
         
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
+        ## How to install ##
+
         ```bash
         # latest stable
         nuget $packageId ~> 1
@@ -758,7 +800,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget $packageId ~> 1 rc
         ```
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
 
         where:
         currentVersion = "1.1.0"
@@ -800,6 +842,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         * [`#3`](https://github.com/wooga/TestRepo/pull/3) Pullrequest 3
         * [`#2`](https://github.com/wooga/TestRepo/pull/2) Pullrequest 2
                 
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -819,6 +871,16 @@ class ReleaseNotesGeneratorTest extends Specification {
         
         * [`#1`](https://github.com/wooga/TestRepo/pull/1) Pullrequest 1
         
+        ## Dependencies ##
+        
+        ```bash
+        Wooga.TestDependency1 ~> 0.1.0
+        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency3 
+        Wooga.TestDependency4 master
+        Wooga.TestDependency4 > 1, <2
+        ```
+
         ## How to install ##
         
         ```bash
@@ -831,7 +893,7 @@ class ReleaseNotesGeneratorTest extends Specification {
         # latest build with release candidates
         nuget Wooga.Test ~> 1 rc
         ```
-        """.stripIndent() + ICON_IDS).trim()
+        """.stripIndent() + TestContent.ICON_IDS).trim()
 
         where:
         versionA = new ReleaseVersion("1.1.0", "1.0.0", false)
