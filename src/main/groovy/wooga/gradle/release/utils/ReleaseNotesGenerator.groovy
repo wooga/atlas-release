@@ -172,7 +172,7 @@ class ReleaseNotesGenerator {
 
     private List<PacketDependency> fetchTemplateDependencies(GHRepository hub, String packageId, ReleaseVersion version) {
 
-        String[] paths = ["$packageId/paket.template", "paket.template"]
+        List<String> paths = ["$packageId/paket.template", "paket.template"]
         String content
 
         paths.each {
@@ -192,11 +192,10 @@ class ReleaseNotesGenerator {
 
     private String GetTemplateContent(GHRepository hub, String path, ReleaseVersion version) {
         try {
-            def content = hub.getFileContent(path, "v$version.version").read().text
-            return content
+            return hub.getFileContent(path, "v$version.version").read().text
         }
         catch (IOException exception) {
-            logger.error("could not find paket template file at $path $exception.message")
+            logger.info("could not find paket template file at $path $exception.message")
             return null
         }
     }

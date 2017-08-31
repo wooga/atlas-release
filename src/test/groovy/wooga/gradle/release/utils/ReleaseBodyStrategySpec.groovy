@@ -59,9 +59,7 @@ class ReleaseBodyStrategySpec extends Specification {
         ghContent.read() >> {new StringInputStream(TestContent.PAKET_TEMPLATE_V1)}
 
         GHRef ref = Mock()
-
         repository.getRef(_) >> ref
-
         repository.getFileContent(_, _) >> ghContent
     }
 

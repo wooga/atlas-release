@@ -97,6 +97,4 @@ class TestContent {
         Wooga.TestDependency4 master
         Wooga.TestDependency4 > 1, <2
     """.stripIndent().trim()
-
-
 }
