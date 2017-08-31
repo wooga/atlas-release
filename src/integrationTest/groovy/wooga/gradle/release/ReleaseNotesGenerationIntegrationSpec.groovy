@@ -1,7 +1,6 @@
 package wooga.gradle.release
 
 import org.ajoberstar.grgit.Grgit
-import wooga.gradle.release.utils.ReleaseNotesGeneratorTest
 import wooga.gradle.release.utils.TestContent
 
 class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefaultAuth {
@@ -230,20 +229,36 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
 
     def "generate releases with different paket.template files"(){
 
-        def paketTemplateFile = createFile("paket.template")
-        paketTemplateFile << TestContent.PAKET_TEMPLATE_V1
+        given: "a remote paket.template file"
+        def createResult = testRepo.createContent(TestContent.PAKET_TEMPLATE_V1, "initial commit", "paket.template")
+        def updateResult = createResult.content.update(TestContent.PAKET_TEMPLATE_V2, "update paket.template")
 
-        and: "some pull requests"
-        def prBody = """
-        ## Description
-        A small test of a pullrequest
-                
-        ## Changes
-        * ![ADD] some stuff
-        * ![REMOVE] some stuff
-        * ![FIX] some stuff
-        """.stripIndent().normalize().readLines().join("\r\n")
+        and: "empty release notes file"
+        def releaseNotes = createFile("RELEASE_NOTES.md")
 
-        def pr1 = createClosedPullRequest("test pm", prBody)
+        and: "remote tags"
+        testRepo.createRef("refs/tags/v1.0.0", createResult.commit.getSHA1())
+        testRepo.createRef("refs/tags/v1.1.0", updateResult.commit.getSHA1())
+
+        and: "logs"
+        git.commit(message: "a change")
+        git.tag.add(name: "v1.0.0")
+        git.commit(message: 'a change')
+        git.tag.add(name: "v1.1.0")
+
+        and: "some releases"
+        createRelease("1.0.0", "v1.0.0")
+        createRelease("1.1.0", "v1.1.0")
+
+        when:
+        def result = runTasksSuccessfully("generateReleaseNotes")
+
+
+
+
+        then:
+        releaseNotes.text.contains("Wooga.TestDependency1 ~> 0.1.0")
+        releaseNotes.text.contains("Wooga.TestDependency1 ~> 0.2.0")
+
     }
 }

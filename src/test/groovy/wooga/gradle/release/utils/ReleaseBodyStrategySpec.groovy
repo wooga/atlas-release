@@ -56,7 +56,7 @@ class ReleaseBodyStrategySpec extends Specification {
         releaseBodyStrategy = new ReleaseBodyStrategy(version, git)
 
         GHContent ghContent = Mock()
-        ghContent.read() >> {new StringInputStream(ReleaseNotesGeneratorTest.PAKET_TEMPALTE)}
+        ghContent.read() >> {new StringInputStream(TestContent.PAKET_TEMPLATE_V1)}
 
         GHRef ref = Mock()
 
@@ -92,6 +92,6 @@ class ReleaseBodyStrategySpec extends Specification {
         * ![ADD] some stuff [#2]
         * ![REMOVE] some stuff [#2]
         * ![FIX] some stuff [#2]
-        """.stripIndent().stripMargin() + ReleaseNotesGeneratorTest.ICON_IDS).trim()
+        """.stripIndent().stripMargin() + TestContent.ICON_IDS).trim()
     }
 }

@@ -91,8 +91,8 @@ class TestContent {
         !../**/AssemblyInfo.cs
         ../README.md ==> content
     dependencies
-        Wooga.TestDependency1 ~> 0.1.0
-        Wooga.TestDependency2 = 0.7
+        Wooga.TestDependency1 ~> 0.2.0
+        Wooga.TestDependency2 = 0.8
         Wooga.TestDependency3
         Wooga.TestDependency4 master
         Wooga.TestDependency4 > 1, <2

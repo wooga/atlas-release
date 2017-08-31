@@ -192,7 +192,7 @@ class ReleaseNotesGenerator {
 
     private String GetTemplateContent(GHRepository hub, String path, ReleaseVersion version) {
         try {
-            def content = hub.getFileContent(path, "tags/v$version.version").read().text
+            def content = hub.getFileContent(path, "v$version.version").read().text
             return content
         }
         catch (IOException exception) {
