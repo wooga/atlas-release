@@ -1,6 +1,8 @@
 package wooga.gradle.release
 
 import org.ajoberstar.grgit.Grgit
+import wooga.gradle.release.utils.ReleaseNotesGeneratorTest
+import wooga.gradle.release.utils.TestContent
 
 class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefaultAuth {
 
@@ -224,5 +226,24 @@ class ReleaseNotesGenerationIntegrationSpec extends GithubIntegrationWithDefault
 
         then:
         releaseNotes.text.normalize().denormalize() == releaseNotes.text
+    }
+
+    def "generate releases with different paket.template files"(){
+
+        def paketTemplateFile = createFile("paket.template")
+        paketTemplateFile << TestContent.PAKET_TEMPLATE_V1
+
+        and: "some pull requests"
+        def prBody = """
+        ## Description
+        A small test of a pullrequest
+                
+        ## Changes
+        * ![ADD] some stuff
+        * ![REMOVE] some stuff
+        * ![FIX] some stuff
+        """.stripIndent().normalize().readLines().join("\r\n")
+
+        def pr1 = createClosedPullRequest("test pm", prBody)
     }
 }
