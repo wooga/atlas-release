@@ -115,12 +115,15 @@ class ReleaseNotesGenerator {
     }
 
     protected List<GHPullRequest> fetchPullRequestsFromLog(List<Commit> log) {
-        String pattern = /#(\d+)/
+        String pattern = /#(\d+)+/
         def prCommits = log.findAll { it.shortMessage =~ pattern }
         def prNumbers = prCommits.collect {
             def m = (it.shortMessage =~ pattern)
-            m[0][1].toInteger()
-        }
+            m.collect {
+                it[1].toInteger()
+            }
+        }.flatten()
+
         def prs = prNumbers.collect {
             def pm
             try {
