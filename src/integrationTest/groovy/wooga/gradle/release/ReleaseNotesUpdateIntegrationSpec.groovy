@@ -92,6 +92,21 @@ class ReleaseNotesUpdateIntegrationSpec extends GithubIntegrationWithDefaultAuth
         initialContent = "# 1.0.0 - Test #"
     }
 
+    def "creates release notes file if it doesn't exist"() {
+        given: "a repo without a release notes file"
+
+        when:
+        runTasksSuccessfully("customUpdateNotes")
+
+        then:
+        def lastCommit = ++testRepo.listCommits().iterator()
+        lastCommit.getCommitShortInfo().getMessage() == "Update release notes"
+
+        where:
+        initialContent = "# 1.0.0 - Test #"
+
+    }
+
     @Unroll
     def "updates release note with message #commitMessageObject value set via #methodName"() {
         given: "release notes file on remote repo"
