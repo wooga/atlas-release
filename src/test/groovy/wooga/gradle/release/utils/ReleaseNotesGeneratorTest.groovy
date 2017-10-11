@@ -217,7 +217,37 @@ class ReleaseNotesGeneratorTest extends Specification {
         """.stripIndent() + TestContent.ICON_IDS).trim()
     }
 
-    def "creates initial change message when previosVersion is not set"() {
+    def "allows multiple hash signs in commit message"() {
+        given: "one commit with multiple hash signs"
+
+        git.commit(message: '#44 fixes (#1), (#2) and (#3)')
+
+        and: "a version"
+        def version = new ReleaseVersion("1.1.0", "1.0.0", false)
+
+        and: "mocked pull requests"
+        hub.getPullRequest(1) >> mockPullRequest(1)
+        hub.getPullRequest(2) >> mockPullRequest(2)
+        hub.getPullRequest(3) >> mockPullRequest(3)
+
+        when:
+        def notes = releaseNoteGenerator.generateReleaseNotes(version, ReleaseNotesGenerator.Template.githubRelease)
+
+        then:
+        notes.normalize() == ("""
+        * ![ADD] some stuff [#3]
+        * ![REMOVE] some stuff [#3]
+        * ![FIX] some stuff [#3]
+        * ![ADD] some stuff [#2]
+        * ![REMOVE] some stuff [#2]
+        * ![FIX] some stuff [#2]
+        * ![ADD] some stuff [#1]
+        * ![REMOVE] some stuff [#1]
+        * ![FIX] some stuff [#1]
+        """.stripIndent() + TestContent.ICON_IDS).trim()
+    }
+
+    def "creates initial change message when previousVersion is not set"() {
         given: "a git log with pull requests commits and tags"
 
         git.commit(message: 'commit')
