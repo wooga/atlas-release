@@ -19,11 +19,11 @@ package wooga.gradle.unity
 
 import cz.malohlava.VisTaskExecGraphPlugin
 import nebula.plugin.release.NetflixOssStrategies
-import nebula.plugin.release.ReleasePlugin
+import wooga.gradle.release.ReleasePlugin
 import nebula.test.PluginProjectSpec
 import nebula.test.ProjectSpec
 import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
-import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
+import wooga.gradle.release.AtlasReleasePluginExtension
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
@@ -63,6 +63,24 @@ class ReleasePluginSpec extends ProjectSpec {
         git.tag.add(name: 'v0.0.1')
     }
 
+    @Unroll("creates the task #extensionName extension")
+    def 'Creates the extensions'() {
+        given:
+        assert !project.plugins.hasPlugin(PLUGIN_NAME)
+        assert !project.extensions.findByName(extensionName)
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        def extension = project.extensions.findByName(extensionName)
+        extensionType.isInstance(extension)
+
+        where:
+        extensionName                | extensionType
+        ReleasePlugin.EXTENSION_NAME | AtlasReleasePluginExtension.class
+    }
+
     @Unroll("applies plugin #pluginName")
     def 'Applies other plugins'(String pluginName, Class pluginType) {
         given:
@@ -77,7 +95,7 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
         pluginName          | pluginType
-        "releasePlugin"     | ReleasePlugin
+        "releasePlugin"     | nebula.plugin.release.ReleasePlugin
         "baseReleasePlugin" | BaseReleasePlugin
         "vistec"            | VisTaskExecGraphPlugin
         "githubPublish"     | GithubPublishPlugin
@@ -93,7 +111,7 @@ class ReleasePluginSpec extends ProjectSpec {
     def "veryfy wooga version strategies"() {
         given:
         project.plugins.apply(PLUGIN_NAME)
-        def extension = project.extensions.findByType(ReleasePluginExtension)
+        def extension = project.extensions.findByType(org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)
         def strategies = extension.getVersionStrategies()
 
         expect:
@@ -108,7 +126,7 @@ class ReleasePluginSpec extends ProjectSpec {
     def "veryfy default version strategies"() {
         given:
         project.plugins.apply(PLUGIN_NAME)
-        def extension = project.extensions.findByType(ReleasePluginExtension)
+        def extension = project.extensions.findByType(org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)
 
         expect:
         extension.defaultVersionStrategy == NetflixOssStrategies.DEVELOPMENT
@@ -134,7 +152,7 @@ class ReleasePluginSpec extends ProjectSpec {
         project.configurations.getByName(configuationName)
 
         where:
-        configuationName = wooga.gradle.release.ReleasePlugin.ARCHIVES_CONFIGURATION
+        configuationName = ReleasePlugin.ARCHIVES_CONFIGURATION
     }
 
     def "works with java plugin"() {
@@ -146,7 +164,7 @@ class ReleasePluginSpec extends ProjectSpec {
         project.configurations.getByName(configuationName)
 
         where:
-        configuationName = wooga.gradle.release.ReleasePlugin.ARCHIVES_CONFIGURATION
+        configuationName = ReleasePlugin.ARCHIVES_CONFIGURATION
     }
 
     @Unroll('verify task creation of task #taskName')
@@ -162,10 +180,10 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
         taskName << [
-                wooga.gradle.release.ReleasePlugin.UNTIY_PACK_TASK,
-                wooga.gradle.release.ReleasePlugin.SETUP_TASK,
-                wooga.gradle.release.ReleasePlugin.RC_TASK,
-                wooga.gradle.release.ReleasePlugin.TEST_TASK
+                ReleasePlugin.UNTIY_PACK_TASK,
+                ReleasePlugin.SETUP_TASK,
+                ReleasePlugin.RC_TASK,
+                ReleasePlugin.TEST_TASK
         ]
     }
 
@@ -271,7 +289,7 @@ class ReleasePluginSpec extends ProjectSpec {
         def paketPackTasks = project.tasks.withType(PaketPack)
         paketPackTasks.size() == 3
         paketPackTasks.every {
-            it.dependsOn.contains(project.tasks.getByName(wooga.gradle.release.ReleasePlugin.SETUP_TASK))
+            it.dependsOn.contains(project.tasks.getByName(ReleasePlugin.SETUP_TASK))
         }
     }
 
@@ -343,7 +361,7 @@ class ReleasePluginSpec extends ProjectSpec {
         project.evaluate()
 
         then:
-        Configuration archive = project.configurations.getByName(wooga.gradle.release.ReleasePlugin.ARCHIVES_CONFIGURATION)
+        Configuration archive = project.configurations.getByName(ReleasePlugin.ARCHIVES_CONFIGURATION)
         def artifacts = archive.allArtifacts
         artifacts.size() == 3
         artifacts.every { it.name.contains("Wooga.Test") }

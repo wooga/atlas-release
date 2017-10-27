@@ -183,6 +183,10 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
                              createFile(".meta", aSubDir)]
 
         def filesToKeep = [createFile("test.dll.meta", assetsDir),
+                           createFile("test.cs", assetsDir),
+                           createFile("test.json", assetsDir),
+                           createFile("test.cs", aSubDir),
+                           createFile("test.json", aSubDir),
                            createFile("test.so.meta", assetsDir),
                            createFile("test.dll.meta", aSubDir),
                            createFile("test.so.meta", aSubDir),
@@ -200,6 +204,122 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         then:
         result.wasExecuted(":unity.test:cleanMetaFiles")
         !result.wasUpToDate(":unity.test:cleanMetaFiles")
+        filesToDelete.every { !it.exists() }
+        filesToKeep.every { it.exists() }
+    }
+
+    def "verify cleanMetaFiles custom pattern set"() {
+        given: "a subproject with unity plugin"
+        File unitySub = addSubproject("unity.test", """
+            ${applyPlugin(UnityPlugin)}
+        """.stripIndent())
+
+        and: "some .meta files"
+        def assetsDir = new File(unitySub, "Assets/")
+        assetsDir.mkdirs()
+        def aSubDir = new File(assetsDir, "sub")
+        aSubDir.mkdirs()
+
+        def aSubDir2 = new File(assetsDir, "keep")
+        aSubDir2.mkdirs()
+
+        def filesToDelete = [
+                createFile("file.cs.meta", assetsDir),
+                createFile("file.json.meta", assetsDir),
+                createFile(".meta", assetsDir),
+                createFile("test.cs", assetsDir),
+                createFile("test.json", assetsDir),
+                createFile("test.cs", aSubDir),
+                createFile("test.json", aSubDir),
+        ]
+
+        def filesToKeep = [
+                createFile("test.dll.meta", assetsDir),
+                createFile("file.cs.meta", aSubDir2),
+                createFile("file.json.meta", aSubDir2),
+                createFile(".meta", aSubDir2),
+                createFile("test.dll.meta", aSubDir),
+        ]
+
+        and: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        and: "a custom meta clean pattern"
+        buildFile << """
+            atlasRelease.metaCleanPattern {
+                include("**/*.cs")
+                include("**/*.json")
+                exclude("**/*.dll.meta")
+                exclude("**/keep/*.cs.meta")
+                exclude("**/keep/*.json.meta")
+                exclude("**/keep/.meta")
+                    
+            }
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("cleanMetaFiles")
+
+        then:
+        result.wasExecuted(":unity.test:cleanMetaFiles")
+        !result.wasUpToDate(":unity.test:cleanMetaFiles")
+        filesToDelete.every { !it.exists() }
+        filesToKeep.every { it.exists() }
+    }
+
+    def "verify cleanMetaFiles replace pattern set"() {
+        given: "a subproject with unity plugin"
+        File unitySub = addSubproject("unity.test", """
+            ${applyPlugin(UnityPlugin)}
+        """.stripIndent())
+
+        and: "some .meta files"
+        def assetsDir = new File(unitySub, "Assets/")
+        assetsDir.mkdirs()
+        def aSubDir = new File(assetsDir, "sub")
+        aSubDir.mkdirs()
+
+        def aSubDir2 = new File(assetsDir, "keep")
+        aSubDir2.mkdirs()
+
+        def filesToDelete = []
+
+        def filesToKeep = [
+                createFile("test.meta", assetsDir),
+                createFile(".meta", assetsDir),
+                createFile("test.meta", aSubDir),
+                createFile(".meta", aSubDir),
+                createFile("test.dll.meta", assetsDir),
+                createFile("test.cs", assetsDir),
+                createFile("test.json", assetsDir),
+                createFile("test.cs", aSubDir),
+                createFile("test.json", aSubDir),
+                createFile("test.so.meta", assetsDir),
+                createFile("test.dll.meta", aSubDir),
+                createFile("test.so.meta", aSubDir),
+                createFile("test.meta", unitySub),
+                createFile(".meta", unitySub)]
+
+        and: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        and: "a custom meta clean pattern"
+        buildFile << """
+            atlasRelease.metaCleanPattern {
+                exclude("**/*.meta")     
+            }
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("cleanMetaFiles")
+
+        then:
+        result.wasExecuted(":unity.test:cleanMetaFiles")
+        result.wasUpToDate(":unity.test:cleanMetaFiles")
         filesToDelete.every { !it.exists() }
         filesToKeep.every { it.exists() }
     }
