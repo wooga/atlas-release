@@ -368,6 +368,21 @@ class ReleasePluginSpec extends ProjectSpec {
         artifacts.every { it.extension == "nupkg" }
     }
 
+    def "sets version on paketPack tasks"() {
+        given: "multiple paket.template files with version set"
+        createMockPaketTemplate("Wooga.Test1", new File(projectDir, "sub1")) << "version 2.0.0"
+        createMockPaketTemplate("Wooga.Test2", new File(projectDir, "sub2")) << "version 2.0.0"
+        createMockPaketTemplate("Wooga.Test3", new File(projectDir, "sub3")) << "version 2.0.0"
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+        project.evaluate()
+
+        then:
+        def tasks = project.tasks.withType(PaketPack)
+        tasks.every { it.version != "2.0.0"}
+    }
+
     @Unroll
     def "verify githubPublish onlyIf spec when project.status:#testState and github repository #repositoryName"() {
         given: "gradle project with plugin applied and evaluated"
