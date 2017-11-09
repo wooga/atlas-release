@@ -33,16 +33,13 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.publish.plugins.PublishingPlugin
-import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.language.base.plugins.LifecycleBasePlugin
-import org.kohsuke.github.GHRepository
 import wooga.gradle.github.GithubPlugin
 import wooga.gradle.github.publish.GithubPublish
 import wooga.gradle.github.publish.GithubPublishPlugin
-import wooga.gradle.github.publish.PublishBodyStrategy
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.base.PaketBasePlugin
 import wooga.gradle.paket.get.PaketGetPlugin
@@ -52,7 +49,6 @@ import wooga.gradle.release.tasks.GenerateReleaseNotes
 import wooga.gradle.release.tasks.UpdateReleaseNotes
 import wooga.gradle.release.utils.ProjectStatusTaskSpec
 import wooga.gradle.release.utils.ReleaseBodyStrategy
-import wooga.gradle.release.utils.ReleaseNotesGenerator
 
 class ReleasePlugin implements Plugin<Project> {
 
@@ -65,14 +61,24 @@ class ReleasePlugin implements Plugin<Project> {
     static final String RC_TASK = "rc"
     static final String TEST_TASK = "test"
     static final String GROUP = "Wooga"
+    static final String EXTENSION_NAME = "atlasRelease"
 
     TaskContainer tasks
     Project project
+    AtlasReleasePluginExtension extension
 
     @Override
     void apply(Project project) {
         this.project = project
         this.tasks = project.tasks
+        this.extension = (AtlasReleasePluginExtension) project.extensions.create(EXTENSION_NAME, AtlasReleasePluginExtension)
+
+        //set default meta clean Pattern
+        extension.metaCleanPattern {
+            include("**/*.meta")
+            exclude("**/*.dll.meta")
+            exclude("**/*.so.meta")
+        }
 
         applyNebularRelease(project)
         applyVisteg(project)
@@ -194,9 +200,9 @@ class ReleasePlugin implements Plugin<Project> {
 
                     Delete cleanTask = (Delete) sub.tasks.create(name: CLEAN_META_FILES_TASK, type: Delete)
                     def files = project.fileTree(new File(sub.projectDir, 'Assets/'))
-                    files.include("**/*.meta")
-                    files.exclude("**/*.dll.meta")
-                    files.exclude("**/*.so.meta")
+
+                    files.include(extension.metaCleanPattern.includes)
+                    files.exclude(extension.metaCleanPattern.excludes)
 
                     cleanTask.delete(files)
 
