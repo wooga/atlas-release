@@ -104,9 +104,16 @@ class ReleasePlugin implements Plugin<Project> {
             def buildTask = tasks.getByName(LifecycleBasePlugin.BUILD_TASK_NAME)
             buildTask.dependsOn setup
 
-            tasks.withType(PaketPack, new org.gradle.api.Action<PaketPack>() {
+            tasks.withType(PaketPack, new Action<PaketPack>() {
                 @Override
                 void execute(PaketPack paketPack) {
+                    /**
+                     * Sets project version to all <code>PaketPack</code> tasks.
+                     * Version 0.8.0 changed the default behavior for picking the package version.
+                     * This is just a security measure.
+                     *
+                     * */
+                    paketPack.version = { project.version }
                     paketPack.dependsOn setup
                 }
             })
