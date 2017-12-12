@@ -80,6 +80,9 @@ class ReleasePlugin implements Plugin<Project> {
             exclude("**/*.so.meta")
         }
 
+
+        applyRCtoCandidateAlias(project)
+
         applyNebularRelease(project)
         applyVisteg(project)
         applyWoogaPlugins(project)
@@ -123,7 +126,6 @@ class ReleasePlugin implements Plugin<Project> {
             def publishTask = tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
             GithubPublish githubPublishTask = (GithubPublish) tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
             def candiateTask = tasks.getByName(nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME)
-            def rcTask = tasks.create(name: RC_TASK, group: nebula.plugin.release.ReleasePlugin.GROUP, dependsOn: candiateTask)
             if (!tasks.hasProperty(TEST_TASK)) {
                 def test = tasks.create(name: TEST_TASK, dependsOn: setup)
                 checkTask.dependsOn test
@@ -154,6 +156,26 @@ class ReleasePlugin implements Plugin<Project> {
         configureVersionCode(project)
         configureUnityPackageIfPresent(project)
         configurePaketConfigurationArtifacts(project)
+    }
+
+    /**
+     * The <code>NebularRelease</code> plugin will provide slightly better error messages when using the official
+     * cli tasks (final, candidate, snapshot, ...). Because of internal naming reasons it makes sense for us to use
+     * <code>rc</code> instead of <code>candidate</code>. All other resources are named with the
+     * pattern (final, rc and snapshot). I used a custom task with the name <code>rc</code> which depends on
+     * <code>candidate</code> but this will fall through the error check in <code>NebularRelease</code>. So instead we
+     * now change the cli tasklist on the fly. If we find the <code>rc</code> taskname in the cli tasklist we remove it
+     * and add <code>candidate</code> instead.
+     * @param project
+     * @return
+     */
+    private applyRCtoCandidateAlias(Project project) {
+        List<String> cliTasks = project.rootProject.gradle.startParameter.taskNames
+        if (cliTasks.contains(RC_TASK)) {
+            cliTasks.remove(RC_TASK)
+            cliTasks.add(nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME)
+            project.rootProject.gradle.startParameter.setTaskNames(cliTasks)
+        }
     }
 
     void createReleaseNoteTasks(Grgit git) {

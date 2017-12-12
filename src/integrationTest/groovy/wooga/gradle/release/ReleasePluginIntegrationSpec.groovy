@@ -25,9 +25,18 @@ import wooga.gradle.unity.UnityPlugin
 class ReleasePluginIntegrationSpec extends IntegrationSpec {
 
     Grgit git
+    File gitIgnore
 
     def setup() {
+        gitIgnore = createFile('.gitignore')
+        gitIgnore << """
+        .gradle/
+        .gradle*/
+        *.gradle
+        """.stripIndent()
+
         git = Grgit.init(dir: projectDir)
+        git.add(patterns: ['.gitignore'])
         git.commit(message: 'initial commit')
         git.tag.add(name: "v0.0.1")
     }
@@ -322,5 +331,25 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         result.wasUpToDate(":unity.test:cleanMetaFiles")
         filesToDelete.every { !it.exists() }
         filesToKeep.every { it.exists() }
+    }
+
+    @Unroll
+    def "uses task: #taskA as alias to #taskB"() {
+        given: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        def result = runTasks(taskA, "--dry-run")
+
+        then:
+        result.standardOutput.contains(":${taskB}")
+        !result.standardOutput.contains(":${taskA}")
+
+
+        where:
+        taskA                 | taskB
+        ReleasePlugin.RC_TASK | nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME
     }
 }
