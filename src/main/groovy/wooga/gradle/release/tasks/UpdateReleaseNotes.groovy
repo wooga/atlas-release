@@ -8,6 +8,9 @@ import wooga.gradle.github.base.AbstractGithubTask
 
 import java.util.concurrent.Callable
 
+/**
+ * A gradle task class which allows to update a <code>textfile<code> on github
+ */
 class UpdateReleaseNotes extends AbstractGithubTask {
 
     private Object commitMessage
@@ -18,6 +21,9 @@ class UpdateReleaseNotes extends AbstractGithubTask {
         outputs.upToDateWhen { false }
     }
 
+    /**
+     * @return the file to update on github
+     */
     @SkipWhenEmpty
     @InputFile
     File getReleaseNotes() {
@@ -33,6 +39,9 @@ class UpdateReleaseNotes extends AbstractGithubTask {
         this.setReleaseNotes(releaseNotes)
     }
 
+    /**
+     * @return The commit message to use for the update process
+     */
     @Optional
     @Input
     String getCommitMessage() {
