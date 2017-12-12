@@ -182,7 +182,6 @@ class ReleasePluginSpec extends ProjectSpec {
         taskName << [
                 ReleasePlugin.UNTIY_PACK_TASK,
                 ReleasePlugin.SETUP_TASK,
-                ReleasePlugin.RC_TASK,
                 ReleasePlugin.TEST_TASK
         ]
     }
