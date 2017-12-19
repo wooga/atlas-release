@@ -29,7 +29,8 @@ import static org.ajoberstar.gradle.git.release.semver.StrategyUtil.parseIntOrZe
 
 class WoogaStrategies {
 
-    private static final scopes = StrategyUtil.one(Strategies.Normal.USE_SCOPE_PROP,
+    private static final scopes = StrategyUtil.one(
+            Strategies.Normal.USE_SCOPE_PROP,
             Strategies.Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_X, Strategies.Normal.ENFORCE_BRANCH_MAJOR_X,
             Strategies.Normal.ENFORCE_GITFLOW_BRANCH_MAJOR_MINOR_X, Strategies.Normal.ENFORCE_BRANCH_MAJOR_MINOR_X,
             Strategies.Normal.USE_NEAREST_ANY, Strategies.Normal.useScope(ChangeScope.PATCH))

@@ -192,9 +192,15 @@ class ReleasePluginSpec extends ProjectSpec {
         given: "a project with specified release stage and scope"
 
         project.ext.set('release.stage', stage)
-        project.ext.set('release.scope', scope)
+        if (scope) {
+            project.ext.set('release.scope', scope)
+        }
 
         and: "a history"
+
+        if (branchName != "master") {
+            git.checkout(branch: "$branchName", startPoint: 'master', createBranch: true)
+        }
 
         commitsBefore.times {
             git.commit(message: 'feature commit')
@@ -214,15 +220,27 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
 
-        tagVersion      | commitsBefore | commitsAfter | stage      | scope   | expectedVersion
-        '1.0.0'         | 1             | 3            | "SNAPSHOT" | "minor" | "1.1.0-master00003"
-        '1.0.0'         | 1             | 3            | "rc"       | "minor" | "1.1.0-rc00001"
-        '1.0.0'         | 1             | 3            | "final"    | "minor" | "1.1.0"
-        '1.0.0'         | 1             | 3            | "final"    | "major" | "2.0.0"
-        '1.0.0-rc00001' | 10            | 5            | "rc"       | "major" | "1.0.0-rc00002"
-        '1.0.0-rc00022' | 0             | 1            | "rc"       | "major" | "1.0.0-rc00023"
-        '0.1.0-rc00002' | 22            | 5            | "final"    | "minor" | "0.1.0"
-        '0.1.0'         | 3             | 5            | "SNAPSHOT" | "patch" | "0.1.1-master00005"
+        tagVersion      | commitsBefore | commitsAfter | stage      | scope   | branchName      | expectedVersion
+        '1.0.0'         | 1             | 3            | "SNAPSHOT" | "minor" | "master"        | "1.1.0-master00003"
+        '1.0.0'         | 1             | 3            | "rc"       | "minor" | "master"        | "1.1.0-rc00001"
+        '1.0.0'         | 1             | 3            | "final"    | "minor" | "master"        | "1.1.0"
+        '1.0.0'         | 1             | 3            | "final"    | "major" | "master"        | "2.0.0"
+        '1.0.0-rc00001' | 10            | 5            | "rc"       | "major" | "master"        | "1.0.0-rc00002"
+        '1.0.0-rc00022' | 0             | 1            | "rc"       | "major" | "master"        | "1.0.0-rc00023"
+        '0.1.0-rc00002' | 22            | 5            | "final"    | "minor" | "master"        | "0.1.0"
+        '0.1.0'         | 3             | 5            | "SNAPSHOT" | "patch" | "master"        | "0.1.1-master00005"
+        '1.1.0'         | 3             | 5            | "SNAPSHOT" | null    | "release/2.x"   | "2.0.0-branchReleaseTwoDotx00005"
+        '2.0.1'         | 3             | 5            | "SNAPSHOT" | null    | "release/2.1.x" | "2.1.0-branchReleaseTwoDotOneDotx00005"
+        '1.1.1'         | 3             | 5            | "rc"       | null    | "release/2.x"   | "2.0.0-rc00001"
+        '2.0.1'         | 3             | 5            | "final"    | null    | "release/2.1.x" | "2.1.0"
+        '1.1.0'         | 3             | 5            | "SNAPSHOT" | "minor" | "release/2.x"   | "1.2.0-branchReleaseTwoDotx00005"
+        '2.0.1'         | 3             | 5            | "SNAPSHOT" | "patch" | "release/2.1.x" | "2.0.2-branchReleaseTwoDotOneDotx00005"
+        '1.1.0'         | 3             | 5            | "SNAPSHOT" | null    | "2.x"           | "2.0.0-branchTwoDotx00005"
+        '2.0.1'         | 3             | 5            | "SNAPSHOT" | null    | "2.1.x"         | "2.1.0-branchTwoDotOneDotx00005"
+        '1.1.1'         | 3             | 5            | "rc"       | null    | "2.x"           | "2.0.0-rc00001"
+        '2.0.1'         | 3             | 5            | "final"    | null    | "2.1.x"         | "2.1.0"
+        '1.1.0'         | 3             | 5            | "SNAPSHOT" | "minor" | "2.x"           | "1.2.0-branchTwoDotx00005"
+        '2.0.1'         | 3             | 5            | "SNAPSHOT" | "patch" | "2.1.x"         | "2.0.2-branchTwoDotOneDotx00005"
     }
 
     @Unroll('verify version branch rename for branch #branchName')
@@ -379,7 +397,7 @@ class ReleasePluginSpec extends ProjectSpec {
 
         then:
         def tasks = project.tasks.withType(PaketPack)
-        tasks.every { it.version != "2.0.0"}
+        tasks.every { it.version != "2.0.0" }
     }
 
     @Unroll
