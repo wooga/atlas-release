@@ -248,7 +248,7 @@ class ReleasePlugin implements Plugin<Project> {
     }
 
     private configureSetupTaskIfUnityPluginPresent(Project project) {
-        def rootSetupTask = project.tasks[SETUP_TASK]
+        def rootSetupTask = project.rootProject.tasks[SETUP_TASK]
         project.subprojects { sub ->
             sub.afterEvaluate {
                 logger.info("check subproject {} for WDK unity plugin", sub.name)
