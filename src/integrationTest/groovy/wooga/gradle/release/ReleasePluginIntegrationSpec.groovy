@@ -154,6 +154,36 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         ["2.14", "3.0", "3.2", "3.4", "3.4.1", "3.5", "3.5.1", "4.0"]
     }
 
+
+    @Unroll("verify #testType sub project setup task of wdk-unity plugin gets added")
+    def "verify setup task of sub project"() {
+        given: "some subprojects with net.wooga.wdk-unity applied"
+
+        [range].each {
+            addSubproject("testSub$it", """
+                apply plugin: 'net.wooga.wdk-unity'
+                
+             """.stripIndent())
+        }
+
+        and: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("setup")
+
+        then:
+        [range].collect {
+            result.wasExecuted(":testSub$it:setup")
+        }.every()
+
+        where:
+        range << [1..1, 1..4]
+        testType = range.size() > 1 ? "multiple" : "single"
+    }
+
     @Ignore
     @Unroll("verify plugin activation with gradle #gradleVersionToTest")
     def "activates with multiple gradle versions"() {
