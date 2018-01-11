@@ -155,6 +155,7 @@ class ReleasePlugin implements Plugin<Project> {
 
         configureVersionCode(project)
         configureUnityPackageIfPresent(project)
+        configureSetupTaskIfUnityPluginPresent(project)
         configurePaketConfigurationArtifacts(project)
     }
 
@@ -241,6 +242,22 @@ class ReleasePlugin implements Plugin<Project> {
                             paketPack.dependsOn cleanTask
                         }
                     })
+                }
+            }
+        }
+    }
+
+    private configureSetupTaskIfUnityPluginPresent(Project project) {
+        def rootSetupTask = project.rootProject.tasks[SETUP_TASK]
+        project.subprojects { sub ->
+            sub.afterEvaluate {
+                logger.info("check subproject {} for WDK unity plugin", sub.name)
+                if (sub.plugins.hasPlugin("net.wooga.wdk-unity")) {
+                    logger.info("subproject {} has WDK unity plugin.", sub.name)
+                    logger.info("configure dependencies {}", sub.path)
+                    logger.info("create cleanMetaFiles task")
+                    def setupTask = sub.tasks[SETUP_TASK]
+                    rootSetupTask.dependsOn(setupTask)
                 }
             }
         }
