@@ -23,7 +23,7 @@ class ReleaseNotesUpdateIntegrationSpec extends GithubIntegrationWithDefaultAuth
 
         buildFile << """
 
-        task (customUpdateNotes, type: wooga.gradle.release.tasks.UpdateReleaseNotes) {
+        task (customUpdateNotes, type: wooga.gradle.releaseNotesGenerator.tasks.UpdateReleaseNotes) {
             releaseNotes project.file("$fileName")
         }
         """.stripIndent()

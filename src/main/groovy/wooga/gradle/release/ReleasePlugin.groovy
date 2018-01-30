@@ -23,11 +23,9 @@ import nebula.core.ProjectType
 import nebula.plugin.release.NetflixOssStrategies
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
-import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.logging.Logger
@@ -45,10 +43,9 @@ import wooga.gradle.paket.base.PaketBasePlugin
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
-import wooga.gradle.release.tasks.GenerateReleaseNotes
-import wooga.gradle.release.tasks.UpdateReleaseNotes
 import wooga.gradle.release.utils.ProjectStatusTaskSpec
-import wooga.gradle.release.utils.ReleaseBodyStrategy
+import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
+import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
 
 class ReleasePlugin implements Plugin<Project> {
 
@@ -149,8 +146,7 @@ class ReleasePlugin implements Plugin<Project> {
             project.version.toString()
             githubPublishTask.body(new ReleaseBodyStrategy(project.version.inferredVersion as ReleaseVersion, releaseExtension.grgit))
 
-            //create release note tasks
-            createReleaseNoteTasks(releaseExtension.grgit)
+            project.pluginManager.apply(ReleaseNotesGeneratorPlugin)
         }
 
         configureVersionCode(project)
@@ -177,31 +173,6 @@ class ReleasePlugin implements Plugin<Project> {
             cliTasks.add(nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME)
             project.rootProject.gradle.startParameter.setTaskNames(cliTasks)
         }
-    }
-
-    void createReleaseNoteTasks(Grgit git) {
-        GithubPublish githubPublishTask = (GithubPublish) tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
-
-        GenerateReleaseNotes appendLatestRelease = (GenerateReleaseNotes) tasks.create("appendReleaseNotes", GenerateReleaseNotes)
-        appendLatestRelease.appendLatestRelease(true)
-
-        def generateReleaseNotes = tasks.create("generateReleaseNotes", GenerateReleaseNotes)
-
-        [appendLatestRelease, generateReleaseNotes].each {
-            it.git(git)
-            it.releaseNotes(project.file("RELEASE_NOTES.md"))
-            it.group = "Release Notes"
-        }
-
-        UpdateReleaseNotes updateReleaseNotes = (UpdateReleaseNotes) tasks.create("updateReleaseNotes", UpdateReleaseNotes)
-        updateReleaseNotes.releaseNotes(project.file("RELEASE_NOTES.md"))
-        updateReleaseNotes.dependsOn(appendLatestRelease)
-        updateReleaseNotes.group = "Release Notes"
-        updateReleaseNotes.onlyIf(new ProjectStatusTaskSpec('release'))
-
-        Task publishTask = tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
-        publishTask.dependsOn(updateReleaseNotes)
-        updateReleaseNotes.mustRunAfter(githubPublishTask)
     }
 
     def configureVersionCode(Project project) {

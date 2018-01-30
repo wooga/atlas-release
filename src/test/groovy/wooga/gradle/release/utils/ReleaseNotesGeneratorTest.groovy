@@ -29,6 +29,7 @@ import org.kohsuke.github.GHRelease
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.PagedIterable
 import spock.lang.Specification
+import wooga.gradle.releaseNotesGenerator.utils.ReleaseNotesGenerator
 
 class ReleaseNotesGeneratorTest extends Specification {
 

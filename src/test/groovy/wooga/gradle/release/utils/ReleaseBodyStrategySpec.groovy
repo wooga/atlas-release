@@ -8,6 +8,7 @@ import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHRef
 import org.kohsuke.github.GHRepository
 import spock.lang.Specification
+import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
 
 class ReleaseBodyStrategySpec extends Specification {
 
@@ -26,7 +27,7 @@ class ReleaseBodyStrategySpec extends Specification {
         Yada Yada Yada Yada Yada
         """.stripIndent()
 
-        if(changeSet) {
+        if (changeSet) {
             bodyOut << """
             ## Changes
             * ![ADD] some stuff
@@ -56,7 +57,7 @@ class ReleaseBodyStrategySpec extends Specification {
         releaseBodyStrategy = new ReleaseBodyStrategy(version, git)
 
         GHContent ghContent = Mock()
-        ghContent.read() >> {new StringInputStream(TestContent.PAKET_TEMPLATE_V1)}
+        ghContent.read() >> { new StringInputStream(TestContent.PAKET_TEMPLATE_V1) }
 
         GHRef ref = Mock()
         repository.getRef(_) >> ref

@@ -51,6 +51,7 @@ dependencies {
     compile 'cz.malohlava:visteg:1.0.+'
     compile 'gradle.plugin.net.wooga.gradle:atlas-paket:0.10.+'
     compile 'gradle.plugin.net.wooga.gradle:atlas-github:0.6.0'
+    compile "gradle.plugin.net.wooga.gradle:atlas-releaseNotesGenerator:0.1.0"
 
     compile gradleApi()
     compile localGroovy()

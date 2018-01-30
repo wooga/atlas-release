@@ -6,6 +6,7 @@ import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GitHub
 import org.kohsuke.github.PagedIterable
 import spock.lang.Shared
+import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
 
 abstract class GithubIntegration extends IntegrationSpec {
 
