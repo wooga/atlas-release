@@ -109,7 +109,7 @@ class ReleasePluginSpec extends ProjectSpec {
     }
 
     @Unroll('verify version strategy #strategyName is configured correctly')
-    def "veryfy wooga version strategies"() {
+    def "verify wooga version strategies"() {
         given:
         project.plugins.apply(PLUGIN_NAME)
         def extension = project.extensions.findByType(org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)
@@ -124,7 +124,7 @@ class ReleasePluginSpec extends ProjectSpec {
         "pre-release" | WoogaStrategies.PRE_RELEASE
     }
 
-    def "veryfy default version strategies"() {
+    def "verify default version strategies"() {
         given:
         project.plugins.apply(PLUGIN_NAME)
         def extension = project.extensions.findByType(org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)

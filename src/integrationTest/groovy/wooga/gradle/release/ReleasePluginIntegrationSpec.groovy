@@ -20,6 +20,7 @@ import nebula.test.IntegrationSpec
 import org.ajoberstar.grgit.Grgit
 import spock.lang.Ignore
 import spock.lang.Unroll
+import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
 import wooga.gradle.unity.UnityPlugin
 
 class ReleasePluginIntegrationSpec extends IntegrationSpec {
