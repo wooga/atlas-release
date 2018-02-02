@@ -21,7 +21,7 @@ Conventions
 * adds `setup` task to lifecycle to setup paket dependencies and other installation routines
 * configures version strategies for use with [Paket][paket] and [nuget][nuget]
 
-Usage
+Applying the plugin
 -------------------
 
 **build.gradle**
@@ -30,6 +30,11 @@ plugins {
     id 'net.wooga.release' version '0.5.0'
 }
 ```
+
+Documentation
+=============
+
+- [API docs](https://wooga.github.io/atlas-release/docs/api/)
 
 Gradle and Java Compatibility
 =============================
