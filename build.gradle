@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id 'net.wooga.plugins' version '0.1.1'
+    id 'net.wooga.plugins' version '0.3.0'
 }
 
 group 'net.wooga.gradle'
@@ -35,6 +35,10 @@ pluginBundle {
             description = 'Plugin for wooga unity library releases'
         }
     }
+}
+
+github {
+    repositoryName = "wooga/atlas-release"
 }
 
 dependencies {
