@@ -36,7 +36,7 @@ import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
-import wooga.gradle.release.WoogaStrategies
+import wooga.gradle.release.utils.WoogaStrategies
 
 
 class ReleasePluginActivationSpec extends PluginProjectSpec {
@@ -130,7 +130,7 @@ class ReleasePluginSpec extends ProjectSpec {
         def extension = project.extensions.findByType(org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)
 
         expect:
-        extension.defaultVersionStrategy == NetflixOssStrategies.DEVELOPMENT
+        extension.defaultVersionStrategy == WoogaStrategies.DEVELOPMENT
     }
 
     def "add visteg plugin"() {
