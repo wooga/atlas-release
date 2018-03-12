@@ -42,6 +42,7 @@ import wooga.gradle.github.publish.GithubPublish
 import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.base.PaketBasePlugin
+import wooga.gradle.paket.base.PaketPluginExtension
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
@@ -132,7 +133,9 @@ class ReleasePlugin implements Plugin<Project> {
 
     private static Task configureSetupTask(final Project project) {
         project.tasks.maybeCreate(SETUP_TASK).with {
-            dependsOn(PaketGetPlugin.INSTALL_TASK_NAME)
+            PaketPluginExtension paketPluginExtension = project.extensions.getByType(PaketPluginExtension);
+            def installTask = paketPluginExtension.getPaketLockFile().exists() ? PaketGetPlugin.RESTORE_TASK_NAME : PaketGetPlugin.INSTALL_TASK_NAME
+            dependsOn(installTask)
             group = GROUP
             setDescription("run project setup")
         }

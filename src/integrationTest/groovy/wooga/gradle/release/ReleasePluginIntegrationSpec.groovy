@@ -20,7 +20,7 @@ import nebula.test.IntegrationSpec
 import org.ajoberstar.grgit.Grgit
 import spock.lang.Ignore
 import spock.lang.Unroll
-import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
+import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.unity.UnityPlugin
 
 class ReleasePluginIntegrationSpec extends IntegrationSpec {
@@ -382,5 +382,35 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         where:
         taskA                 | taskB
         ReleasePlugin.RC_TASK | nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME
+    }
+
+    @Unroll
+    def "task :setup depends on #installTask when paket.lock file #lock_status"() {
+        given: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        and: "a paket.dependencies file"
+        createFile("paket.dependencies")
+
+        and: "optional paket.lock"
+        if(lock_status) {
+            createFile("paket.lock")
+        }
+        def paketLock = new File(projectDir,"paket.lock")
+
+        assert(paketLock.exists() == lock_status)
+
+        when:
+        def result = runTasksSuccessfully("setup")
+
+        then:
+        result.wasExecuted(installTask)
+
+        where:
+        installTask                      | lock_status
+        PaketGetPlugin.RESTORE_TASK_NAME | true
+        PaketGetPlugin.INSTALL_TASK_NAME | false
     }
 }
