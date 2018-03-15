@@ -21,6 +21,7 @@ import cz.malohlava.VisTaskExecGraphPlugin
 import cz.malohlava.VisTegPluginExtension
 import nebula.core.ProjectType
 import nebula.plugin.release.NetflixOssStrategies
+import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
 import org.gradle.api.Action
@@ -421,6 +422,41 @@ class ReleasePlugin implements Plugin<Project> {
                 releaseExtension.versionStrategy(WoogaStrategies.PRE_RELEASE)
                 releaseExtension.versionStrategy(WoogaStrategies.FINAL)
                 releaseExtension.defaultVersionStrategy = WoogaStrategies.DEVELOPMENT
+            }
+
+            replaceReleaseTask(project, releaseExtension)
+        }
+    }
+
+    /**
+     * Replaces the {@code release} task from {@link BaseReleasePlugin}.
+     * <p>
+     * On CI systems that check out the repo with a temp branch name could lead to
+     * unwanted side effects.
+     *
+     * @param project
+     * @param extension
+     */
+    protected static void replaceReleaseTask(final Project project, final ReleasePluginExtension extension) {
+        def releaseTask = project.tasks.getByName('release')
+        releaseTask.deleteAllActions()
+        releaseTask.doLast {
+            // force version inference if it hasn't happened already
+            project.version.toString()
+
+            ext.grgit = extension.grgit
+            ext.toPush = []
+
+            ext.tagName = extension.tagStrategy.maybeCreateTag(grgit, project.version.inferredVersion)
+            if (tagName) {
+                toPush << tagName
+            }
+
+            if (toPush) {
+                logger.warn('Pushing changes in {} to {}', toPush, extension.remote)
+                grgit.push(remote: extension.remote, refsOrSpecs: toPush)
+            } else {
+                logger.warn('Nothing to push.')
             }
         }
     }
