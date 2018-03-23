@@ -19,8 +19,6 @@ package wooga.gradle.release
 
 import cz.malohlava.VisTaskExecGraphPlugin
 import cz.malohlava.VisTegPluginExtension
-import nebula.core.ProjectType
-import nebula.plugin.release.NetflixOssStrategies
 import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
 import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
 import org.ajoberstar.gradle.git.release.base.ReleaseVersion
@@ -94,8 +92,7 @@ class ReleasePlugin implements Plugin<Project> {
         configureArchiveConfiguration(project)
         createUnityPackTask(project)
 
-        ProjectType type = new ProjectType(project)
-        if (type.isRootProject) {
+        if (project == project.rootProject) {
             configureSetupTask(project)
             configureReleaseLifecycle(project)
             configureGithubPublishTask(project)
@@ -411,9 +408,8 @@ class ReleasePlugin implements Plugin<Project> {
      */
     protected static void applyNebularRelease(Project project) {
         project.pluginManager.apply(nebula.plugin.release.ReleasePlugin)
-        ProjectType type = new ProjectType(project)
 
-        if (type.isRootProject) {
+        if (project == project.rootProject) {
             ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
 
             releaseExtension.with {
