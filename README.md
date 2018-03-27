@@ -45,8 +45,7 @@ Tested with Oracle JDK8
 
 | Gradle Version | Works       |
 | :------------- | :---------: |
-| <= 2.13        | ![no]       |
-| 2.14           | ![yes]      |
+| <= 2.14        | ![no]       |
 | 3.0            | ![yes]      |
 | 3.1            | ![yes]      |
 | 3.2            | ![yes]      |
@@ -55,6 +54,12 @@ Tested with Oracle JDK8
 | 3.5            | ![yes]      |
 | 3.5.1          | ![yes]      |
 | 4.0            | ![yes]      |
+| 4.1            | ![yes]      |
+| 4.2            | ![yes]      |
+| 4.3            | ![yes]      |
+| 4.4            | ![yes]      |
+| 4.5            | ![no]      |
+| 4.5            | ![no]      |
 
 Development
 ===========

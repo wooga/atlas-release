@@ -16,7 +16,6 @@
 
 package wooga.gradle.release
 
-import nebula.test.IntegrationSpec
 import org.ajoberstar.grgit.Grgit
 import spock.lang.Ignore
 import spock.lang.Unroll
@@ -40,6 +39,7 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         git.add(patterns: ['.gitignore'])
         git.commit(message: 'initial commit')
         git.tag.add(name: "v0.0.1")
+        createFile("paket.dependencies")
     }
 
     @Unroll("verify versionCode generation from version #tagVersion")
@@ -113,7 +113,7 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
     def "verify dependency setup to unity sub-projects"() {
         given: "some subprojects with net.wooga.unity applied"
 
-        [range].each {
+        range.each {
             addSubproject("testSub$it", """
                 apply plugin: 'net.wooga.unity'
                 
@@ -129,7 +129,7 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksSuccessfully("unityPack")
 
         then:
-        [range].collect {
+        range.collect {
             result.wasExecuted(":testSub$it:exportUnityPackage")
         }.every()
 
@@ -148,19 +148,18 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksSuccessfully("unityPack")
 
         then:
-        result.standardOutput.contains("unityPack NO-SOURCE")
+        result.standardOutput.contains("unityPack NO-SOURCE") || result.standardOutput.contains("Skipping task ':unityPack'")
     }
 
     def gradleVersions() {
-        ["2.14", "3.0", "3.2", "3.4", "3.4.1", "3.5", "3.5.1", "4.0"]
+        ["2.14", "3.0", "3.2", "3.4", "3.4.1", "3.5", "3.5.1", "4.0", "4.1", "4.2", "4.3", "4.4", "4.5", "4.6"]
     }
-
 
     @Unroll("verify #testType sub project setup task of wdk-unity plugin gets added")
     def "verify setup task of sub project"() {
         given: "some subprojects with net.wooga.wdk-unity applied"
 
-        [range].each {
+        range.each {
             addSubproject("testSub$it", """
                 apply plugin: 'net.wooga.wdk-unity'
                 
@@ -176,7 +175,7 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksSuccessfully("setup")
 
         then:
-        [range].collect {
+        range.collect {
             result.wasExecuted(":testSub$it:setup")
         }.every()
 
