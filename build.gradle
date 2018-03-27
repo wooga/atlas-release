@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id 'net.wooga.plugins' version '0.3.0'
+    id 'net.wooga.plugins' version '1.1.0'
 }
 
 group 'net.wooga.gradle'
@@ -24,7 +24,7 @@ description = 'Unity3D plugin for Gradle.'
 
 
 pluginBundle {
-    website = 'https://github.com/wooga/atlas-release'
+    website = 'https://wooga.github.io/atlas-release'
     vcsUrl = 'https://github.com/wooga/atlas-release'
     tags = ['Wooga', 'release']
 
@@ -53,9 +53,9 @@ dependencies {
     compile 'org.ajoberstar:gradle-git:1.7.+'
     compile 'com.github.spullara.mustache.java:compiler:0.8.18'
     compile 'cz.malohlava:visteg:1.0.+'
-    compile 'gradle.plugin.net.wooga.gradle:atlas-paket:0.11.+'
-    compile 'gradle.plugin.net.wooga.gradle:atlas-github:0.6.0'
-    compile "gradle.plugin.net.wooga.gradle:atlas-releaseNotesGenerator:0.1.0"
+    compile 'gradle.plugin.net.wooga.gradle:atlas-paket:1.+'
+    compile 'gradle.plugin.net.wooga.gradle:atlas-github:1.+'
+    compile "gradle.plugin.net.wooga.gradle:atlas-releaseNotesGenerator:1.+"
 
     compile gradleApi()
     compile localGroovy()

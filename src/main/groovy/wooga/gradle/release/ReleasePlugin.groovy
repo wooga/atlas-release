@@ -37,7 +37,7 @@ import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import wooga.gradle.github.GithubPlugin
-import wooga.gradle.github.publish.GithubPublish
+import wooga.gradle.github.publish.tasks.GithubPublish
 import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.base.PaketBasePlugin

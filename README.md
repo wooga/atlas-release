@@ -35,6 +35,7 @@ Documentation
 =============
 
 - [API docs](https://wooga.github.io/atlas-release/docs/api/)
+- [Release Notes](RELEASE_NOTES.md)]
 
 Gradle and Java Compatibility
 =============================
@@ -54,6 +55,10 @@ Tested with Oracle JDK8
 | 3.5            | ![yes]      |
 | 3.5.1          | ![yes]      |
 | 4.0            | ![yes]      |
+
+Development
+===========
+[Code of Conduct](docs/Code-of-conduct.md)
 
 LICENSE
 =======
@@ -75,11 +80,11 @@ limitations under the License.
 <!-- Links -->
 [atlas-paket]:      https://github.com/wooga/atlas-paket
 [atlas-unity]:      https://github.com/wooga/atlas-unity
-[nebula-release]:  https://github.com/nebula-plugins/nebula-release-plugin
+[nebula-release]:   https://github.com/nebula-plugins/nebula-release-plugin
 [gradle-git]:       https://github.com/ajoberstar/gradle-git
 [visteg]:           https://github.com/mmalohlava/gradle-visteg
 [paket]:            https://fsprojects.github.io/Paket/
 [nuget]:            https://www.nuget.org/
 
-[yes]:                  https://atlas-resources.wooga.com/icons/icon_check.svg "yes"
-[no]:                   https://atlas-resources.wooga.com/icons/icon_uncheck.svg "no"
+[yes]:              https://atlas-resources.wooga.com/icons/icon_check.svg "yes"
+[no]:               https://atlas-resources.wooga.com/icons/icon_uncheck.svg "no"
