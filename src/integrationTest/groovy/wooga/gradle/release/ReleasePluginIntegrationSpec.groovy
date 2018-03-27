@@ -384,7 +384,7 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         ReleasePlugin.RC_TASK | nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME
     }
 
-    @Unroll
+    @Unroll("task :setup depends with #lock_status")
     def "task :setup depends on #installTask when paket.lock file #lock_status"() {
         given: "a buildfile with release plugin applied"
         buildFile << """
