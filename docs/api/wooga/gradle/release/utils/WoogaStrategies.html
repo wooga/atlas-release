@@ -30,9 +30,9 @@
     <title>WoogaStrategies (Gradle Wooga Release plugin API)</title>
     
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="../../../groovy.ico" type="image/x-icon" rel="shortcut icon">
-    <link href="../../../groovy.ico" type="image/x-icon" rel="icon">
-    <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
+    <link href="../../../../groovy.ico" type="image/x-icon" rel="shortcut icon">
+    <link href="../../../../groovy.ico" type="image/x-icon" rel="icon">
+    <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
 
 <body class="center">
 <script type="text/javascript"><!--
@@ -51,19 +51,19 @@ if (location.href.indexOf('is-external=true') == -1) {
     <!--   -->
 </a>
     <ul class="navList" title="Navigation">
-        <li><a href="../../../overview-summary.html">Overview</a></li>
+        <li><a href="../../../../overview-summary.html">Overview</a></li>
         <li><a href="package-summary.html">Package</a></li>
         <li class="navBarCell1Rev">Class</li>
-        <li><a href="../../../deprecated-list.html">Deprecated</a></li>
-        <li><a href="../../../index-all.html">Index</a></li>
-        <li><a href="../../../help-doc.html">Help</a></li>
+        <li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+        <li><a href="../../../../index-all.html">Index</a></li>
+        <li><a href="../../../../help-doc.html">Help</a></li>
     </ul>
 </div>
 
 <div class="subNav">
     <div>
         <ul class="navList">
-            <li><a href="../../../index.html?wooga/gradle/release/WoogaStrategies" target="_top">Frames</a></li>
+            <li><a href="../../../../index.html?wooga/gradle/release/utils/WoogaStrategies" target="_top">Frames</a></li>
             <li><a href="WoogaStrategies.html" target="_top">No Frames</a></li>
         </ul>
     </div>
@@ -85,7 +85,7 @@ if (location.href.indexOf('is-external=true') == -1) {
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 
-    <div class="subTitle">Package: <strong>wooga.gradle.release</strong></div>
+    <div class="subTitle">Package: <strong>wooga.gradle.release.utils</strong></div>
 
     <h2 title="[Groovy] Class WoogaStrategies" class="title">[Groovy] Class WoogaStrategies</h2>
 </div>
@@ -98,6 +98,12 @@ if (location.href.indexOf('is-external=true') == -1) {
         <li class="blockList">
 
 
+
+    <p> Set of <CODE>SemVerStrategy</CODE> properties to determine current version.
+ <p>
+ All strategies are base on <a href="https://github.com/nebula-plugins/nebula-release-plugin">Nebular Release</a> or
+ it's super set <a href="https://github.com/ajoberstar/gradle-git">Gradle Git</a>.
+ </p>
 
           </li>
     </ul>
@@ -134,22 +140,22 @@ if (location.href.indexOf('is-external=true') == -1) {
                         
                         <tr class="rowColor">
                             <td class="colFirst"><code><strong>static&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#DEVELOPMENT">DEVELOPMENT</a></code><br></td>
+                            <td class="colLast"><code><a href="#DEVELOPMENT">DEVELOPMENT</a></code><br>Returns a version strategy to be used for <CODE>development</CODE> builds.</td>
                         </tr>
                         
                         <tr class="altColor">
                             <td class="colFirst"><code><strong>static&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#FINAL">FINAL</a></code><br></td>
+                            <td class="colLast"><code><a href="#FINAL">FINAL</a></code><br>Returns a version strategy to be used for <CODE>final</CODE> builds.</td>
                         </tr>
                         
                         <tr class="rowColor">
                             <td class="colFirst"><code><strong>static&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#PRE_RELEASE">PRE_RELEASE</a></code><br></td>
+                            <td class="colLast"><code><a href="#PRE_RELEASE">PRE_RELEASE</a></code><br>Returns a version strategy to be used for <CODE>pre-release</CODE>/<CODE>candidate</CODE> builds.</td>
                         </tr>
                         
                         <tr class="altColor">
                             <td class="colFirst"><code><strong>static&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#SNAPSHOT">SNAPSHOT</a></code><br></td>
+                            <td class="colLast"><code><a href="#SNAPSHOT">SNAPSHOT</a></code><br>Returns a version strategy to be used for <CODE>snapshot</CODE> builds.</td>
                         </tr>
                         
                     </table>
@@ -218,7 +224,23 @@ if (location.href.indexOf('is-external=true') == -1) {
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>static&nbsp;final&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy <strong>DEVELOPMENT</strong></h4>
-                                <p></p>
+                                <p> Returns a version strategy to be used for <CODE>development</CODE> builds.
+ <p>
+ This strategy creates a unique version string based on last commit hash and the
+ distance of commits to nearest normal version.
+ This version string is not compatible with <a href="https://fsprojects.github.io/Paket/">Paket</a> or
+ <a href="https://www.nuget.org/">Nuget</a>
+ <p>
+ Example:
+ <pre>
+ <CODE>releaseScope = "minor"
+ nearestVersion = "1.3.0"
+ commitHash = "90c90b9"
+ distance = 22
+ inferred = "1.3.0-dev.22+90c90b9"
+ </CODE>
+ </pre>
+     </p>
                             </li>
                         </ul>
                     
@@ -226,7 +248,18 @@ if (location.href.indexOf('is-external=true') == -1) {
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>static&nbsp;final&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy <strong>FINAL</strong></h4>
-                                <p></p>
+                                <p> Returns a version strategy to be used for <CODE>final</CODE> builds.
+ <p>
+ This strategy infers the release version by checking the nearest release.
+ <p>
+ Example:
+ <pre>
+ <CODE>releaseScope = "minor"
+ nearestVersion = "1.3.0"
+ inferred = "1.4.0"
+ </CODE>
+ </pre>
+     </p>
                             </li>
                         </ul>
                     
@@ -234,7 +267,38 @@ if (location.href.indexOf('is-external=true') == -1) {
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>static&nbsp;final&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy <strong>PRE_RELEASE</strong></h4>
-                                <p></p>
+                                <p> Returns a version strategy to be used for <CODE>pre-release</CODE>/<CODE>candidate</CODE> builds.
+ <p>
+ This strategy infers the release version by checking the nearest any release.
+ If a <CODE>pre-release</CODE> with the same <CODE>major</CODE>.<CODE>minor</CODE>.<CODE>patch</CODE> version exists, bumps the count part.
+ <p>
+ Example <i>new pre release</i>:
+ <pre>
+ <CODE>releaseScope = "minor"
+ nearestVersion = "1.2.0"
+ nearestAnyVersion = ""
+ inferred = "1.3.0-rc00001"
+ </CODE>
+ </pre>
+ <p>
+ Example <i>pre release version exists</i>:
+ <pre>
+ <CODE>releaseScope = "minor"
+ nearestVersion = "1.2.0"
+ nearestAnyVersion = "1.3.0-rc00001"
+ inferred = "1.3.0-rc00002"
+ </CODE>
+ </pre>
+ <p>
+ Example <i>last final release higher than pre-release</i>:
+ <pre>
+ <CODE>releaseScope = "minor"
+ nearestVersion = "1.3.0"
+ nearestAnyVersion = "1.3.0-rc00001"
+ inferred = "1.4.0-rc00001"
+ </CODE>
+ </pre>
+     </p>
                             </li>
                         </ul>
                     
@@ -242,7 +306,35 @@ if (location.href.indexOf('is-external=true') == -1) {
                         <ul class="blockListLast">
                             <li class="blockList">
                                 <h4>static&nbsp;final&nbsp;org.ajoberstar.gradle.git.release.semver.SemVerStrategy <strong>SNAPSHOT</strong></h4>
-                                <p></p>
+                                <p> Returns a version strategy to be used for <CODE>snapshot</CODE> builds.
+ <p>
+ This strategy creates a snapshot version suitable for <a href="https://fsprojects.github.io/Paket/">Paket</a> and
+ <a href="https://www.nuget.org/">Nuget</a>. <CODE>Nuget</CODE> and <CODE>Paket</CODE> don't support
+ <CODE>SNAPSHOT</CODE> versions or any numerical values after the <CODE>patch</CODE> component. We trick these package managers
+ by creating a unique version based on <CODE>branch</CODE> and the distance of commits to nearest normal version.
+ If the branch name contains numerical values, they will be converted into alphanumerical counterparts.
+ The <CODE>master</CODE> branch is a special case so it will end up being higher than any other branch build (m>b)
+ <p>
+ Example <i>from master branch</i>:
+ <pre>
+ <CODE>releaseScope = "minor"
+ nearestVersion = "1.3.0"
+ branch = "master"
+ distance = 22
+ inferred = "1.4.0-master00022"
+ </CODE>
+ </pre>
+ <p>
+ Example <i>from topic branch</i>:
+ <pre>
+ <CODE>releaseScope = "minor"
+ nearestVersion = "1.3.0"
+ branch = "feature/fix_22"
+ distance = 34
+ inferred = "1.4.0-branchFeatureFixTwoTow00034"
+ </CODE>
+ </pre>
+     </p>
                             </li>
                         </ul>
                     
@@ -268,19 +360,19 @@ if (location.href.indexOf('is-external=true') == -1) {
     <!--   -->
 </a>
     <ul class="navList" title="Navigation">
-        <li><a href="../../../overview-summary.html">Overview</a></li>
+        <li><a href="../../../../overview-summary.html">Overview</a></li>
         <li><a href="package-summary.html">Package</a></li>
         <li class="navBarCell1Rev">Class</li>
-        <li><a href="../../../deprecated-list.html">Deprecated</a></li>
-        <li><a href="../../../index-all.html">Index</a></li>
-        <li><a href="../../../help-doc.html">Help</a></li>
+        <li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+        <li><a href="../../../../index-all.html">Index</a></li>
+        <li><a href="../../../../help-doc.html">Help</a></li>
     </ul>
 </div>
 
 <div class="subNav">
     <div>
         <ul class="navList">
-            <li><a href="../../../index.html?wooga/gradle/release/WoogaStrategies" target="_top">Frames</a></li>
+            <li><a href="../../../../index.html?wooga/gradle/release/utils/WoogaStrategies" target="_top">Frames</a></li>
             <li><a href="WoogaStrategies.html" target="_top">No Frames</a></li>
         </ul>
     </div>

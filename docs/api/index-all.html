@@ -127,7 +127,16 @@ if (location.href.indexOf('is-external=true') == -1) {
 
 <dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#apply(org.gradle.api.Project)" title="Method in ReleasePlugin">apply(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
 </dt><dd> <div class="block"></div></dd>
-<dt><span class="strong"><a href="wooga/gradle/release/AtlasReleasePluginExtension.html" title="Class in wooga.gradle.release">AtlasReleasePluginExtension</a></span> - Class in <a href="./wooga/gradle/release/package-summary.html">wooga.gradle.release</a>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#applyNebularRelease(org.gradle.api.Project)" title="Method in ReleasePlugin">applyNebularRelease(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Applies and configures <CODE>nebula.release</CODE> plugins.</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#applyRCtoCandidateAlias(org.gradle.api.Project)" title="Method in ReleasePlugin">applyRCtoCandidateAlias(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">The <CODE>NebularRelease</CODE> plugin will provide slightly better error messages when using the official
+ cli tasks (final, candidate, snapshot, ...). </div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#applyVisteg(org.gradle.api.Project)" title="Method in ReleasePlugin">applyVisteg(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Applies <CODE>cz.malohlava.visteg</CODE></div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#applyWoogaPlugins(org.gradle.api.Project)" title="Method in ReleasePlugin">applyWoogaPlugins(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Applies Wooga plugins.</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/AtlasReleasePluginExtension.html" title="Interface in wooga.gradle.release">AtlasReleasePluginExtension</a></span> - Interface in <a href="./wooga/gradle/release/package-summary.html">wooga.gradle.release</a>
 </dt><dd><div class="block">Extension object for <code>net.wooga.release</code> plugin.
  </div></dd>
 </dl>
@@ -144,8 +153,21 @@ if (location.href.indexOf('is-external=true') == -1) {
 <h2 class="title">C</h2>
 <dl>
 
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#configureArchiveConfiguration(org.gradle.api.Project)" title="Method in ReleasePlugin">configureArchiveConfiguration(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Creates and Configures the projects <CODE>archive</CODE> configuration.</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#configureDefaultMetaCleanPattern(wooga.gradle.release.AtlasReleasePluginExtension)" title="Method in ReleasePlugin">configureDefaultMetaCleanPattern(AtlasReleasePluginExtension)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Configures default clean pattern for the to be exported Unity nuget packages.</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#configureGithubPublishTask(org.gradle.api.Project)" title="Method in ReleasePlugin">configureGithubPublishTask(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Sets project version to all <CODE>PaketPack</CODE> tasks.
+ </div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#configurePaketPackTasks(org.gradle.api.Project)" title="Method in ReleasePlugin">configurePaketPackTasks(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Configures all tasks of type wooga.gradle.paket.pack.tasks.PaketPack.</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#configureUnityPackageIfPresent(org.gradle.api.Project, wooga.gradle.release.AtlasReleasePluginExtension)" title="Method in ReleasePlugin">configureUnityPackageIfPresent(Project, AtlasReleasePluginExtension)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Configures <CODE>net.wooga.unity</CODE> plugin on subprojects if available.</div></dd>
 <dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#configureVersionCode(org.gradle.api.Project)" title="Method in ReleasePlugin">configureVersionCode(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
-</dt><dd> <div class="block"></div></dd>
+</dt><dd> <div class="block">Creates a versioncode string used by Android sub-projects.</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#createUnityPackTask(org.gradle.api.Project)" title="Method in ReleasePlugin">createUnityPackTask(Project)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Creates Unity Pack task.</div></dd>
 </dl>
 
     
@@ -153,6 +175,8 @@ if (location.href.indexOf('is-external=true') == -1) {
 <h2 class="title">D</h2>
 <dl>
 
+<dt><span class="strong"><a href="wooga/gradle/release/internal/DefaultAtlasReleasePluginExtension.html" title="Class in wooga.gradle.release.internal">DefaultAtlasReleasePluginExtension</a></span> - Class in <a href="./wooga/gradle/release/internal/package-summary.html">wooga.gradle.release.internal</a>
+</dt><dd><div class="block"></div></dd>
 </dl>
 
     
@@ -175,6 +199,8 @@ if (location.href.indexOf('is-external=true') == -1) {
 <dl>
 
 <dt><span class="strong"><a href="wooga/gradle/release/AtlasReleasePluginExtension.html#getMetaCleanPattern()" title="Method in AtlasReleasePluginExtension">getMetaCleanPattern()</a></span> - Method in <a href="wooga/gradle/release/AtlasReleasePluginExtension.html">AtlasReleasePluginExtension</a>
+</dt><dd> <div class="block">@return a pattern</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/internal/DefaultAtlasReleasePluginExtension.html#getMetaCleanPattern()" title="Method in DefaultAtlasReleasePluginExtension">getMetaCleanPattern()</a></span> - Method in <a href="wooga/gradle/release/internal/DefaultAtlasReleasePluginExtension.html">DefaultAtlasReleasePluginExtension</a>
 </dt><dd> <div class="block">@return a pattern</div></dd>
 </dl>
 
@@ -222,6 +248,8 @@ if (location.href.indexOf('is-external=true') == -1) {
 
 <dt><span class="strong"><a href="wooga/gradle/release/AtlasReleasePluginExtension.html#metaCleanPattern(groovy.lang.Closure)" title="Method in AtlasReleasePluginExtension">metaCleanPattern(Closure)</a></span> - Method in <a href="wooga/gradle/release/AtlasReleasePluginExtension.html">AtlasReleasePluginExtension</a>
 </dt><dd> <div class="block">Allows to configure the <code>metaCleanPattern</code> filter object with a <code>Closure</code> object.</div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/internal/DefaultAtlasReleasePluginExtension.html#metaCleanPattern(groovy.lang.Closure)" title="Method in DefaultAtlasReleasePluginExtension">metaCleanPattern(Closure)</a></span> - Method in <a href="wooga/gradle/release/internal/DefaultAtlasReleasePluginExtension.html">DefaultAtlasReleasePluginExtension</a>
+</dt><dd> <div class="block">Allows to configure the <code>metaCleanPattern</code> filter object with a <code>Closure</code> object.</div></dd>
 </dl>
 
     
@@ -263,7 +291,10 @@ if (location.href.indexOf('is-external=true') == -1) {
 <dl>
 
 <dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html" title="Class in wooga.gradle.release">ReleasePlugin</a></span> - Class in <a href="./wooga/gradle/release/package-summary.html">wooga.gradle.release</a>
-</dt><dd><div class="block"></div></dd>
+</dt><dd><div class="block">A Wooga internal plugin to develop and publish Unity library packages.
+ </div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/ReleasePlugin.html#replaceReleaseTask(org.gradle.api.Project, org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)" title="Method in ReleasePlugin">replaceReleaseTask(Project, ReleasePluginExtension)</a></span> - Method in <a href="wooga/gradle/release/ReleasePlugin.html">ReleasePlugin</a>
+</dt><dd> <div class="block">Replaces the <CODE>release</CODE> task from org.ajoberstar.gradle.git.release.base.BaseReleasePlugin.</div></dd>
 </dl>
 
     
@@ -299,8 +330,8 @@ if (location.href.indexOf('is-external=true') == -1) {
 <h2 class="title">W</h2>
 <dl>
 
-<dt><span class="strong"><a href="wooga/gradle/release/WoogaStrategies.html" title="Class in wooga.gradle.release">WoogaStrategies</a></span> - Class in <a href="./wooga/gradle/release/package-summary.html">wooga.gradle.release</a>
-</dt><dd><div class="block"></div></dd>
+<dt><span class="strong"><a href="wooga/gradle/release/utils/WoogaStrategies.html" title="Class in wooga.gradle.release.utils">WoogaStrategies</a></span> - Class in <a href="./wooga/gradle/release/utils/package-summary.html">wooga.gradle.release.utils</a>
+</dt><dd><div class="block">Set of <CODE>SemVerStrategy</CODE> properties to determine current version.</div></dd>
 </dl>
 
     

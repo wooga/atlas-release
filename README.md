@@ -27,7 +27,7 @@ Applying the plugin
 **build.gradle**
 ```groovy
 plugins {
-    id 'net.wooga.release' version '0.5.0'
+    id 'net.wooga.release' version '1.0.0'
 }
 ```
 
@@ -35,7 +35,7 @@ Documentation
 =============
 
 - [API docs](https://wooga.github.io/atlas-release/docs/api/)
-- [Release Notes](RELEASE_NOTES.md)]
+- [Release Notes](RELEASE_NOTES.md)
 
 Gradle and Java Compatibility
 =============================

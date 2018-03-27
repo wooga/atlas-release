@@ -111,6 +111,19 @@ extends java.lang.Object
 
 
 
+    <p> A Wooga internal plugin to develop and publish Unity library packages.
+ This plugin is very opinionated. It acts as an aggregation plugin which applies a series of helper plugins and
+ configures them according to the wooga sdk <CODE>wdk</CODE> standard.
+ <p>
+ Example:
+ <pre>
+ <CODE>plugins {
+         id "net.wooga.release" version "0.15.1"
+     </CODE>
+ }
+ </pre>
+ </p>
+
           </li>
     </ul>
 </div>
@@ -179,26 +192,6 @@ extends java.lang.Object
                             <td class="colLast"><code><a href="#UNTIY_PACK_TASK">UNTIY_PACK_TASK</a></code><br></td>
                         </tr>
                         
-                        <tr class="altColor">
-                            <td class="colFirst"><code><strong><a href='../../../wooga/gradle/release/AtlasReleasePluginExtension.html'>AtlasReleasePluginExtension</a></strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#extension">extension</a></code><br></td>
-                        </tr>
-                        
-                        <tr class="rowColor">
-                            <td class="colFirst"><code><strong>static&nbsp;org.gradle.api.logging.Logger</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#logger">logger</a></code><br></td>
-                        </tr>
-                        
-                        <tr class="altColor">
-                            <td class="colFirst"><code><strong>org.gradle.api.Project</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#project">project</a></code><br></td>
-                        </tr>
-                        
-                        <tr class="rowColor">
-                            <td class="colFirst"><code><strong>org.gradle.api.tasks.TaskContainer</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#tasks">tasks</a></code><br></td>
-                        </tr>
-                        
                     </table>
                    </ul>
                 </li>
@@ -233,8 +226,76 @@ extends java.lang.Object
                         
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
-                            <td class="colLast"><code>java.lang.Object</code></td>
-                            <td class="colLast"><code><strong><a href="#configureVersionCode(org.gradle.api.Project)">configureVersionCode</a></strong>(org.gradle.api.Project project)</code><br></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#applyNebularRelease(org.gradle.api.Project)">applyNebularRelease</a></strong>(org.gradle.api.Project project)</code><br>Applies and configures <CODE>nebula.release</CODE> plugins.</td>
+                        </tr>
+                        
+                        <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#applyRCtoCandidateAlias(org.gradle.api.Project)">applyRCtoCandidateAlias</a></strong>(org.gradle.api.Project project)</code><br>The <CODE>NebularRelease</CODE> plugin will provide slightly better error messages when using the official
+ cli tasks (final, candidate, snapshot, ...). </td>
+                        </tr>
+                        
+                        <tr class="rowColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#applyVisteg(org.gradle.api.Project)">applyVisteg</a></strong>(org.gradle.api.Project project)</code><br>Applies <CODE>cz.malohlava.visteg</CODE></td>
+                        </tr>
+                        
+                        <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#applyWoogaPlugins(org.gradle.api.Project)">applyWoogaPlugins</a></strong>(org.gradle.api.Project project)</code><br>Applies Wooga plugins.</td>
+                        </tr>
+                        
+                        <tr class="rowColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;org.gradle.api.artifacts.Configuration</code></td>
+                            <td class="colLast"><code><strong><a href="#configureArchiveConfiguration(org.gradle.api.Project)">configureArchiveConfiguration</a></strong>(org.gradle.api.Project project)</code><br>Creates and Configures the projects <CODE>archive</CODE> configuration.</td>
+                        </tr>
+                        
+                        <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#configureDefaultMetaCleanPattern(wooga.gradle.release.AtlasReleasePluginExtension)">configureDefaultMetaCleanPattern</a></strong>(<a href='../../../wooga/gradle/release/AtlasReleasePluginExtension.html'>AtlasReleasePluginExtension</a> extension)</code><br>Configures default clean pattern for the to be exported Unity nuget packages.</td>
+                        </tr>
+                        
+                        <tr class="rowColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#configureGithubPublishTask(org.gradle.api.Project)">configureGithubPublishTask</a></strong>(org.gradle.api.Project project)</code><br>Sets project version to all <CODE>PaketPack</CODE> tasks.
+ </td>
+                        </tr>
+                        
+                        <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#configurePaketPackTasks(org.gradle.api.Project)">configurePaketPackTasks</a></strong>(org.gradle.api.Project project)</code><br>Configures all tasks of type wooga.gradle.paket.pack.tasks.PaketPack.</td>
+                        </tr>
+                        
+                        <tr class="rowColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#configureUnityPackageIfPresent(org.gradle.api.Project, wooga.gradle.release.AtlasReleasePluginExtension)">configureUnityPackageIfPresent</a></strong>(org.gradle.api.Project project, <a href='../../../wooga/gradle/release/AtlasReleasePluginExtension.html'>AtlasReleasePluginExtension</a> extension)</code><br>Configures <CODE>net.wooga.unity</CODE> plugin on subprojects if available.</td>
+                        </tr>
+                        
+                        <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#configureVersionCode(org.gradle.api.Project)">configureVersionCode</a></strong>(org.gradle.api.Project project)</code><br>Creates a versioncode string used by Android sub-projects.</td>
+                        </tr>
+                        
+                        <tr class="rowColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#createUnityPackTask(org.gradle.api.Project)">createUnityPackTask</a></strong>(org.gradle.api.Project project)</code><br>Creates Unity Pack task.</td>
+                        </tr>
+                        
+                        <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>protected&nbsp;static&nbsp;void</code></td>
+                            <td class="colLast"><code><strong><a href="#replaceReleaseTask(org.gradle.api.Project, org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)">replaceReleaseTask</a></strong>(org.gradle.api.Project project, org.ajoberstar.gradle.git.release.base.ReleasePluginExtension extension)</code><br>Replaces the <CODE>release</CODE> task from org.ajoberstar.gradle.git.release.base.BaseReleasePlugin.</td>
                         </tr>
                         
                     </table>
@@ -344,38 +405,6 @@ extends java.lang.Object
                             </li>
                         </ul>
                     
-                        <a name="extension"><!-- --></a>
-                        <ul class="blockListLast">
-                            <li class="blockList">
-                                <h4><a href='../../../wooga/gradle/release/AtlasReleasePluginExtension.html'>AtlasReleasePluginExtension</a> <strong>extension</strong></h4>
-                                <p></p>
-                            </li>
-                        </ul>
-                    
-                        <a name="logger"><!-- --></a>
-                        <ul class="blockListLast">
-                            <li class="blockList">
-                                <h4>static&nbsp;org.gradle.api.logging.Logger <strong>logger</strong></h4>
-                                <p></p>
-                            </li>
-                        </ul>
-                    
-                        <a name="project"><!-- --></a>
-                        <ul class="blockListLast">
-                            <li class="blockList">
-                                <h4>org.gradle.api.Project <strong>project</strong></h4>
-                                <p></p>
-                            </li>
-                        </ul>
-                    
-                        <a name="tasks"><!-- --></a>
-                        <ul class="blockListLast">
-                            <li class="blockList">
-                                <h4>org.gradle.api.tasks.TaskContainer <strong>tasks</strong></h4>
-                                <p></p>
-                            </li>
-                        </ul>
-                    
                 </li>
             </ul>
             
@@ -402,11 +431,169 @@ void <strong>apply</strong>(org.gradle.api.Project project)</h4>
                             </li>
                         </ul>
                     
+                        <a name="applyNebularRelease(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>applyNebularRelease</strong>(org.gradle.api.Project project)</h4>
+                                <p> Applies and configures <CODE>nebula.release</CODE> plugins.
+ <p>
+ Nebular release is the base plugin which we borrow logic from.
+ We take apply our own versioning strategy pattern to be compatible
+ with <a href="https://fsprojects.github.io/Paket/">Paket</a> and <a href="https://www.nuget.org/">Nuget</a>.
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL><DL><DT><B>See Also:</B></DT><DD><a href='../../../wooga/gradle/release/utils/WoogaStrategies.html' title='WoogaStrategies'>WoogaStrategies</a></DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="applyRCtoCandidateAlias(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>applyRCtoCandidateAlias</strong>(org.gradle.api.Project project)</h4>
+                                <p> The <CODE>NebularRelease</CODE> plugin will provide slightly better error messages when using the official
+ cli tasks (final, candidate, snapshot, ...). Because of internal naming reasons it makes sense for us to use
+ <CODE>rc</CODE> instead of <CODE>candidate</CODE>. All other resources are named with the
+ pattern (final, rc and snapshot). I used a custom task with the name <CODE>rc</CODE> which depends on
+ <CODE>candidate</CODE> but this will fall through the error check in <CODE>NebularRelease</CODE>. So instead we
+ now change the cli tasklist on the fly. If we find the <CODE>rc</CODE> taskname in the cli tasklist we remove it
+ and add <CODE>candidate</CODE> instead. <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL><DL><DT><B>Returns:</B></DT><DD></DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="applyVisteg(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>applyVisteg</strong>(org.gradle.api.Project project)</h4>
+                                <p> Applies <CODE>cz.malohlava.visteg</CODE>
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="applyWoogaPlugins(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>applyWoogaPlugins</strong>(org.gradle.api.Project project)</h4>
+                                <p> Applies Wooga plugins.
+ <p>
+ <ul>
+     <li>net.wooga.github
+     <li>net.wooga.paket
+     <li>net.wooga.paket-unity
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="configureArchiveConfiguration(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;org.gradle.api.artifacts.Configuration <strong>configureArchiveConfiguration</strong>(org.gradle.api.Project project)</h4>
+                                <p> Creates and Configures the projects <CODE>archive</CODE> configuration. <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL><DL><DT><B>Returns:</B></DT><DD></DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="configureDefaultMetaCleanPattern(wooga.gradle.release.AtlasReleasePluginExtension)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>configureDefaultMetaCleanPattern</strong>(<a href='../../../wooga/gradle/release/AtlasReleasePluginExtension.html'>AtlasReleasePluginExtension</a> extension)</h4>
+                                <p> Configures default clean pattern for the to be exported Unity nuget packages.
+ <p>
+ By default we need to keep the <CODE>.meta</CODE> files for <CODE>.dll</CODE> and <CODE>.so</CODE> files.
+ This value can be reconfigured at a later time.
+     <DL><DT><B>Parameters:</B></DT><DD>extension</DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="configureGithubPublishTask(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>configureGithubPublishTask</strong>(org.gradle.api.Project project)</h4>
+                                <p> Sets project version to all <CODE>PaketPack</CODE> tasks.
+ Version 0.8.0 changed the default behavior for picking the package version.
+ This is just a security measure.
+
+ </p>
+                            </li>
+                        </ul>
+                    
+                        <a name="configurePaketPackTasks(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>configurePaketPackTasks</strong>(org.gradle.api.Project project)</h4>
+                                <p> Configures all tasks of type wooga.gradle.paket.pack.tasks.PaketPack.
+ <p>
+ It sets the paket version on each task because version 0.8.0 of <CODE>net.wooga.paket-pack</CODE> changed the
+ default behavior for picking the package version.<DL><DT><B>link:</B></DT><DD>wooga.gradle.paket.pack.PaketPackPlugin</DD></DL>
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="configureUnityPackageIfPresent(org.gradle.api.Project, wooga.gradle.release.AtlasReleasePluginExtension)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>configureUnityPackageIfPresent</strong>(org.gradle.api.Project project, <a href='../../../wooga/gradle/release/AtlasReleasePluginExtension.html'>AtlasReleasePluginExtension</a> extension)</h4>
+                                <p> Configures <CODE>net.wooga.unity</CODE> plugin on subprojects if available.
+ <p>
+ Iterates through all sub-projects and looks for the <CODE>net.wooga.unity</CODE> plugin.
+ When applied, sets a project dependency to the <CODE>unitypackage</CODE> configuration and adds
+ a clean metadata task dependency to <CODE>paketPack</CODE>.
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD><DD>extension</DD></DL></p>
+                            </li>
+                        </ul>
+                    
                         <a name="configureVersionCode(org.gradle.api.Project)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
-                                <h4>java.lang.Object <strong>configureVersionCode</strong>(org.gradle.api.Project project)</h4>
-                                <p></p>
+                                <h4>protected&nbsp;static&nbsp;void <strong>configureVersionCode</strong>(org.gradle.api.Project project)</h4>
+                                <p> Creates a versioncode string used by Android sub-projects.
+ <p>
+ Android applications or libraries need a version string and version code value.
+ This method creates the versioncode based on the current version and sets it as an external property to
+ all sub-projects.
+ <p>
+ The version will be splitted into <CODE>Major</CODE>,<CODE>Minor</CODE> and <CODE>Patch</CODE> components
+ and multiplied by an offset value. <CODE>Minor</CODE> and <CODE>Patch</CODE> must be lower < 100 otherwise the versionCode
+ is no longer readable.
+ <ul>
+     <li> {@code} Major * 10000
+     <li> {@code} Minor * 100
+     <li> {@code} Patch
+ These values will be added together to form a single integer value.
+ <p>
+ Example:
+ <pre>
+ <CODE>String version = "3.1.0"
+      Integer versionCode = 301000
+
+      String version = "1.24.33"
+      Integer versionCode = 12433
+
+      //version overflow
+      String version = "22.2245.455"
+      Integer versionCode = 444955
+ </CODE>
+ </pre>
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="createUnityPackTask(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>createUnityPackTask</strong>(org.gradle.api.Project project)</h4>
+                                <p> Creates Unity Pack task.
+ <p>
+ Creates a org.gradle.api.tasks.Copy task which will copy all <CODE>.unitypackage</CODE> artifacts into the output directory.
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD></DL></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="replaceReleaseTask(org.gradle.api.Project, org.ajoberstar.gradle.git.release.base.ReleasePluginExtension)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>protected&nbsp;static&nbsp;void <strong>replaceReleaseTask</strong>(org.gradle.api.Project project, org.ajoberstar.gradle.git.release.base.ReleasePluginExtension extension)</h4>
+                                <p> Replaces the <CODE>release</CODE> task from org.ajoberstar.gradle.git.release.base.BaseReleasePlugin.
+ <p>
+ On CI systems that check out the repo with a temp branch name could lead to
+ unwanted side effects.
+     <DL><DT><B>Parameters:</B></DT><DD>project</DD><DD>extension</DD></DL></p>
                             </li>
                         </ul>
                     
