@@ -48,6 +48,7 @@ import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.internal.DefaultAtlasReleasePluginExtension
 import wooga.gradle.release.utils.ProjectStatusTaskSpec
 import wooga.gradle.release.utils.WoogaStrategies
+import wooga.gradle.release.version.semver.VersionStrategies
 import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
 import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
 
@@ -413,11 +414,11 @@ class ReleasePlugin implements Plugin<Project> {
             ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
 
             releaseExtension.with {
-                releaseExtension.versionStrategy(WoogaStrategies.SNAPSHOT)
-                releaseExtension.versionStrategy(WoogaStrategies.DEVELOPMENT)
-                releaseExtension.versionStrategy(WoogaStrategies.PRE_RELEASE)
-                releaseExtension.versionStrategy(WoogaStrategies.FINAL)
-                releaseExtension.defaultVersionStrategy = WoogaStrategies.DEVELOPMENT
+                releaseExtension.versionStrategy(VersionStrategies.SNAPSHOT)
+                releaseExtension.versionStrategy(VersionStrategies.DEVELOPMENT)
+                releaseExtension.versionStrategy(VersionStrategies.PRE_RELEASE)
+                releaseExtension.versionStrategy(VersionStrategies.FINAL)
+                releaseExtension.defaultVersionStrategy = VersionStrategies.SNAPSHOT
             }
 
             replaceReleaseTask(project, releaseExtension)
