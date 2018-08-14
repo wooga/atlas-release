@@ -66,7 +66,7 @@ final class VersionStrategies {
                 branchName = System.getenv("BRANCH_NAME")
             }
 
-            if (branchName != "master") {
+            if (branchName != "master" && branchName != "develop") {
                 branchName = "$prefix.${branchName.toLowerCase()}"
             }
             branchName = branchName.replaceAll(/(\/|-|_)([\w])/) { all, delimiter, firstAfter -> ".${firstAfter}" }

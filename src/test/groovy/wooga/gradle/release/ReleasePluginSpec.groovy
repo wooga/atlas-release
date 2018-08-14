@@ -298,6 +298,11 @@ class ReleasePluginSpec extends ProjectSpec {
         _               | 3        | "snapshot" | "minor" | "master"        | "1.1.0-master00003"
         _               | 4        | "snapshot" | "patch" | "master"        | "1.0.1-master00004"
 
+        _               | 1        | "snapshot" | _       | "develop"       | "1.0.1-branchDevelop00001"
+        _               | 2        | "snapshot" | "major" | "develop"       | "2.0.0-branchDevelop00002"
+        _               | 3        | "snapshot" | "minor" | "develop"       | "1.1.0-branchDevelop00003"
+        _               | 4        | "snapshot" | "patch" | "develop"       | "1.0.1-branchDevelop00004"
+
         _               | 1        | "snapshot" | _       | "feature/check" | "1.0.1-branchFeatureCheck00001"
         _               | 2        | "snapshot" | _       | "hotfix/check"  | "1.0.1-branchHotfixCheck00002"
         _               | 3        | "snapshot" | _       | "fix/check"     | "1.0.1-branchFixCheck00003"
@@ -404,6 +409,11 @@ class ReleasePluginSpec extends ProjectSpec {
         _                 | 3        | "ci"         | "minor" | "master"        | "1.1.0-master.3"
         _                 | 4        | "ci"         | "patch" | "master"        | "1.0.1-master.4"
 
+        _                 | 1        | "ci"         | _       | "develop"       | "1.1.0-develop.1"
+        _                 | 2        | "ci"         | "major" | "develop"       | "2.0.0-develop.2"
+        _                 | 3        | "ci"         | "minor" | "develop"       | "1.1.0-develop.3"
+        _                 | 4        | "ci"         | "patch" | "develop"       | "1.0.1-develop.4"
+
         _                 | 1        | "ci"         | _       | "feature/check" | "1.1.0-branch.feature.check.1"
         _                 | 2        | "ci"         | _       | "hotfix/check"  | "1.0.1-branch.hotfix.check.2"
         _                 | 3        | "ci"         | _       | "fix/check"     | "1.1.0-branch.fix.check.3"
@@ -424,6 +434,11 @@ class ReleasePluginSpec extends ProjectSpec {
         _                 | 2        | "snapshot"   | "major" | "master"        | "2.0.0-master.2"
         _                 | 3        | "snapshot"   | "minor" | "master"        | "1.1.0-master.3"
         _                 | 4        | "snapshot"   | "patch" | "master"        | "1.0.1-master.4"
+
+        _                 | 1        | "snapshot"   | _       | "develop"        | "1.1.0-develop.1"
+        _                 | 2        | "snapshot"   | "major" | "develop"        | "2.0.0-develop.2"
+        _                 | 3        | "snapshot"   | "minor" | "develop"        | "1.1.0-develop.3"
+        _                 | 4        | "snapshot"   | "patch" | "develop"        | "1.0.1-develop.4"
 
         _                 | 1        | "snapshot"   | _       | "feature/check" | "1.1.0-branch.feature.check.1"
         _                 | 2        | "snapshot"   | _       | "hotfix/check"  | "1.0.1-branch.hotfix.check.2"
