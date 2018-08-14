@@ -37,8 +37,8 @@ import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import wooga.gradle.github.GithubPlugin
-import wooga.gradle.github.publish.tasks.GithubPublish
 import wooga.gradle.github.publish.GithubPublishPlugin
+import wooga.gradle.github.publish.tasks.GithubPublish
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.base.PaketBasePlugin
 import wooga.gradle.paket.base.PaketPluginExtension
@@ -48,6 +48,7 @@ import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.internal.DefaultAtlasReleasePluginExtension
 import wooga.gradle.release.utils.ProjectStatusTaskSpec
 import wooga.gradle.release.utils.WoogaStrategies
+import wooga.gradle.release.version.semver.VersionStrategies
 import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
 import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
 
@@ -77,6 +78,10 @@ class ReleasePlugin implements Plugin<Project> {
     static final String TEST_TASK = "test"
     static final String GROUP = "Wooga"
     static final String EXTENSION_NAME = "atlasRelease"
+
+    static final String VERSION_SCHEME_DEFAULT = 'semver'
+    static final String VERSION_SCHEME_SEMVER_1 = 'semver'
+    static final String VERSION_SCHEME_SEMVER_2 = 'semver2'
 
     @Override
     void apply(Project project) {
@@ -412,12 +417,27 @@ class ReleasePlugin implements Plugin<Project> {
         if (project == project.rootProject) {
             ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
 
+            def versionScheme = project.properties.getOrDefault("version.scheme", VERSION_SCHEME_DEFAULT)
+
+
             releaseExtension.with {
-                releaseExtension.versionStrategy(WoogaStrategies.SNAPSHOT)
-                releaseExtension.versionStrategy(WoogaStrategies.DEVELOPMENT)
-                releaseExtension.versionStrategy(WoogaStrategies.PRE_RELEASE)
-                releaseExtension.versionStrategy(WoogaStrategies.FINAL)
-                releaseExtension.defaultVersionStrategy = WoogaStrategies.DEVELOPMENT
+                switch(versionScheme) {
+                    case VERSION_SCHEME_SEMVER_2:
+                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.SNAPSHOT)
+                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.DEVELOPMENT)
+                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.PRE_RELEASE)
+                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.FINAL)
+                        releaseExtension.defaultVersionStrategy = wooga.gradle.release.version.semver2.VersionStrategies.DEVELOPMENT
+                        break
+                    case VERSION_SCHEME_SEMVER_1:
+                    default:
+                        releaseExtension.versionStrategy(VersionStrategies.SNAPSHOT)
+                        releaseExtension.versionStrategy(VersionStrategies.DEVELOPMENT)
+                        releaseExtension.versionStrategy(VersionStrategies.PRE_RELEASE)
+                        releaseExtension.versionStrategy(VersionStrategies.FINAL)
+                        releaseExtension.defaultVersionStrategy = VersionStrategies.DEVELOPMENT
+                        break
+                }
             }
 
             replaceReleaseTask(project, releaseExtension)
