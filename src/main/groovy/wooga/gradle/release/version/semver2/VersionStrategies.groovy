@@ -200,8 +200,9 @@ final class VersionStrategies {
      * </pre>
      */
     static final SemVerStrategy SNAPSHOT = DEFAULT.copyWith(
-            name: 'ci',
+            name: 'snapshot',
             stages: ['ci', 'snapshot'] as SortedSet,
+            allowDirtyRepo: true,
             createTag: false,
             preReleaseStrategy: all(PreRelease.STAGE_BRANCH_NAME, Strategies.PreRelease.COUNT_COMMITS_SINCE_ANY)
     )
