@@ -31,6 +31,12 @@ plugins {
 }
 ```
 
+Note breaking changes
+---------------------
+
+Because of a breaking change in [net.wooga.paket 1.2.0](https://github.com/wooga/atlas-paket/releases/tag/v1.2.0) this plugin no longer support gradle < 4.
+
+
 Documentation
 =============
 
