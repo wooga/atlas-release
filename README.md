@@ -31,6 +31,12 @@ plugins {
 }
 ```
 
+Note breaking changes
+---------------------
+
+Because of a breaking change in [net.wooga.paket 1.2.0](https://github.com/wooga/atlas-paket/releases/tag/v1.2.0) this plugin no longer support gradle < 4.
+
+
 Documentation
 =============
 
@@ -46,20 +52,24 @@ Tested with Oracle JDK8
 | Gradle Version | Works       |
 | :------------- | :---------: |
 | <= 2.14        | ![no]       |
-| 3.0            | ![yes]      |
-| 3.1            | ![yes]      |
-| 3.2            | ![yes]      |
-| 3.4            | ![yes]      |
-| 3.4.1          | ![yes]      |
-| 3.5            | ![yes]      |
-| 3.5.1          | ![yes]      |
+| 3.0            | ![no]       |
+| 3.1            | ![no]       |
+| 3.2            | ![no]       |
+| 3.4            | ![no]       |
+| 3.4.1          | ![no]       |
+| 3.5            | ![no]       |
+| 3.5.1          | ![no]       |
 | 4.0            | ![yes]      |
 | 4.1            | ![yes]      |
 | 4.2            | ![yes]      |
 | 4.3            | ![yes]      |
 | 4.4            | ![yes]      |
-| 4.5            | ![no]      |
-| 4.5            | ![no]      |
+| 4.5            | ![yes]      |
+| 4.6            | ![yes]      |
+| 4.7            | ![yes]      |
+| 4.8            | ![yes]      |
+| 4.9            | ![yes]      |
+| 4.10           | ![yes]      |
 
 Development
 ===========
