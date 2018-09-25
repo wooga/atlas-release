@@ -1,3 +1,5 @@
 wooga.gradle.release
 wooga.gradle.release.internal
 wooga.gradle.release.utils
+wooga.gradle.release.version.semver
+wooga.gradle.release.version.semver2

@@ -1,3 +1,15 @@
+### 1.2.0 - Sep 25 2018
+
+* ![UDPATE] `net.wooga.plugins` to `1.2.0`
+
+### 1.1.0 - Aug 14 2018
+
+* ![ADD] wooga app versioning see [RFC-0001](https://atlas-dashboard.wooga.com/rfcs/text/0001-wuubs-version-handling.html)
+
+### 1.0.1 - Apr 12 2018
+
+* ![REMOVE] mustache dependency
+
 ### 1.0.0 - Mar 27 2018
 
 * ![NEW] stable major release
