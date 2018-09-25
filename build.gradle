@@ -46,7 +46,6 @@ dependencies {
         exclude module: 'logback-classic'
     }
 
-    testCompile 'gradle.plugin.net.wooga.gradle:atlas-unity:1.+'
     testCompile 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:1.+'
 
     compile 'com.netflix.nebula:nebula-release-plugin:6.+'
@@ -55,7 +54,4 @@ dependencies {
     compile 'gradle.plugin.net.wooga.gradle:atlas-paket:1.+'
     compile 'gradle.plugin.net.wooga.gradle:atlas-github:1.+'
     compile "gradle.plugin.net.wooga.gradle:atlas-releaseNotesGenerator:1.+"
-
-    compile gradleApi()
-    compile localGroovy()
 }
