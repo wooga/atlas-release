@@ -204,6 +204,7 @@ final class VersionStrategies {
             stages: ['ci', 'snapshot', 'SNAPSHOT'] as SortedSet,
             allowDirtyRepo: true,
             createTag: false,
-            preReleaseStrategy: all(PreRelease.STAGE_BRANCH_NAME, Strategies.PreRelease.COUNT_COMMITS_SINCE_ANY)
+            preReleaseStrategy: all(PreRelease.STAGE_BRANCH_NAME, Strategies.PreRelease.COUNT_COMMITS_SINCE_ANY),
+            enforcePrecedence: false
     )
 }
