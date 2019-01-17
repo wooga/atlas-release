@@ -429,6 +429,7 @@ class ReleasePluginSpec extends ProjectSpec {
 
         _                 | 2        | "ci"         | _       | "1.x"           | "1.1.0-branch.1.x.2"
         _                 | 4        | "ci"         | _       | "1.0.x"         | "1.0.1-branch.1.0.x.4"
+        '2.0.0-rc.2'      | 0        | "ci"         | _       | "release/2.x"   | "2.0.0-branch.release.2.x.0"
 
         _                 | 1        | "snapshot"   | _       | "master"        | "1.1.0-master.1"
         _                 | 2        | "snapshot"   | "major" | "master"        | "2.0.0-master.2"
