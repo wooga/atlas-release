@@ -78,7 +78,7 @@ final class VersionStrategies {
     static final SemVerStrategy DEFAULT = new SemVerStrategy(
             name: '',
             stages: [] as SortedSet,
-            allowDirtyRepo: false,
+            allowDirtyRepo: true,
             normalStrategy: scopes,
             preReleaseStrategy: Strategies.PreRelease.NONE,
             buildMetadataStrategy: BuildMetadata.NONE,
@@ -202,7 +202,6 @@ final class VersionStrategies {
     static final SemVerStrategy SNAPSHOT = DEFAULT.copyWith(
             name: 'snapshot',
             stages: ['ci', 'snapshot', 'SNAPSHOT'] as SortedSet,
-            allowDirtyRepo: true,
             createTag: false,
             preReleaseStrategy: all(PreRelease.STAGE_BRANCH_NAME, Strategies.PreRelease.COUNT_COMMITS_SINCE_ANY),
             enforcePrecedence: false
