@@ -73,6 +73,18 @@ Tested with Oracle JDK8
 
 Development
 ===========
+
+#### Running the tests
+The integration tests will access github with a botUser which credentials needs to be provided via environment variables.
+
+| Name                                | Description                                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------------ |
+| `ATLAS_GITHUB_INTEGRATION_USER`     | The username for of the BotUser. The name will also be used for the test repository. |
+| `ATLAS_GITHUB_INTEGRATION_PASSWORD` | A password for the gihub user or acces token.                                        |
+
+If the value of `ATLAS_GITHUB_INTEGRATION_PASSWORD` is a access token, it needs the scopes: `delete_repo`, `repo`
+see [github-oauth-scopes] for more information.
+
 [Code of Conduct](docs/Code-of-conduct.md)
 
 LICENSE
