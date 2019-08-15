@@ -32,8 +32,13 @@ withCredentials([usernamePassword(credentialsId: 'github_integration', passwordV
                                [
                                    "ATLAS_GITHUB_INTEGRATION_USER=${githubUser2}",
                                    "ATLAS_GITHUB_INTEGRATION_PASSWORD=${githubPassword2}"
+                               ],
+                             'linux':
+                               [
+                                   "ATLAS_GITHUB_INTEGRATION_USER=${githubUser2}",
+                                   "ATLAS_GITHUB_INTEGRATION_PASSWORD=${githubPassword2}"
                                ]
                         ]
 
-    buildGradlePlugin plaforms: ['osx','windows'], coverallsToken: coveralls_token, testEnvironment: testEnvironment
+    buildGradlePlugin plaforms: ['osx','windows','linux'], coverallsToken: coveralls_token, testEnvironment: testEnvironment
 }
