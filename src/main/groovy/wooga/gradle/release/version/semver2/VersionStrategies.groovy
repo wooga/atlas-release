@@ -69,7 +69,19 @@ final class VersionStrategies {
             if (branchName != "master" && branchName != "develop") {
                 branchName = "$prefix.${branchName.toLowerCase()}"
             }
+
+            //Split at branch delimiter /-_+ and replace with .
             branchName = branchName.replaceAll(/((\/|-|_|\.)+)([\w])/) { all, delimiterAll, delimiter , firstAfter -> ".${firstAfter}" }
+            //Remove all hanging /-_+
+            branchName = branchName.replaceAll(/[-\/_\+]+$/) { "" }
+            //parse all digits and replace with unpadded value e.g. 001 -> 1
+            branchName = branchName.replaceAll(/([\w\.])([0-9]+)/) { all, s, delimiter ->
+                if(s == ".") {
+                    s = ""
+                }
+
+                "${s}.${Integer.parseInt(delimiter).toString()}"
+            }
 
             state.copyWith(inferredPreRelease: branchName)
         }
