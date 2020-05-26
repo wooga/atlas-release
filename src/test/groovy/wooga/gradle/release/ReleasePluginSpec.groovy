@@ -310,6 +310,9 @@ class ReleasePluginSpec extends ProjectSpec {
         _               | 5        | "snapshot" | _       | "hotfix-check"  | "1.0.1-branchHotfixCheck00005"
         _               | 6        | "snapshot" | _       | "fix-check"     | "1.0.1-branchFixCheck00006"
         _               | 7        | "snapshot" | _       | "PR-22"         | "1.0.1-branchPRTwoTwo00007"
+        _               | 8        | "snapshot" | _       | "fix/a_-bug"    | "1.0.1-branchFixABug00008"
+        _               | 9        | "snapshot" | _       | "fix/-_.bug"    | "1.0.1-branchFixDotbug00009"
+        _               | 10       | "snapshot" | _       | "fix/-.-.-bug"  | "1.0.1-branchFixDotDotBug00010"
 
         _               | 1        | "snapshot" | _       | "release/1.x"   | "1.0.1-branchReleaseOneDotx00001"
         _               | 2        | "snapshot" | _       | "release-1.x"   | "1.0.1-branchReleaseOneDotx00002"
@@ -421,6 +424,9 @@ class ReleasePluginSpec extends ProjectSpec {
         _                 | 5        | "ci"         | _       | "hotfix-check"  | "1.0.1-branch.hotfix.check.5"
         _                 | 6        | "ci"         | _       | "fix-check"     | "1.1.0-branch.fix.check.6"
         _                 | 7        | "ci"         | _       | "PR-22"         | "1.1.0-branch.pr.22.7"
+        _                 | 8        | "ci"         | _       | "fix/a_-bug"    | "1.1.0-branch.fix.a.bug.8"
+        _                 | 9        | "ci"         | _       | "fix/-_.bug"    | "1.1.0-branch.fix.bug.9"
+        _                 | 10       | "ci"         | _       | "fix/-.-.-bug"  | "1.1.0-branch.fix.bug.10"
 
         _                 | 1        | "ci"         | _       | "release/1.x"   | "1.1.0-branch.release.1.x.1"
         _                 | 2        | "ci"         | _       | "release-1.x"   | "1.1.0-branch.release.1.x.2"
@@ -448,6 +454,9 @@ class ReleasePluginSpec extends ProjectSpec {
         _                 | 5        | "snapshot"   | _       | "hotfix-check"  | "1.0.1-branch.hotfix.check.5"
         _                 | 6        | "snapshot"   | _       | "fix-check"     | "1.1.0-branch.fix.check.6"
         _                 | 7        | "snapshot"   | _       | "PR-22"         | "1.1.0-branch.pr.22.7"
+        _                 | 8        | "snapshot"   | _       | "fix/a_-bug"    | "1.1.0-branch.fix.a.bug.8"
+        _                 | 9        | "snapshot"   | _       | "fix/-_.bug"    | "1.1.0-branch.fix.bug.9"
+        _                 | 10       | "snapshot"   | _       | "fix/-.-.-bug"  | "1.1.0-branch.fix.bug.10"
 
         _                 | 1        | "snapshot"   | _       | "release/1.x"   | "1.1.0-branch.release.1.x.1"
         _                 | 2        | "snapshot"   | _       | "release-1.x"   | "1.1.0-branch.release.1.x.2"
