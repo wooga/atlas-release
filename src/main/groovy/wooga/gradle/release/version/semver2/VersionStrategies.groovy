@@ -69,7 +69,7 @@ final class VersionStrategies {
             if (branchName != "master" && branchName != "develop") {
                 branchName = "$prefix.${branchName.toLowerCase()}"
             }
-            branchName = branchName.replaceAll(/(\/|-|_)([\w])/) { all, delimiter, firstAfter -> ".${firstAfter}" }
+            branchName = branchName.replaceAll(/((\/|-|_|\.)+)([\w])/) { all, delimiterAll, delimiter , firstAfter -> ".${firstAfter}" }
 
             state.copyWith(inferredPreRelease: branchName)
         }

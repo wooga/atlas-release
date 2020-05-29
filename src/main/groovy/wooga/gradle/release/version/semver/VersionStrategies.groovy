@@ -195,7 +195,10 @@ class VersionStrategies {
                 if( branchName != "master") {
                     branchName = "$prefix${branchName.capitalize()}"
                 }
-                branchName = branchName.replaceAll(/(\/|-|_)([\w])/) {all, delimiter, firstAfter -> "${firstAfter.capitalize()}" }
+                branchName = branchName.replaceAll(/[\/\-\_]+\./, '.')
+                branchName = branchName.replaceAll(/((\/|-|_)+)([\w])/) { all, delimiterAll, delimiter, firstAfter ->
+                    "${firstAfter.capitalize()}"
+                }
                 branchName = branchName.replaceAll(/\./, "Dot")
                 branchName = branchName.replaceAll(/0/, "Zero")
                 branchName = branchName.replaceAll(/1/, "One")
