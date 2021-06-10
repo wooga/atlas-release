@@ -16,12 +16,11 @@
  */
 
 plugins {
-    id 'net.wooga.plugins' version '1.5.0'
+    id 'net.wooga.plugins' version '2.1.1'
 }
 
 group 'net.wooga.gradle'
 description = 'Unity3D plugin for Gradle.'
-
 
 pluginBundle {
     website = 'https://wooga.github.io/atlas-release'
@@ -41,17 +40,39 @@ github {
     repositoryName = "wooga/atlas-release"
 }
 
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    maven {
+        name = 'ajoberstar-backup'
+        url = 'https://ajoberstar.org/bintray-backup/'
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.codehaus.groovy:groovy-all:2.5.12'
+        force 'org.codehaus.groovy:groovy-macro:2.5.12'
+        force 'org.codehaus.groovy:groovy-nio:2.5.12'
+        force 'org.codehaus.groovy:groovy-sql:2.5.12'
+        force 'org.codehaus.groovy:groovy-xml:2.5.12'
+    }
+}
+
 dependencies {
-    testCompile('org.jfrog.artifactory.client:artifactory-java-client-services:+') {
+    testImplementation('org.jfrog.artifactory.client:artifactory-java-client-services:+') {
         exclude module: 'logback-classic'
     }
 
-    testCompile 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:1.+'
+    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-unity:2.0.0-rc.3'
+    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:2.0.0-rc.3'
 
-    compile 'com.netflix.nebula:nebula-release-plugin:6.+'
-    compile 'org.ajoberstar:gradle-git:1.7.+'
-    compile 'cz.malohlava:visteg:1.0.+'
-    compile 'gradle.plugin.net.wooga.gradle:atlas-paket:1.+'
-    compile 'gradle.plugin.net.wooga.gradle:atlas-github:1.+'
-    compile "gradle.plugin.net.wooga.gradle:atlas-releaseNotesGenerator:1.+"
+    implementation group: 'org.kohsuke', name: 'github-api', version: '1.130'
+    implementation 'org.ajoberstar.grgit:grgit-core:(4.1,5]'
+    implementation 'org.ajoberstar.grgit:grgit-gradle:(4.1,5]'
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-version:1+'
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-paket:(2, 3]'
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-github:(2, 3]'
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-GithubReleaseNotes:(1, 2]'
 }
+

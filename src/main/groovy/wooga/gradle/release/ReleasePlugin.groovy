@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2021 Wooga GmbH
  *
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,11 +17,8 @@
 
 package wooga.gradle.release
 
-import cz.malohlava.VisTaskExecGraphPlugin
-import cz.malohlava.VisTegPluginExtension
-import org.ajoberstar.gradle.git.release.base.BaseReleasePlugin
-import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
-import org.ajoberstar.gradle.git.release.base.ReleaseVersion
+import com.wooga.github.changelog.GeneratorStrategy
+import org.ajoberstar.grgit.gradle.GrgitPlugin
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -32,13 +29,14 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.AppliedPlugin
 import org.gradle.api.publish.plugins.PublishingPlugin
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import wooga.gradle.github.GithubPlugin
 import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.github.publish.tasks.GithubPublish
+import wooga.gradle.githubReleaseNotes.tasks.GenerateReleaseNotes
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.base.PaketBasePlugin
 import wooga.gradle.paket.base.PaketPluginExtension
@@ -46,11 +44,15 @@ import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.internal.DefaultAtlasReleasePluginExtension
+import wooga.gradle.release.releasenotes.ReleaseNotesBodyStrategy
 import wooga.gradle.release.utils.ProjectStatusTaskSpec
-import wooga.gradle.release.utils.WoogaStrategies
-import wooga.gradle.release.version.semver.VersionStrategies
-import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
-import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
+import wooga.gradle.githubReleaseNotes.GithubReleaseNotesPlugin
+
+//import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
+//import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
+import wooga.gradle.version.VersionPlugin
+import wooga.gradle.version.VersionPluginExtension
+import wooga.gradle.version.VersionScheme
 
 /**
  * A Wooga internal plugin to develop and publish Unity library packages.
@@ -60,78 +62,123 @@ import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
  * Example:
  * <pre>
  * {@code
- *     plugins {
- *         id "net.wooga.release" version "0.15.1"
- *     }
- * }
+ *     plugins {*         id "net.wooga.release" version "0.15.1"
+ *}*}
  * </pre>
  */
 class ReleasePlugin implements Plugin<Project> {
 
     private static Logger logger = Logging.getLogger(ReleasePlugin)
 
-    static final String ARCHIVES_CONFIGURATION = "archives"
-    static final String UNTIY_PACK_TASK = "unityPack"
-    static final String CLEAN_META_FILES_TASK = "cleanMetaFiles"
-    static final String SETUP_TASK = "setup"
-    static final String RC_TASK = "rc"
-    static final String TEST_TASK = "test"
     static final String GROUP = "Wooga"
     static final String EXTENSION_NAME = "atlasRelease"
 
+    static final String CLEAN_META_FILES_TASK = "cleanMetaFiles"
+    static final String SETUP_TASK = "setup"
+    static final String RC_TASK = "rc"
+    static final String FINAL_TASK = "final"
+    static final String SNAPSHOT_TASK = "snapshot"
+    static final String TEST_TASK = "test"
+    static final String RELEASE_NOTES_BODY_TASK = "generateReleaseNotesBody"
+
+    static final String ARCHIVES_CONFIGURATION = "archives"
     static final String VERSION_SCHEME_DEFAULT = 'semver'
     static final String VERSION_SCHEME_SEMVER_1 = 'semver'
     static final String VERSION_SCHEME_SEMVER_2 = 'semver2'
 
     @Override
     void apply(Project project) {
-        def extension = project.extensions.create(EXTENSION_NAME, DefaultAtlasReleasePluginExtension)
-
-        configureDefaultMetaCleanPattern(extension)
-
-        applyNebularRelease(project)
-        applyRCtoCandidateAlias(project)
-        applyVisteg(project)
-        applyWoogaPlugins(project)
-
-        configureArchiveConfiguration(project)
-        createUnityPackTask(project)
 
         if (project == project.rootProject) {
+            def extension = project.extensions.create(EXTENSION_NAME, DefaultAtlasReleasePluginExtension)
+
+            configureDefaultMetaCleanPattern(extension)
+            applyVersionPlugin(project)
+            applyWoogaPlugins(project)
+
+            configureArchiveConfiguration(project)
             configureSetupTask(project)
             configureReleaseLifecycle(project)
-            configureGithubPublishTask(project)
             configurePaketPackTasks(project)
-            project.pluginManager.apply(ReleaseNotesGeneratorPlugin)
+            project.pluginManager.with {
+                apply(GrgitPlugin)
+                apply(GithubReleaseNotesPlugin)
+            }
+            configureReleaseNotesTask(project)
+            configureGithubPublishTask(project)
+
+            // TODO: Remove?
+            configureVersionCode(project)
+
+            configureUnityPackageIfPresent(project, extension)
+            configureSetupTaskIfUnityPluginPresent(project)
+            configurePaketConfigurationArtifacts(project)
+        } else {
+            project.rootProject.pluginManager.apply(this.class)
         }
 
-        configureVersionCode(project)
-        configureUnityPackageIfPresent(project, extension)
-        configureSetupTaskIfUnityPluginPresent(project)
-        configurePaketConfigurationArtifacts(project)
+
     }
 
     private static void configureReleaseLifecycle(final Project project) {
         def tasks = project.tasks
         def setup = tasks.maybeCreate(SETUP_TASK)
 
+        // TODO: Add custom tasks previously provided by the nebula release plugin
+        Task finalTask = project.tasks.create(FINAL_TASK)
+        Task rcTask = project.tasks.create(RC_TASK)
+        Task snapshotTask = project.tasks.create(SNAPSHOT_TASK)
+
         //hook up into lifecycle
         def checkTask = tasks.getByName(LifecycleBasePlugin.CHECK_TASK_NAME)
         def assembleTask = tasks.getByName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME)
         def buildTask = tasks.getByName(LifecycleBasePlugin.BUILD_TASK_NAME)
-        def releaseTask = tasks.getByName('release')
-        def postReleaseTask = tasks.getByName(nebula.plugin.release.ReleasePlugin.POST_RELEASE_TASK_NAME)
+
         def publishTask = tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
         def testTask = tasks.maybeCreate(TEST_TASK)
-        def unityPack = tasks.getByName(UNTIY_PACK_TASK)
+
+        [finalTask, rcTask, snapshotTask].each {
+            it.dependsOn publishTask
+        }
 
         testTask.dependsOn setup
         checkTask.dependsOn(testTask)
         buildTask.dependsOn setup
-        assembleTask.dependsOn unityPack
-        releaseTask.dependsOn assembleTask
-        postReleaseTask.dependsOn publishTask
-        publishTask.mustRunAfter releaseTask
+        publishTask.dependsOn assembleTask
+    }
+
+    private static void configureReleaseNotesTask(Project project) {
+
+        // Body
+        addReleaseNotesTask(project, RELEASE_NOTES_BODY_TASK, new ReleaseNotesBodyStrategy(), { t ->
+            t.output.set(new File("${project.buildDir}/outputs/release-notes.md"))
+        })
+        // TODO: Implement task for generating/appending release notes to file on the repository;
+    }
+
+    private static void addReleaseNotesTask(Project project,
+                                            String name,
+                                            GeneratorStrategy strategy,
+                                            Action<? super GenerateReleaseNotes> action) {
+
+        def provider = project.tasks.register(name, GenerateReleaseNotes)
+        provider.configure { task ->
+
+            // Release notes for GitHub RELEASE
+            def versionExt = project.extensions.findByType(VersionPluginExtension)
+            if (versionExt) {
+                task.from.set(versionExt.version.map { version ->
+                    if (version.previousVersion) {
+                        return "v${version.previousVersion}"
+                    } else {
+                        return null
+                    }
+                })
+                task.branch.set(project.extensions.grgit.branch.current.name as String)
+                task.strategy.set(strategy)
+                action.execute(task)
+            }
+        }
     }
 
     private static Task configureSetupTask(final Project project) {
@@ -175,29 +222,27 @@ class ReleasePlugin implements Plugin<Project> {
      * <p>
      * The method fetches the {@code githubPublish} task and sets up the artifacts to publish.
      * Configures the tasks based on the release {@code stage} ({@code candidate} builds == {@code prerelease}).
-     * It sets also the release notes with the help of {@link ReleaseBodyStrategy}.
+     * It sets also the release notes with the help of.
      *
      * @param project
      * @see GithubPublishPlugin
-     * @see ReleaseNotesGeneratorPlugin
      */
     protected static void configureGithubPublishTask(Project project) {
-        def tasks = project.tasks
         def archives = project.configurations.maybeCreate(ARCHIVES_CONFIGURATION)
-        def releaseExtension = project.extensions.findByType(ReleasePluginExtension)
 
-        def githubPublishTask = tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME) as GithubPublish
+        TaskContainer tasks = project.tasks
+        GenerateReleaseNotes releaseNotesTask = tasks.getByName(RELEASE_NOTES_BODY_TASK) as GenerateReleaseNotes
+        GithubPublish githubPublishTask = (GithubPublish) tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
         githubPublishTask.onlyIf(new ProjectStatusTaskSpec('candidate', 'release'))
         githubPublishTask.from(archives)
-        githubPublishTask.dependsOn archives
-        githubPublishTask.tagName = "v${project.version}"
-        githubPublishTask.setReleaseName(project.version.toString())
-        githubPublishTask.setPrerelease({ project.status != 'release' })
+        githubPublishTask.dependsOn(archives)
+        githubPublishTask.tagName.set("v${project.version}")
+        githubPublishTask.releaseName.set(project.version.toString())
+        githubPublishTask.prerelease.set(project.provider { project.status != 'release' })
 
-        //infer the ReleaseVersion in the private class DelayedVersion to be able to access the `inferredVersion` property
-        //the release plugin sets this object as version to all projects
-        project.version.toString()
-        githubPublishTask.body(new ReleaseBodyStrategy(project.version.inferredVersion as ReleaseVersion, releaseExtension.grgit))
+        // Write the release description using the release notes generated by
+        // the release strategy
+        githubPublishTask.body.set(releaseNotesTask.output.map { it.asFile.text })
     }
 
     /**
@@ -208,24 +253,6 @@ class ReleasePlugin implements Plugin<Project> {
     protected static Configuration configureArchiveConfiguration(Project project) {
         Configuration archives = project.configurations.maybeCreate(ARCHIVES_CONFIGURATION)
         archives.extendsFrom(project.configurations.getByName(PaketBasePlugin.PAKET_CONFIGURATION))
-    }
-
-    /**
-     * Creates Unity Pack task.
-     * <p>
-     * Creates a {@link Copy} task which will copy all {@code .unitypackage} artifacts into the output directory.
-     *
-     * @param project
-     */
-    protected static void createUnityPackTask(Project project) {
-        Configuration archives = project.configurations.maybeCreate(ARCHIVES_CONFIGURATION)
-        project.tasks.create(UNTIY_PACK_TASK, Copy).with {
-            group = GROUP
-            from(archives) {
-                include '**/*.unitypackage'
-            }
-            into "${project.buildDir}/outputs"
-        }
     }
 
     /**
@@ -246,26 +273,6 @@ class ReleasePlugin implements Plugin<Project> {
                 }
             }
         })
-    }
-
-    /**
-     * The {@code NebularRelease} plugin will provide slightly better error messages when using the official
-     * cli tasks (final, candidate, snapshot, ...). Because of internal naming reasons it makes sense for us to use
-     * {@code rc} instead of {@code candidate}. All other resources are named with the
-     * pattern (final, rc and snapshot). I used a custom task with the name {@code rc} which depends on
-     * {@code candidate} but this will fall through the error check in {@code NebularRelease}. So instead we
-     * now change the cli tasklist on the fly. If we find the {@code rc} taskname in the cli tasklist we remove it
-     * and add {@code candidate} instead.
-     * @param project
-     * @return
-     */
-    protected static void applyRCtoCandidateAlias(Project project) {
-        List<String> cliTasks = project.rootProject.gradle.startParameter.taskNames
-        if (cliTasks.contains(RC_TASK)) {
-            cliTasks.remove(RC_TASK)
-            cliTasks.add(nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME)
-            project.rootProject.gradle.startParameter.setTaskNames(cliTasks)
-        }
     }
 
     /**
@@ -296,7 +303,7 @@ class ReleasePlugin implements Plugin<Project> {
      *      //version overflow
      *      String version = "22.2245.455"
      *      Integer versionCode = 444955
-     * }
+     *}
      * </pre>
      *
      * @param project
@@ -332,7 +339,6 @@ class ReleasePlugin implements Plugin<Project> {
                 void execute(AppliedPlugin appliedPlugin) {
                     logger.info("subproject {} has unity plugin.", sub.name)
                     logger.info("configure dependencies {}", sub.path)
-                    dependencies.add(ARCHIVES_CONFIGURATION, dependencies.project(path: sub.path, configuration: "unitypackage"))
                     logger.info("create cleanMetaFiles task")
 
                     def files = project.fileTree(new File(sub.projectDir, 'Assets/'))
@@ -381,27 +387,6 @@ class ReleasePlugin implements Plugin<Project> {
     }
 
     /**
-     * Applies {@code cz.malohlava.visteg}
-     *
-     * @param project
-     */
-    protected static void applyVisteg(Project project) {
-        project.pluginManager.apply(VisTaskExecGraphPlugin)
-        VisTegPluginExtension visTegPluginExtension = project.extensions.findByType(VisTegPluginExtension)
-        visTegPluginExtension.with {
-            enabled = true
-            colouredNodes = true
-            colouredEdges = true
-            destination = 'build/reports/visteg.dot'
-            exporter = 'dot'
-            colorscheme = 'spectral11'
-            nodeShape = 'box'
-            startNodeShape = 'hexagon'
-            endNodeShape = 'doubleoctagon'
-        }
-    }
-
-    /**
      * Applies and configures {@code nebula.release} plugins.
      * <p>
      * Nebular release is the base plugin which we borrow logic from.
@@ -409,72 +394,25 @@ class ReleasePlugin implements Plugin<Project> {
      * with <a href="https://fsprojects.github.io/Paket/">Paket</a> and <a href="https://www.nuget.org/">Nuget</a>.
      *
      * @param project
-     * @see WoogaStrategies
      */
-    protected static void applyNebularRelease(Project project) {
-        project.pluginManager.apply(nebula.plugin.release.ReleasePlugin)
+    protected static void applyVersionPlugin(Project project) {
+        project.pluginManager.apply(VersionPlugin)
+        VersionPluginExtension versionExtension = project.extensions.findByType(VersionPluginExtension)
 
-        if (project == project.rootProject) {
-            ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
+        def versionScheme = project.properties.getOrDefault("version.scheme", VERSION_SCHEME_DEFAULT)
 
-            def versionScheme = project.properties.getOrDefault("version.scheme", VERSION_SCHEME_DEFAULT)
-
-
-            releaseExtension.with {
-                switch(versionScheme) {
-                    case VERSION_SCHEME_SEMVER_2:
-                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.SNAPSHOT)
-                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.DEVELOPMENT)
-                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.PRE_RELEASE)
-                        releaseExtension.versionStrategy(wooga.gradle.release.version.semver2.VersionStrategies.FINAL)
-                        releaseExtension.defaultVersionStrategy = wooga.gradle.release.version.semver2.VersionStrategies.DEVELOPMENT
-                        break
-                    case VERSION_SCHEME_SEMVER_1:
-                    default:
-                        releaseExtension.versionStrategy(VersionStrategies.SNAPSHOT)
-                        releaseExtension.versionStrategy(VersionStrategies.DEVELOPMENT)
-                        releaseExtension.versionStrategy(VersionStrategies.PRE_RELEASE)
-                        releaseExtension.versionStrategy(VersionStrategies.FINAL)
-                        releaseExtension.defaultVersionStrategy = VersionStrategies.DEVELOPMENT
-                        break
-                }
-            }
-
-            replaceReleaseTask(project, releaseExtension)
-        }
-    }
-
-    /**
-     * Replaces the {@code release} task from {@link BaseReleasePlugin}.
-     * <p>
-     * On CI systems that check out the repo with a temp branch name could lead to
-     * unwanted side effects.
-     *
-     * @param project
-     * @param extension
-     */
-    protected static void replaceReleaseTask(final Project project, final ReleasePluginExtension extension) {
-        def releaseTask = project.tasks.getByName('release')
-        releaseTask.deleteAllActions()
-        releaseTask.doLast {
-            // force version inference if it hasn't happened already
-            project.version.toString()
-
-            ext.grgit = extension.grgit
-            ext.toPush = []
-
-            ext.tagName = extension.tagStrategy.maybeCreateTag(grgit, project.version.inferredVersion)
-            if (tagName) {
-                toPush << tagName
-            }
-
-            if (toPush) {
-                logger.warn('Pushing changes in {} to {}', toPush, extension.remote)
-                grgit.push(remote: extension.remote, refsOrSpecs: toPush)
-            } else {
-                logger.warn('Nothing to push.')
+        versionExtension.with {
+            switch (versionScheme) {
+                case VERSION_SCHEME_SEMVER_2:
+                    versionExtension.versionScheme(VersionScheme.semver2)
+                    break
+                case VERSION_SCHEME_SEMVER_1:
+                default:
+                    versionExtension.versionScheme(VersionScheme.semver)
+                    break
             }
         }
+
     }
 
     /**

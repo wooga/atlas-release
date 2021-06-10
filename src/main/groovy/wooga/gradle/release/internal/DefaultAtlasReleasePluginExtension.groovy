@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 package wooga.gradle.release.internal
 
+import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Action
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
@@ -25,6 +26,7 @@ import wooga.gradle.release.AtlasReleasePluginExtension
 
 class DefaultAtlasReleasePluginExtension implements AtlasReleasePluginExtension{
     private PatternSet metaCleanPattern = new PatternSet()
+
 
     /**
      *
