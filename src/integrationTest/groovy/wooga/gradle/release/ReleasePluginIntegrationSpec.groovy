@@ -42,115 +42,50 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         createFile("paket.dependencies")
     }
 
-    @Unroll("verify versionCode generation from version #tagVersion")
-    def "creates versionCode from inferred version"() {
-        given:
-        git.tag.add(name: "v$tagVersion")
-        buildFile << """
-            group = 'test'
-            ${applyPlugin(ReleasePlugin)}
-            
-            
 
-            test.doLast {
-                println "versionCode:" + versionCode
-            }
-        """.stripIndent()
 
-        when:
-        def result = runTasksSuccessfully("test")
+//    @Unroll("verify dependency setup to #testType unity sub-projects")
+//    def "verify dependency setup to unity sub-projects"() {
+//        given: "some subprojects with net.wooga.unity applied"
+//
+//        range.each {
+//            addSubproject("testSub$it", """
+//                apply plugin: 'net.wooga.unity'
+//
+//             """.stripIndent())
+//        }
+//
+//        and: "a buildfile with release plugin applied"
+//        buildFile << """
+//            ${applyPlugin(ReleasePlugin)}
+//        """.stripIndent()
+//
+//        when:
+//        def result = runTasksSuccessfully("unityPack")
+//
+//        then:
+//        range.collect {
+//            result.wasExecuted(":testSub$it:exportUnityPackage")
+//        }.every()
+//
+//        where:
+//        range << [1..1, 1..4]
+//        testType = range.size() > 1 ? "multiple" : "single"
+//    }
 
-        then:
-        result.standardOutput.contains("versionCode:${versionCode}")
-
-        where:
-        tagVersion       | versionCode
-        '1.1.0'          | 10101
-        '2.10.99'        | 21100
-        '0.3.0'          | 301
-        '12.34.200'      | 123601
-        '1.1.0-rc0001'   | 10100
-        '2.10.99-branch' | 21099
-        '0.3.0-a0000'    | 300
-        '12.34.200-2334' | 123600
-    }
-
-    @Unroll("verify versionCode generation in subproject version #tagVersion")
-    def "creates versionCode from inferred version in subproject"() {
-        given:
-        git.tag.add(name: "v$tagVersion")
-        addSubproject("testSub", """
-            task("test") {
-                doLast {
-                    println project.name + " versionCode:" + versionCode
-                }
-            }
-        """.stripIndent())
-        buildFile << """
-            group = 'test'
-            ${applyPlugin(ReleasePlugin)}
-        """.stripIndent()
-
-        when:
-        def result = runTasksSuccessfully("test")
-
-        then:
-        result.standardOutput.contains("testSub versionCode:${versionCode}")
-
-        where:
-        tagVersion       | versionCode
-        '1.1.0'          | 10101
-        '2.10.99'        | 21100
-        '0.3.0'          | 301
-        '12.34.200'      | 123601
-        '1.1.0-rc0001'   | 10100
-        '2.10.99-branch' | 21099
-        '0.3.0-a0000'    | 300
-        '12.34.200-2334' | 123600
-    }
-
-    @Unroll("verify dependency setup to #testType unity sub-projects")
-    def "verify dependency setup to unity sub-projects"() {
-        given: "some subprojects with net.wooga.unity applied"
-
-        range.each {
-            addSubproject("testSub$it", """
-                apply plugin: 'net.wooga.unity'
-                
-             """.stripIndent())
-        }
-
-        and: "a buildfile with release plugin applied"
-        buildFile << """
-            ${applyPlugin(ReleasePlugin)}
-        """.stripIndent()
-
-        when:
-        def result = runTasksSuccessfully("unityPack")
-
-        then:
-        range.collect {
-            result.wasExecuted(":testSub$it:exportUnityPackage")
-        }.every()
-
-        where:
-        range << [1..1, 1..4]
-        testType = range.size() > 1 ? "multiple" : "single"
-    }
-
-    def "verify dependency setup to missing unity sub-projects"() {
-        given: "a buildfile with release plugin applied"
-        buildFile << """
-            ${applyPlugin(ReleasePlugin)}
-        """.stripIndent()
-
-        when:
-        def result = runTasksSuccessfully("unityPack")
-
-        then:
-        result.standardOutput.contains("unityPack NO-SOURCE") || result.standardOutput.contains("Skipping task ':unityPack'")
-    }
-
+//    def "verify dependency setup to missing unity sub-projects"() {
+//        given: "a buildfile with release plugin applied"
+//        buildFile << """
+//            ${applyPlugin(ReleasePlugin)}
+//        """.stripIndent()
+//
+//        when:
+//        def result = runTasksSuccessfully("unityPack")
+//
+//        then:
+//        result.standardOutput.contains("unityPack NO-SOURCE") || result.standardOutput.contains("Skipping task ':unityPack'")
+//    }
+//
     def gradleVersions() {
         ["2.14", "3.0", "3.2", "3.4", "3.4.1", "3.5", "3.5.1", "4.0", "4.1", "4.2", "4.3", "4.4", "4.5", "4.6"]
     }
@@ -363,25 +298,25 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         filesToKeep.every { it.exists() }
     }
 
-    @Unroll
-    def "uses task: #taskA as alias to #taskB"() {
-        given: "a buildfile with release plugin applied"
-        buildFile << """
-            ${applyPlugin(ReleasePlugin)}
-        """.stripIndent()
-
-        when:
-        def result = runTasks(taskA, "--dry-run")
-
-        then:
-        result.standardOutput.contains(":${taskB}")
-        !result.standardOutput.contains(":${taskA}")
-
-
-        where:
-        taskA                 | taskB
-        ReleasePlugin.RC_TASK | nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME
-    }
+//    @Unroll
+//    def "uses task: #taskA as alias to #taskB"() {
+//        given: "a buildfile with release plugin applied"
+//        buildFile << """
+//            ${applyPlugin(ReleasePlugin)}
+//        """.stripIndent()
+//
+//        when:
+//        def result = runTasks(taskA, "--dry-run")
+//
+//        then:
+//        result.standardOutput.contains(":${taskB}")
+//        !result.standardOutput.contains(":${taskA}")
+//
+//
+//        where:
+//        taskA                 | taskB
+//        ReleasePlugin.RC_TASK | nebula.plugin.release.ReleasePlugin.CANDIDATE_TASK_NAME
+//    }
 
     @Unroll("task :setup depends with #lock_status")
     def "task :setup depends on #installTask when paket.lock file #lock_status"() {
@@ -411,5 +346,91 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         installTask                      | lock_status
         PaketGetPlugin.RESTORE_TASK_NAME | true
         PaketGetPlugin.INSTALL_TASK_NAME | false
+    }
+
+    // TODO: Version code support in the plugin is to be removed?
+    @Unroll("verify versionCode generation from version #tagVersion")
+    def "creates versionCode from inferred version"() {
+        given:
+        git.tag.add(name: "v$tagVersion")
+        buildFile << """
+            group = 'test'
+            ${applyPlugin(ReleasePlugin)}
+
+
+
+            test.doLast {
+                println "versionCode:" + versionCode
+            }
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("test")
+
+        then:
+        result.standardOutput.contains("versionCode:${versionCode}")
+
+        where:
+        tagVersion       | versionCode
+        '1.1.0'          | 10101
+        '2.10.99'        | 21100
+        '0.3.0'          | 301
+        '12.34.200'      | 123601
+        '1.1.0-rc0001'   | 10100
+        '2.10.99-branch' | 21099
+        '0.3.0-a0000'    | 300
+        '12.34.200-2334' | 123600
+    }
+
+    @Unroll("verify versionCode generation in subproject version #tagVersion")
+    def "creates versionCode from inferred version in subproject"() {
+        given:
+        git.tag.add(name: "v$tagVersion")
+        addSubproject("testSub", """
+            task("test") {
+                doLast {
+                    println project.name + " versionCode:" + versionCode
+                }
+            }
+        """.stripIndent())
+        buildFile << """
+            group = 'test'
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("test")
+
+        then:
+        result.standardOutput.contains("testSub versionCode:${versionCode}")
+
+        where:
+        tagVersion       | versionCode
+        '1.1.0'          | 10101
+        '2.10.99'        | 21100
+        '0.3.0'          | 301
+        '12.34.200'      | 123601
+        '1.1.0-rc0001'   | 10100
+        '2.10.99-branch' | 21099
+        '0.3.0-a0000'    | 300
+        '12.34.200-2334' | 123600
+    }
+
+    // TODO: Implement when release notes page is added
+    @Ignore
+    def "writes release notes for release description "() {
+
+        given:
+        buildFile << """
+            group = 'test'
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        //def result = runTasksSuccessfully("check")
+        def result = runTasksSuccessfully("releaseNotesMD")
+
+        then:
+        fileExists("${projectDir}/outputs/release-notes.md")
     }
 }

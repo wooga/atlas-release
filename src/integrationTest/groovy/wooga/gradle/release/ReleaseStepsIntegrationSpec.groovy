@@ -40,42 +40,4 @@ class ReleaseStepsIntegrationSpec extends GithubIntegration {
         git.commit(message: 'initial commit')
         git.tag.add(name: "v0.1.0")
     }
-
-    @Unroll
-    def "verify no branch push during release step #stage"() {
-        given: "a buildfile with release plugin applied"
-        createFile(".gitignore") << """
-        .gradle*/
-        build
-        """.stripIndent()
-        buildFile << """
-            ${applyPlugin(ReleasePlugin)}
-
-            github {
-                repositoryName = "${testRepositoryName}"
-            }
-        """.stripIndent()
-
-        createFile("RELEASE_NOTES.md")
-
-        and: "a new git branch"
-        git.checkout(branch: branchName, createBranch: true, startPoint: git.resolve.toRevisionString("master"))
-
-        and: "a last commit"
-        git.add(patterns: ["RELEASE_NOTES.md", "build.gradle", "settings.gradle", ".gitignore"])
-        git.commit(message: 'Add stuff', all: true)
-
-        when:
-        runTasksSuccessfully(stage, "-x", "updateReleaseNotes", "-x", "githubPublish")
-
-        then:
-        !testRepo.branches[branchName]
-
-        where:
-        stage       | branchName
-        "snapshot"  | "PR-22"
-        "rc"        | "release/1.x"
-        "candidate" | "release/1.x"
-        "final"     | "1.0.0"
-    }
 }
