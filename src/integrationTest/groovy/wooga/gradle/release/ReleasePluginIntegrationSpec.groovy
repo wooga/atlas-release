@@ -17,8 +17,11 @@
 package wooga.gradle.release
 
 import org.ajoberstar.grgit.Grgit
+import org.gradle.api.Task
+import org.gradle.api.specs.Spec
 import spock.lang.Ignore
 import spock.lang.Unroll
+import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.unity.UnityPlugin
 
@@ -41,7 +44,6 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         git.tag.add(name: "v0.0.1")
         createFile("paket.dependencies")
     }
-
 
 
 //    @Unroll("verify dependency setup to #testType unity sub-projects")
@@ -329,12 +331,12 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         createFile("paket.dependencies")
 
         and: "optional paket.lock"
-        if(lock_status) {
+        if (lock_status) {
             createFile("paket.lock")
         }
-        def paketLock = new File(projectDir,"paket.lock")
+        def paketLock = new File(projectDir, "paket.lock")
 
-        assert(paketLock.exists() == lock_status)
+        assert (paketLock.exists() == lock_status)
 
         when:
         def result = runTasksSuccessfully("setup")
@@ -416,21 +418,55 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         '12.34.200-2334' | 123600
     }
 
-    // TODO: Implement when release notes page is added
-    @Ignore
-    def "writes release notes for release description "() {
+    @Unroll
+    def "predicates for #taskNames are #satisfiedMessage when release stage is #value and github repository is #repositoryName"() {
 
-        given:
+        given: "a properties file that sets the release.stage"
+        def propertiesFile = createFile("gradle.properties")
+        propertiesFile << """
+        release.stage = ${value}
+        """.stripIndent()
+
+        when: "gradle project with plugin applied and evaluated"
         buildFile << """
             group = 'test'
             ${applyPlugin(ReleasePlugin)}
         """.stripIndent()
 
+        // TODO: Not needed anymore, right?
+//        and: "configured repository branch"
+//        if (repositoryName) {
+//            project.github.repositoryName = repositoryName
+//        }
+
         when:
-        //def result = runTasksSuccessfully("check")
-        def result = runTasksSuccessfully("releaseNotesMD")
+        runTasksSuccessfully("test")
 
         then:
-        fileExists("${projectDir}/outputs/release-notes.md")
+        for (taskName in taskNames) {
+            def task = project.tasks.getByName(taskName)
+            Spec<? super Task> predicate = task.getOnlyIf()
+            assert predicate.isSatisfiedBy(task) == satisfied
+        }
+
+        where:
+        value          | repositoryName   | satisfied
+        'rc'           | "wooga/testRepo" | true
+        'rc'           | null             | false
+        'final'        | "wooga/testRepo" | true
+        'final'        | null             | false
+        // TODO: Should release be still supported?
+        'release'      | "wooga/testRepo" | false
+        'release'      | null             | false
+        // TODO: Should candidate be still supported?
+        'candidate'    | "wooga/testRepo" | false
+        'candidate'    | null             | false
+        'snapshot'     | "wooga/testRepo" | false
+        'snapshot'     | null             | false
+        'random value' | "wooga/testRepo" | false
+        'random value' | null             | false
+
+        taskNames = [GithubPublishPlugin.PUBLISH_TASK_NAME, ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME]
+        satisfiedMessage = satisfied ? "satisfied" : "not satisfied"
     }
 }

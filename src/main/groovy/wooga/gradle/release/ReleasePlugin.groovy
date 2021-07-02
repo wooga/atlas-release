@@ -30,7 +30,6 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.AppliedPlugin
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import wooga.gradle.github.GithubPlugin
@@ -45,8 +44,8 @@ import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.release.internal.DefaultAtlasReleasePluginExtension
 import wooga.gradle.release.releasenotes.ReleaseNotesBodyStrategy
-import wooga.gradle.release.utils.ProjectStatusTaskSpec
 import wooga.gradle.githubReleaseNotes.GithubReleaseNotesPlugin
+import wooga.gradle.release.utils.ProjectPropertyValueTaskSpec
 
 //import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
 //import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
@@ -73,29 +72,27 @@ class ReleasePlugin implements Plugin<Project> {
     static final String GROUP = "Wooga"
     static final String EXTENSION_NAME = "atlasRelease"
 
-    static final String CLEAN_META_FILES_TASK = "cleanMetaFiles"
-    static final String SETUP_TASK = "setup"
-    static final String RC_TASK = "rc"
-    static final String FINAL_TASK = "final"
-    static final String SNAPSHOT_TASK = "snapshot"
-    static final String TEST_TASK = "test"
-    static final String RELEASE_NOTES_BODY_TASK = "generateReleaseNotesBody"
+    public static final String CLEAN_META_FILES_TASK_NAME = "cleanMetaFiles"
+    public static final String SETUP_TASK = "setup"
+    public static final String RC_TASK_NAME = "rc"
+    public static final String FINAL_TASK_NAME = "final"
+    public static final String SNAPSHOT_TASK_NAME = "snapshot"
+    public static final String TEST_TASK_NAME = "test"
+    public static final String RELEASE_NOTES_BODY_TASK_NAME = "generateReleaseNotesBody"
 
     static final String ARCHIVES_CONFIGURATION = "archives"
-    static final String VERSION_SCHEME_DEFAULT = 'semver'
     static final String VERSION_SCHEME_SEMVER_1 = 'semver'
     static final String VERSION_SCHEME_SEMVER_2 = 'semver2'
+    static final String VERSION_SCHEME_DEFAULT = VERSION_SCHEME_SEMVER_2
 
     @Override
     void apply(Project project) {
-
         if (project == project.rootProject) {
+
             def extension = project.extensions.create(EXTENSION_NAME, DefaultAtlasReleasePluginExtension)
 
             configureDefaultMetaCleanPattern(extension)
-            applyVersionPlugin(project)
             applyWoogaPlugins(project)
-
             configureArchiveConfiguration(project)
             configureSetupTask(project)
             configureReleaseLifecycle(project)
@@ -106,51 +103,72 @@ class ReleasePlugin implements Plugin<Project> {
             }
             configureReleaseNotesTask(project)
             configureGithubPublishTask(project)
-
             // TODO: Remove?
             configureVersionCode(project)
-
             configureUnityPackageIfPresent(project, extension)
             configureSetupTaskIfUnityPluginPresent(project)
             configurePaketConfigurationArtifacts(project)
         } else {
             project.rootProject.pluginManager.apply(this.class)
         }
-
-
     }
 
+    /**
+     * Applies and configures internal Wooga plugins used for our release process
+     * @param project
+     */
+    protected static void applyWoogaPlugins(Project project) {
+        project.pluginManager.apply(GithubPlugin)
+        project.pluginManager.apply(PaketPlugin)
+        project.pluginManager.apply(PaketUnityPlugin)
+
+        project.pluginManager.apply(VersionPlugin)
+        VersionPluginExtension versionExtension = project.extensions.findByType(VersionPluginExtension)
+        def versionScheme = project.properties.getOrDefault("version.scheme", VERSION_SCHEME_DEFAULT)
+        versionExtension.with {
+            switch (versionScheme) {
+                case VERSION_SCHEME_SEMVER_2:
+                    versionExtension.versionScheme(VersionScheme.semver2)
+                    break
+                case VERSION_SCHEME_SEMVER_1:
+                default:
+                    versionExtension.versionScheme(VersionScheme.semver)
+                    break
+            }
+        }
+    }
+
+    /**
+     * Hooks our custom release tasks into Gradle's lifecycle tasks
+     * @param project
+     */
     private static void configureReleaseLifecycle(final Project project) {
-        def tasks = project.tasks
-        def setup = tasks.maybeCreate(SETUP_TASK)
 
+        // Create tasks to be used by the lifecycle
+        Task setup = project.tasks.maybeCreate(SETUP_TASK)
+        Task testTask = project.tasks.maybeCreate(TEST_TASK_NAME)
         // TODO: Add custom tasks previously provided by the nebula release plugin
-        Task finalTask = project.tasks.create(FINAL_TASK)
-        Task rcTask = project.tasks.create(RC_TASK)
-        Task snapshotTask = project.tasks.create(SNAPSHOT_TASK)
+        Task finalTask = project.tasks.create(FINAL_TASK_NAME)
+        Task rcTask = project.tasks.create(RC_TASK_NAME)
+        Task snapshotTask = project.tasks.create(SNAPSHOT_TASK_NAME)
 
-        //hook up into lifecycle
-        def checkTask = tasks.getByName(LifecycleBasePlugin.CHECK_TASK_NAME)
-        def assembleTask = tasks.getByName(LifecycleBasePlugin.ASSEMBLE_TASK_NAME)
-        def buildTask = tasks.getByName(LifecycleBasePlugin.BUILD_TASK_NAME)
-
-        def publishTask = tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
-        def testTask = tasks.maybeCreate(TEST_TASK)
+        // Hook up our tasks into gradle's lifecycle tasks
+        def checkTask = project.tasks.getByName(LifecycleBasePlugin.CHECK_TASK_NAME)
+        def buildTask = project.tasks.getByName(LifecycleBasePlugin.BUILD_TASK_NAME)
+        def publishTask = project.tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
 
         [finalTask, rcTask, snapshotTask].each {
             it.dependsOn publishTask
         }
-
         testTask.dependsOn setup
         checkTask.dependsOn(testTask)
         buildTask.dependsOn setup
-        publishTask.dependsOn assembleTask
     }
 
     private static void configureReleaseNotesTask(Project project) {
 
         // Body
-        addReleaseNotesTask(project, RELEASE_NOTES_BODY_TASK, new ReleaseNotesBodyStrategy(), { t ->
+        addReleaseNotesTask(project, RELEASE_NOTES_BODY_TASK_NAME, new ReleaseNotesBodyStrategy(), { t ->
             t.output.set(new File("${project.buildDir}/outputs/release-notes.md"))
         })
         // TODO: Implement task for generating/appending release notes to file on the repository;
@@ -161,22 +179,22 @@ class ReleasePlugin implements Plugin<Project> {
                                             GeneratorStrategy strategy,
                                             Action<? super GenerateReleaseNotes> action) {
 
-        def provider = project.tasks.register(name, GenerateReleaseNotes)
-        provider.configure { task ->
+        def releaseNotesTask = project.tasks.register(name, GenerateReleaseNotes)
+        releaseNotesTask.configure { t ->
 
             // Release notes for GitHub RELEASE
             def versionExt = project.extensions.findByType(VersionPluginExtension)
             if (versionExt) {
-                task.from.set(versionExt.version.map { version ->
+                t.from.set(versionExt.version.map { version ->
                     if (version.previousVersion) {
                         return "v${version.previousVersion}"
                     } else {
                         return null
                     }
                 })
-                task.branch.set(project.extensions.grgit.branch.current.name as String)
-                task.strategy.set(strategy)
-                action.execute(task)
+                t.branch.set(project.extensions.grgit.branch.current.name as String)
+                t.strategy.set(strategy)
+                action.execute(t)
             }
         }
     }
@@ -192,53 +210,32 @@ class ReleasePlugin implements Plugin<Project> {
     }
 
     /**
-     * Configures all tasks of type {@link PaketPack}.
-     * <p>
-     * It sets the paket version on each task because version 0.8.0 of {@code net.wooga.paket-pack} changed the
-     * default behavior for picking the package version.
-     *
-     * @param project
-     * @link wooga.gradle.paket.pack.PaketPackPlugin
-     */
-    protected static void configurePaketPackTasks(Project project) {
-        def setup = project.tasks.maybeCreate(SETUP_TASK)
-        project.tasks.withType(PaketPack, new Action<PaketPack>() {
-            @Override
-            void execute(PaketPack paketPack) {
-                /**
-                 * Sets project version to all {@code PaketPack} tasks.
-                 * Version 0.8.0 changed the default behavior for picking the package version.
-                 * This is just a security measure.
-                 *
-                 * */
-                paketPack.version = { project.version }
-                paketPack.dependsOn setup
-            }
-        })
-    }
-
-    /**
      * Configures the {@code GithubPublish} task.
      * <p>
      * The method fetches the {@code githubPublish} task and sets up the artifacts to publish.
      * Configures the tasks based on the release {@code stage} ({@code candidate} builds == {@code prerelease}).
-     * It sets also the release notes with the help of.
+     * It sets also the release notes for the Github release page.
      *
      * @param project
      * @see GithubPublishPlugin
      */
     protected static void configureGithubPublishTask(Project project) {
-        def archives = project.configurations.maybeCreate(ARCHIVES_CONFIGURATION)
 
-        TaskContainer tasks = project.tasks
-        GenerateReleaseNotes releaseNotesTask = tasks.getByName(RELEASE_NOTES_BODY_TASK) as GenerateReleaseNotes
-        GithubPublish githubPublishTask = (GithubPublish) tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
-        githubPublishTask.onlyIf(new ProjectStatusTaskSpec('candidate', 'release'))
+        GenerateReleaseNotes releaseNotesTask = project.tasks.getByName(RELEASE_NOTES_BODY_TASK_NAME) as GenerateReleaseNotes
+        GithubPublish githubPublishTask = (GithubPublish) project.tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
+
+        // Only run the publish task and release notes tasks when making a release
+        def predicate = new ProjectPropertyValueTaskSpec("release.stage",'rc', 'final')
+        releaseNotesTask.onlyIf(predicate)
+        githubPublishTask.onlyIf(predicate)
+
+        // Now configure the task
+        def archives = project.configurations.maybeCreate(ARCHIVES_CONFIGURATION)
         githubPublishTask.from(archives)
         githubPublishTask.dependsOn(archives)
         githubPublishTask.tagName.set("v${project.version}")
         githubPublishTask.releaseName.set(project.version.toString())
-        githubPublishTask.prerelease.set(project.provider { project.status != 'release' })
+        githubPublishTask.prerelease.set(project.provider { project.status != 'final' })
 
         // Write the release description using the release notes generated by
         // the release strategy
@@ -346,7 +343,7 @@ class ReleasePlugin implements Plugin<Project> {
                     files.include(extension.metaCleanPattern.includes)
                     files.exclude(extension.metaCleanPattern.excludes)
 
-                    def cleanTask = sub.tasks.create(CLEAN_META_FILES_TASK, Delete).with {
+                    def cleanTask = sub.tasks.create(CLEAN_META_FILES_TASK_NAME, Delete).with {
                         delete(files)
                     }
 
@@ -387,47 +384,30 @@ class ReleasePlugin implements Plugin<Project> {
     }
 
     /**
-     * Applies and configures {@code nebula.release} plugins.
+     * Configures all tasks of type {@link PaketPack}.
      * <p>
-     * Nebular release is the base plugin which we borrow logic from.
-     * We take apply our own versioning strategy pattern to be compatible
-     * with <a href="https://fsprojects.github.io/Paket/">Paket</a> and <a href="https://www.nuget.org/">Nuget</a>.
+     * It sets the paket version on each task because version 0.8.0 of {@code net.wooga.paket-pack} changed the
+     * default behavior for picking the package version.
      *
      * @param project
+     * @link wooga.gradle.paket.pack.PaketPackPlugin
      */
-    protected static void applyVersionPlugin(Project project) {
-        project.pluginManager.apply(VersionPlugin)
-        VersionPluginExtension versionExtension = project.extensions.findByType(VersionPluginExtension)
-
-        def versionScheme = project.properties.getOrDefault("version.scheme", VERSION_SCHEME_DEFAULT)
-
-        versionExtension.with {
-            switch (versionScheme) {
-                case VERSION_SCHEME_SEMVER_2:
-                    versionExtension.versionScheme(VersionScheme.semver2)
-                    break
-                case VERSION_SCHEME_SEMVER_1:
-                default:
-                    versionExtension.versionScheme(VersionScheme.semver)
-                    break
+    protected static void configurePaketPackTasks(Project project) {
+        def setup = project.tasks.maybeCreate(SETUP_TASK)
+        project.tasks.withType(PaketPack, new Action<PaketPack>() {
+            @Override
+            void execute(PaketPack paketPack) {
+                /**
+                 * Sets project version to all {@code PaketPack} tasks.
+                 * Version 0.8.0 changed the default behavior for picking the package version.
+                 * This is just a security measure.
+                 *
+                 * */
+                paketPack.version = { project.version }
+                paketPack.dependsOn setup
             }
-        }
-
+        })
     }
 
-    /**
-     * Applies Wooga plugins.
-     * <p>
-     * <ul>
-     *     <li>net.wooga.github
-     *     <li>net.wooga.paket
-     *     <li>net.wooga.paket-unity
-     *
-     * @param project
-     */
-    protected static void applyWoogaPlugins(Project project) {
-        project.pluginManager.apply(GithubPlugin)
-        project.pluginManager.apply(PaketPlugin)
-        project.pluginManager.apply(PaketUnityPlugin)
-    }
+
 }
