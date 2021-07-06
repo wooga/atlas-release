@@ -83,7 +83,7 @@ class ReleasePlugin implements Plugin<Project> {
     static final String ARCHIVES_CONFIGURATION = "archives"
     static final String VERSION_SCHEME_SEMVER_1 = 'semver'
     static final String VERSION_SCHEME_SEMVER_2 = 'semver2'
-    static final String VERSION_SCHEME_DEFAULT = VERSION_SCHEME_SEMVER_2
+    static final String VERSION_SCHEME_DEFAULT = VERSION_SCHEME_SEMVER_1
 
     @Override
     void apply(Project project) {

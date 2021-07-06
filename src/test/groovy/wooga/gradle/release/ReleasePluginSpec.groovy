@@ -664,7 +664,7 @@ class ReleasePluginSpec extends ProjectSpec {
      * Tests how these tasks predicate against {@link wooga.gradle.release.utils.ProjectPropertyValueTaskSpec}
      * */
     @Unroll
-    def "predicates for #taskNames are #satisfiedMessage when release stage is #value"() {
+    def "predicates for #taskName are #satisfiedMessage when release stage is #value and github repo #repoStatus"() {
 
         given: "a gradle project with release.stage being set"
         project.extensions["release.stage"] = value
@@ -676,31 +676,27 @@ class ReleasePluginSpec extends ProjectSpec {
         project.github.repositoryName.set(repositoryName)
 
         then:
-        for (taskName in taskNames) {
-            def task = project.tasks.getByName(taskName)
-            Spec<? super Task> predicate = task.getOnlyIf()
-            assert predicate.isSatisfiedBy(task) == satisfied
-        }
+        def task = project.tasks.getByName(taskName)
+        Spec<? super Task> predicate = task.getOnlyIf()
+        assert predicate.isSatisfiedBy(task) == satisfied
 
         where:
-        value          | repositoryName   | satisfied
-        //'rc'           | "wooga/testRepo" | true
-        'rc'           | null             | false
-        'final'        | "wooga/testRepo" | true
-        'rc'           | null             | false
-        'release'      | "wooga/testRepo" | false
-        'release'      | null             | false
-        'candidate'    | "wooga/testRepo" | false
-        'candidate'    | null             | false
-        'snapshot'     | "wooga/testRepo" | false
-        'snapshot'     | null             | false
-        'ci'           | "wooga/testRepo" | false
-        'ci'           | null             | false
-        'random value' | "wooga/testRepo" | false
-        'random value' | null             | false
+        value      | repositoryName   | satisfied | taskName
+        'rc'       | "wooga/testRepo" | true      | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'rc'       | "wooga/testRepo" | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'rc'       | null             | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'rc'       | null             | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'final'    | "wooga/testRepo" | true      | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'final'    | "wooga/testRepo" | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'final'    | null             | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'final'    | null             | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'snapshot' | "wooga/testRepo" | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'snapshot' | "wooga/testRepo" | false     | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'snapshot' | null             | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'snapshot' | null             | false     | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
 
-        taskNames = [GithubPublishPlugin.PUBLISH_TASK_NAME, ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME]
         satisfiedMessage = satisfied ? "satisfied" : "not satisfied"
+        repoStatus = repositoryName ? "is set" : "is not set"
     }
 
 }
