@@ -17,7 +17,7 @@
 
 package wooga.gradle.release
 
-import nebula.test.PluginProjectSpec
+
 import nebula.test.ProjectSpec
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Task
@@ -32,23 +32,6 @@ import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
 
-class ReleasePluginActivationSpec extends PluginProjectSpec {
-    Grgit git
-
-    def setup() {
-        new File(projectDir, '.gitignore') << """
-        userHome/
-        """.stripIndent()
-
-        git = Grgit.init(dir: projectDir)
-        git.add(patterns: ['.gitignore'])
-        git.commit(message: 'initial commit')
-        git.tag.add(name: 'v0.0.1')
-    }
-
-    @Override
-    String getPluginName() { return 'net.wooga.release' }
-}
 
 class ReleasePluginSpec extends ProjectSpec {
     public static final String PLUGIN_NAME = 'net.wooga.release'
@@ -99,10 +82,10 @@ class ReleasePluginSpec extends ProjectSpec {
         project.plugins.hasPlugin(pluginType)
 
         where:
-        pluginName          | pluginType
-        "githubPublish"     | GithubPublishPlugin
-        "paket"             | PaketPlugin
-        "paket-unity"       | PaketUnityPlugin
+        pluginName      | pluginType
+        "githubPublish" | GithubPublishPlugin
+        "paket"         | PaketPlugin
+        "paket-unity"   | PaketUnityPlugin
     }
 
     def findStrategyByName(List<VersionStrategy> strategies, name) {
@@ -146,7 +129,7 @@ class ReleasePluginSpec extends ProjectSpec {
         where:
         taskName << [
                 ReleasePlugin.SETUP_TASK,
-                ReleasePlugin.TEST_TASK
+                ReleasePlugin.TEST_TASK_NAME
         ]
     }
 
@@ -677,35 +660,43 @@ class ReleasePluginSpec extends ProjectSpec {
         tasks.every { it.version != "2.0.0" }
     }
 
+    /**
+     * Tests how these tasks predicate against {@link wooga.gradle.release.utils.ProjectPropertyValueTaskSpec}
+     * */
     @Unroll
-    def "verify githubPublish onlyIf spec when project.status:#testState and github repository #repositoryName"() {
-        given: "gradle project with plugin applied and evaluated"
+    def "predicates for #taskName are #satisfiedMessage when release stage is #value and github repo #repoStatus"() {
+
+        given: "a gradle project with release.stage being set"
+        project.extensions["release.stage"] = value
+
+        when: "a gradle project with plugin applied and evaluated"
         project.plugins.apply(PLUGIN_NAME)
-        // TODO: Fails when this is called
-        //project.evaluate()
 
         and: "configured repository branch"
-        if (repositoryName) {
-            project.github.repositoryName = repositoryName
-        }
-
-        when:
-        project.status = testState
+        project.github.repositoryName.set(repositoryName)
 
         then:
-        def githubPublishTask = project.tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
-        Spec<? super Task> testSpec = githubPublishTask.getOnlyIf()
-        testSpec.isSatisfiedBy(githubPublishTask) == expectedResult
+        def task = project.tasks.getByName(taskName)
+        Spec<? super Task> predicate = task.getOnlyIf()
+        assert predicate.isSatisfiedBy(task) == satisfied
 
         where:
-        testState      | repositoryName   | expectedResult
-        'release'      | "wooga/testRepo" | true
-        'release'      | null             | false
-        'candidate'    | "wooga/testRepo" | true
-        'candidate'    | null             | false
-        'snapshot'     | "wooga/testRepo" | false
-        'snapshot'     | null             | false
-        'random value' | "wooga/testRepo" | false
-        'random value' | null             | false
+        value      | repositoryName   | satisfied | taskName
+        'rc'       | "wooga/testRepo" | true      | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'rc'       | "wooga/testRepo" | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'rc'       | null             | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'rc'       | null             | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'final'    | "wooga/testRepo" | true      | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'final'    | "wooga/testRepo" | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'final'    | null             | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'final'    | null             | true      | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'snapshot' | "wooga/testRepo" | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'snapshot' | "wooga/testRepo" | false     | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+        'snapshot' | null             | false     | GithubPublishPlugin.PUBLISH_TASK_NAME
+        'snapshot' | null             | false     | ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME
+
+        satisfiedMessage = satisfied ? "satisfied" : "not satisfied"
+        repoStatus = repositoryName ? "is set" : "is not set"
     }
+
 }

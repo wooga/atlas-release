@@ -17,8 +17,11 @@
 package wooga.gradle.release
 
 import org.ajoberstar.grgit.Grgit
+import org.gradle.api.Task
+import org.gradle.api.specs.Spec
 import spock.lang.Ignore
 import spock.lang.Unroll
+import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.unity.UnityPlugin
 
@@ -41,7 +44,6 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         git.tag.add(name: "v0.0.1")
         createFile("paket.dependencies")
     }
-
 
 
 //    @Unroll("verify dependency setup to #testType unity sub-projects")
@@ -329,12 +331,12 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         createFile("paket.dependencies")
 
         and: "optional paket.lock"
-        if(lock_status) {
+        if (lock_status) {
             createFile("paket.lock")
         }
-        def paketLock = new File(projectDir,"paket.lock")
+        def paketLock = new File(projectDir, "paket.lock")
 
-        assert(paketLock.exists() == lock_status)
+        assert (paketLock.exists() == lock_status)
 
         when:
         def result = runTasksSuccessfully("setup")
@@ -414,23 +416,5 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         '2.10.99-branch' | 21099
         '0.3.0-a0000'    | 300
         '12.34.200-2334' | 123600
-    }
-
-    // TODO: Implement when release notes page is added
-    @Ignore
-    def "writes release notes for release description "() {
-
-        given:
-        buildFile << """
-            group = 'test'
-            ${applyPlugin(ReleasePlugin)}
-        """.stripIndent()
-
-        when:
-        //def result = runTasksSuccessfully("check")
-        def result = runTasksSuccessfully("releaseNotesMD")
-
-        then:
-        fileExists("${projectDir}/outputs/release-notes.md")
     }
 }
