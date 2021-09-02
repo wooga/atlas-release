@@ -16,6 +16,7 @@
 
 package wooga.gradle.release
 
+import com.wooga.gradle.test.PropertyQueryTaskWriter
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Task
 import org.gradle.api.specs.Spec
@@ -44,7 +45,6 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         git.tag.add(name: "v0.0.1")
         createFile("paket.dependencies")
     }
-
 
 //    @Unroll("verify dependency setup to #testType unity sub-projects")
 //    def "verify dependency setup to unity sub-projects"() {
@@ -416,5 +416,31 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         '2.10.99-branch' | 21099
         '0.3.0-a0000'    | 300
         '12.34.200-2334' | 123600
+    }
+
+    @Unroll("prerelease #expectedMessage when project status is #status")
+    def "prerelease property is set correctly on by the plugin"() {
+        given: "a buildfile with release plugin applied"
+        buildFile << """            
+            ${applyPlugin(ReleasePlugin)}
+            project.status = "${status}"
+        """.stripIndent()
+
+        when:
+        def query = new PropertyQueryTaskWriter("${GithubPublishPlugin.PUBLISH_TASK_NAME}.prerelease")
+        query.write(buildFile)
+        def result = runTasksSuccessfully(query.taskName)
+
+        then:
+        result.wasExecuted(query.taskName)
+        query.matches(result, isPrerelease)
+
+        where:
+        status    | isPrerelease
+        "final"   | false
+        "release" | false
+        "rc"      | true
+
+        expectedMessage = isPrerelease ? "set" : "not set"
     }
 }
