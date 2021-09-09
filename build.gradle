@@ -68,7 +68,7 @@ dependencies {
     testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:2.0.0-rc.3'
     testImplementation 'com.wooga.gradle:gradle-commons-test:(0, 1]'
 
-    implementation group: 'org.kohsuke', name: 'github-api', version: '1.130'
+    implementation group: 'org.kohsuke', name: 'github-api', version: '1.133'
     implementation 'org.ajoberstar.grgit:grgit-core:(4.1,5]'
     implementation 'org.ajoberstar.grgit:grgit-gradle:(4.1,5]'
     implementation 'gradle.plugin.net.wooga.gradle:atlas-version:1+'
