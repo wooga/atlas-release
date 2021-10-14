@@ -65,7 +65,7 @@ dependencies {
     }
 
     testImplementation 'gradle.plugin.net.wooga.gradle:atlas-unity:2.0.0-rc.3'
-    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:2.0.0-rc.3'
+    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:2.1.0'
     testImplementation 'com.wooga.gradle:gradle-commons-test:0.1.0'
 
     implementation group: 'org.kohsuke', name: 'github-api', version: '1.130'
