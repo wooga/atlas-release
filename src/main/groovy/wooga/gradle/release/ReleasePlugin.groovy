@@ -235,6 +235,7 @@ class ReleasePlugin implements Plugin<Project> {
         githubPublishTask.dependsOn(archives)
         githubPublishTask.tagName.set("v${project.version}")
         githubPublishTask.releaseName.set(project.version.toString())
+        githubPublishTask.targetCommitish.set(project.extensions.grgit.branch.current.name as String)
         // Gradle defaults to 'release' for the project status, as seen here:
         // https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#getStatus--
         githubPublishTask.prerelease.set(project.provider { project.status != 'final' && project.status != 'release' })
