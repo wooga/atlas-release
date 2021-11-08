@@ -64,7 +64,7 @@ dependencies {
         exclude module: 'logback-classic'
     }
 
-    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-unity:2.3.0'
+    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-unity:2.4.0'
     testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:2.1.1'
     testImplementation 'com.wooga.gradle:gradle-commons-test:0.3.0'
 
