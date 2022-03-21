@@ -200,21 +200,21 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         aSubDir2.mkdirs()
 
         def filesToDelete = [
-                createFile("file.cs.meta", assetsDir),
-                createFile("file.json.meta", assetsDir),
-                createFile(".meta", assetsDir),
-                createFile("test.cs", assetsDir),
-                createFile("test.json", assetsDir),
-                createFile("test.cs", aSubDir),
-                createFile("test.json", aSubDir),
+            createFile("file.cs.meta", assetsDir),
+            createFile("file.json.meta", assetsDir),
+            createFile(".meta", assetsDir),
+            createFile("test.cs", assetsDir),
+            createFile("test.json", assetsDir),
+            createFile("test.cs", aSubDir),
+            createFile("test.json", aSubDir),
         ]
 
         def filesToKeep = [
-                createFile("test.dll.meta", assetsDir),
-                createFile("file.cs.meta", aSubDir2),
-                createFile("file.json.meta", aSubDir2),
-                createFile(".meta", aSubDir2),
-                createFile("test.dll.meta", aSubDir),
+            createFile("test.dll.meta", assetsDir),
+            createFile("file.cs.meta", aSubDir2),
+            createFile("file.json.meta", aSubDir2),
+            createFile(".meta", aSubDir2),
+            createFile("test.dll.meta", aSubDir),
         ]
 
         and: "a buildfile with release plugin applied"
@@ -263,20 +263,20 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         def filesToDelete = []
 
         def filesToKeep = [
-                createFile("test.meta", assetsDir),
-                createFile(".meta", assetsDir),
-                createFile("test.meta", aSubDir),
-                createFile(".meta", aSubDir),
-                createFile("test.dll.meta", assetsDir),
-                createFile("test.cs", assetsDir),
-                createFile("test.json", assetsDir),
-                createFile("test.cs", aSubDir),
-                createFile("test.json", aSubDir),
-                createFile("test.so.meta", assetsDir),
-                createFile("test.dll.meta", aSubDir),
-                createFile("test.so.meta", aSubDir),
-                createFile("test.meta", unitySub),
-                createFile(".meta", unitySub)]
+            createFile("test.meta", assetsDir),
+            createFile(".meta", assetsDir),
+            createFile("test.meta", aSubDir),
+            createFile(".meta", aSubDir),
+            createFile("test.dll.meta", assetsDir),
+            createFile("test.cs", assetsDir),
+            createFile("test.json", assetsDir),
+            createFile("test.cs", aSubDir),
+            createFile("test.json", aSubDir),
+            createFile("test.so.meta", assetsDir),
+            createFile("test.dll.meta", aSubDir),
+            createFile("test.so.meta", aSubDir),
+            createFile("test.meta", unitySub),
+            createFile(".meta", unitySub)]
 
         and: "a buildfile with release plugin applied"
         buildFile << """
@@ -436,10 +436,11 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         query.matches(result, isPrerelease)
 
         where:
-        status    | isPrerelease
-        "final"   | false
-        "release" | false
-        "rc"      | true
+        status      | isPrerelease
+        "final"     | false
+        "release"   | false
+        "rc"        | true
+        "preflight" | true
 
         expectedMessage = isPrerelease ? "set" : "not set"
     }
