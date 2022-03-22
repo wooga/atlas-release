@@ -74,16 +74,16 @@ class ReleasePlugin implements Plugin<Project> {
 
     public static final String CLEAN_META_FILES_TASK_NAME = "cleanMetaFiles"
     public static final String SETUP_TASK = "setup"
+
+    public static final String SNAPSHOT_TASK_NAME = "snapshot"
     public static final String RC_TASK_NAME = "rc"
     public static final String FINAL_TASK_NAME = "final"
-    public static final String SNAPSHOT_TASK_NAME = "snapshot"
+
     public static final String TEST_TASK_NAME = "test"
     public static final String RELEASE_NOTES_BODY_TASK_NAME = "generateReleaseNotesBody"
 
     static final String ARCHIVES_CONFIGURATION = "archives"
-    static final String VERSION_SCHEME_SEMVER_1 = 'semver'
-    static final String VERSION_SCHEME_SEMVER_2 = 'semver2'
-    static final String VERSION_SCHEME_DEFAULT = VERSION_SCHEME_SEMVER_1
+    static final VersionScheme defaultVersionScheme = VersionScheme.semver
 
     @Override
     void apply(Project project) {
@@ -123,19 +123,10 @@ class ReleasePlugin implements Plugin<Project> {
         project.pluginManager.apply(PaketUnityPlugin)
 
         project.pluginManager.apply(VersionPlugin)
-        VersionPluginExtension versionExtension = project.extensions.findByType(VersionPluginExtension)
-        def versionScheme = project.properties.getOrDefault("version.scheme", VERSION_SCHEME_DEFAULT)
-        versionExtension.with {
-            switch (versionScheme) {
-                case VERSION_SCHEME_SEMVER_2:
-                    versionExtension.versionScheme(VersionScheme.semver2)
-                    break
-                case VERSION_SCHEME_SEMVER_1:
-                default:
-                    versionExtension.versionScheme(VersionScheme.semver)
-                    break
-            }
-        }
+
+        // Set this manually if we want the convention to be different than that of the version plugin
+        //VersionPluginExtension versionExtension = project.extensions.findByType(VersionPluginExtension)
+        //versionExtension.versionScheme.convention(defaultVersionScheme)
     }
 
     /**
@@ -147,19 +138,25 @@ class ReleasePlugin implements Plugin<Project> {
         // Create tasks to be used by the lifecycle
         Task setup = project.tasks.maybeCreate(SETUP_TASK)
         Task testTask = project.tasks.maybeCreate(TEST_TASK_NAME)
-        // TODO: Add custom tasks previously provided by the nebula release plugin
-        Task finalTask = project.tasks.create(FINAL_TASK_NAME)
-        Task rcTask = project.tasks.create(RC_TASK_NAME)
-        Task snapshotTask = project.tasks.create(SNAPSHOT_TASK_NAME)
 
         // Hook up our tasks into gradle's lifecycle tasks
         def checkTask = project.tasks.getByName(LifecycleBasePlugin.CHECK_TASK_NAME)
         def buildTask = project.tasks.getByName(LifecycleBasePlugin.BUILD_TASK_NAME)
         def publishTask = project.tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
 
-        [finalTask, rcTask, snapshotTask].each {
+        // TODO: Remove these tasks in the future since the release-stage is set by the properties (breaking change)
+        // These tasks were added to replace those that were originally added by the nebula-release plugin,
+        // which was deprecated in favor of our own solution. These tasks have no action, they instead
+        // work by mapping the 'release.stage' property.
+        // For example, invoking the `final` task will have the `release.stage` property set to `final`
+        Task finalTask = project.tasks.create(FINAL_TASK_NAME)
+        Task rcTask = project.tasks.create(RC_TASK_NAME)
+        Task snapshotTask = project.tasks.create(SNAPSHOT_TASK_NAME)
+
+        [snapshotTask, rcTask, finalTask].each {
             it.dependsOn publishTask
         }
+
         testTask.dependsOn setup
         checkTask.dependsOn(testTask)
         buildTask.dependsOn setup
@@ -225,7 +222,7 @@ class ReleasePlugin implements Plugin<Project> {
         GithubPublish githubPublishTask = (GithubPublish) project.tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME)
 
         // Only run the publish task and release notes tasks when making a release
-        def predicate = new ProjectPropertyValueTaskSpec("release.stage",'rc', 'final')
+        def predicate = new ProjectPropertyValueTaskSpec("release.stage", 'rc', 'final')
         releaseNotesTask.onlyIf(predicate)
         githubPublishTask.onlyIf(predicate)
 

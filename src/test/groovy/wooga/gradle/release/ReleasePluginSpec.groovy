@@ -31,7 +31,8 @@ import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
-
+import wooga.gradle.version.VersionPluginExtension
+import wooga.gradle.version.VersionScheme
 
 class ReleasePluginSpec extends ProjectSpec {
     public static final String PLUGIN_NAME = 'net.wooga.release'
@@ -697,6 +698,20 @@ class ReleasePluginSpec extends ProjectSpec {
 
         satisfiedMessage = satisfied ? "satisfied" : "not satisfied"
         repoStatus = repositoryName ? "is set" : "is not set"
+    }
+
+    @Unroll
+    def "verifies that the default version scheme is #defaultScheme"(){
+
+        when: "a gradle project with plugin applied and evaluated"
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        VersionPluginExtension versionExtension = project.extensions.findByType(VersionPluginExtension)
+        versionExtension.versionScheme.get() == defaultScheme
+
+        where:
+        defaultScheme = VersionScheme.semver
     }
 
 }
