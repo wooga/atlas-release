@@ -76,6 +76,7 @@ class ReleasePlugin implements Plugin<Project> {
     public static final String SETUP_TASK = "setup"
 
     public static final String SNAPSHOT_TASK_NAME = "snapshot"
+    public static final String PREFLIGHT_TASK_NAME = "preflight"
     public static final String RC_TASK_NAME = "rc"
     public static final String FINAL_TASK_NAME = "final"
 
@@ -149,11 +150,12 @@ class ReleasePlugin implements Plugin<Project> {
         // which was deprecated in favor of our own solution. These tasks have no action, they instead
         // work by mapping the 'release.stage' property.
         // For example, invoking the `final` task will have the `release.stage` property set to `final`
+        Task preflightTask = project.tasks.create(PREFLIGHT_TASK_NAME)
         Task finalTask = project.tasks.create(FINAL_TASK_NAME)
         Task rcTask = project.tasks.create(RC_TASK_NAME)
         Task snapshotTask = project.tasks.create(SNAPSHOT_TASK_NAME)
 
-        [snapshotTask, rcTask, finalTask].each {
+        [snapshotTask, preflightTask, rcTask, finalTask].each {
             it.dependsOn publishTask
         }
 
