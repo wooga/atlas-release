@@ -30,6 +30,8 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.AppliedPlugin
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.bundling.Compression
+import org.gradle.api.tasks.bundling.Tar
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import wooga.gradle.github.GithubPlugin
@@ -52,6 +54,7 @@ import wooga.gradle.release.utils.ProjectPropertyValueTaskSpec
 import wooga.gradle.version.VersionPlugin
 import wooga.gradle.version.VersionPluginExtension
 import wooga.gradle.version.VersionScheme
+
 
 /**
  * A Wooga internal plugin to develop and publish Unity library packages.
@@ -82,6 +85,7 @@ class ReleasePlugin implements Plugin<Project> {
 
     public static final String TEST_TASK_NAME = "test"
     public static final String RELEASE_NOTES_BODY_TASK_NAME = "generateReleaseNotesBody"
+    public static final String UPM_TASK_NAME = "upmPack"
 
     static final String ARCHIVES_CONFIGURATION = "archives"
     static final VersionScheme defaultVersionScheme = VersionScheme.semver
@@ -109,6 +113,7 @@ class ReleasePlugin implements Plugin<Project> {
             configureUnityPackageIfPresent(project, extension)
             configureSetupTaskIfUnityPluginPresent(project)
             configurePaketConfigurationArtifacts(project)
+            configureUpmPublishing(project)
         } else {
             project.rootProject.pluginManager.apply(this.class)
         }
@@ -383,6 +388,41 @@ class ReleasePlugin implements Plugin<Project> {
                 project.dependencies.add(ARCHIVES_CONFIGURATION, project.files(it.file).builtBy(it.buildDependencies))
             }
         }
+    }
+
+    /**
+     * Configures the task for UPM
+     */
+    private static configureUpmPublishing(Project project, DefaultAtlasReleasePluginExtension extension) {
+
+        // The task that will archive the package sources
+        def upmPackTask = project.tasks.register(UPM_TASK_NAME, Tar, {
+            onlyIf {
+                extension.upmPackageSourceDirectory.present
+                extension.upmPackageName.present
+            }
+
+            it.from(extension.upmPackageSourceDirectory.get())
+            it.from("README.MD")
+            it.from("LICENSE.MD")
+            into("package")
+            compression = Compression.GZIP
+            archiveBaseName.set("com.wooga." + extension.upmPackageName.get())
+        })
+
+        // The configuration
+        def config = project.configurations.maybeCreate("upm")
+        config.transitive = false
+
+        //project.configurations["default"].extendsFrom(project.configurations["upm"])
+
+        // Set up the artifact
+        project.artifacts.add("upm", upmPackTask)
+
+        // Set up the target repository
+
+        def artifactory = project.extensions.getByType()
+
     }
 
     /**

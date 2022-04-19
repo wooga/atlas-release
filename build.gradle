@@ -15,8 +15,20 @@
  *
  */
 
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.28.2"
+    }
+}
+
 plugins {
     id 'net.wooga.plugins' version '2.2.3'
+    id "com.jfrog.artifactory" version "4.28.1"
 }
 
 group 'net.wooga.gradle'
@@ -77,5 +89,7 @@ dependencies {
     implementation 'gradle.plugin.net.wooga.gradle:atlas-paket:(2, 3]'
     implementation 'gradle.plugin.net.wooga.gradle:atlas-github:(2, 3]'
     implementation 'gradle.plugin.net.wooga.gradle:atlas-GithubReleaseNotes:(1, 2]'
+
+    //implementation 'org.jfrog.artifactory.client:artifactory-java-client-api:2.12.0'
 }
 

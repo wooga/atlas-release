@@ -23,8 +23,9 @@ import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.util.ConfigureUtil
 import wooga.gradle.release.AtlasReleasePluginExtension
+import wooga.gradle.release.upm.UpmPackageSpec
 
-class DefaultAtlasReleasePluginExtension implements AtlasReleasePluginExtension{
+class DefaultAtlasReleasePluginExtension implements AtlasReleasePluginExtension, UpmPackageSpec {
     private PatternSet metaCleanPattern = new PatternSet()
 
 
