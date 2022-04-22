@@ -16,7 +16,10 @@
  */
 
 plugins {
-    id 'net.wooga.plugins' version '2.2.3'
+    id 'net.wooga.plugins' version '2.3.0'
+    id 'net.wooga.snyk' version '0.10.0'
+    id "net.wooga.snyk-gradle-plugin" version "0.2.0"
+    id "net.wooga.cve-dependency-resolution" version "0.4.0"
 }
 
 group 'net.wooga.gradle'
@@ -40,6 +43,10 @@ github {
     repositoryName = "wooga/atlas-release"
 }
 
+cveHandler {
+    configurations("compileClasspath", "runtimeClasspath", "testCompileClasspath", "testRuntimeClasspath", "integrationTestCompileClasspath", "integrationTestRuntimeClasspath")
+}
+
 repositories {
     mavenCentral()
     gradlePluginPortal()
@@ -49,33 +56,23 @@ repositories {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        force 'org.codehaus.groovy:groovy-all:2.5.12'
-        force 'org.codehaus.groovy:groovy-macro:2.5.12'
-        force 'org.codehaus.groovy:groovy-nio:2.5.12'
-        force 'org.codehaus.groovy:groovy-sql:2.5.12'
-        force 'org.codehaus.groovy:groovy-xml:2.5.12'
-    }
-}
-
 dependencies {
     testImplementation('org.jfrog.artifactory.client:artifactory-java-client-services:+') {
         exclude module: 'logback-classic'
     }
 
-    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-unity:2.3.0'
-    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:2.1.1'
-    testImplementation 'com.wooga.gradle:gradle-commons-test:(1,2]'
+    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-unity:[2.3.0,3['
+    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:[2.1.1,3['
+    testImplementation 'com.wooga.gradle:gradle-commons-test:[1,2['
 
     implementation group: 'org.kohsuke', name: 'github-api', version: '1.135'
-    implementation 'org.ajoberstar.grgit:grgit-core:(4.1,5]'
-    implementation 'org.ajoberstar.grgit:grgit-gradle:(4.1,5]'
-    implementation 'com.wooga.gradle:gradle-commons:[1,2)'
+    implementation 'org.ajoberstar.grgit:grgit-core:[4.1.1,5['
+    implementation 'org.ajoberstar.grgit:grgit-gradle:[4.1.1,5['
+    implementation 'com.wooga.gradle:gradle-commons:[1,2['
 
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-version:(1.2+, 2]'
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-paket:(2, 3]'
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-github:(2, 3]'
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-GithubReleaseNotes:(1, 2]'
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-version:[1.3,2['
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-paket:[2,3['
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-github:[2.1,3['
+    implementation 'gradle.plugin.net.wooga.gradle:atlas-GithubReleaseNotes:[1.1,2['
 }
 
