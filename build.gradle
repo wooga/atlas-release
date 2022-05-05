@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id 'net.wooga.plugins' version '2.3.0'
+    id 'net.wooga.plugins' version '3.2.0'
     id 'net.wooga.snyk' version '0.10.0'
     id "net.wooga.snyk-gradle-plugin" version "0.2.0"
     id "net.wooga.cve-dependency-resolution" version "0.4.0"
@@ -29,12 +29,15 @@ pluginBundle {
     website = 'https://wooga.github.io/atlas-release'
     vcsUrl = 'https://github.com/wooga/atlas-release'
     tags = ['Wooga', 'release']
+}
 
+gradlePlugin {
     plugins {
         release {
             id = 'net.wooga.release'
             displayName = 'Gradle Wooga Release plugin'
             description = 'Plugin for wooga unity library releases'
+            implementationClass = 'wooga.gradle.release.ReleasePlugin'
         }
     }
 }
@@ -50,10 +53,6 @@ cveHandler {
 repositories {
     mavenCentral()
     gradlePluginPortal()
-    maven {
-        name = 'ajoberstar-backup'
-        url = 'https://ajoberstar.org/bintray-backup/'
-    }
 }
 
 dependencies {
@@ -61,8 +60,8 @@ dependencies {
         exclude module: 'logback-classic'
     }
 
-    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-unity:[2.3.0,3['
-    testImplementation 'gradle.plugin.net.wooga.gradle:atlas-wdk-unity:[2.1.1,3['
+    testImplementation 'net.wooga.gradle:unity:[3,4['
+    testImplementation 'net.wooga.gradle:wdk-unity:[3,4['
     testImplementation 'com.wooga.gradle:gradle-commons-test:[1,2['
 
     implementation group: 'org.kohsuke', name: 'github-api', version: '1.135'
@@ -70,9 +69,8 @@ dependencies {
     implementation 'org.ajoberstar.grgit:grgit-gradle:[4.1.1,5['
     implementation 'com.wooga.gradle:gradle-commons:[1,2['
 
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-version:[1.3,2['
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-paket:[2,3['
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-github:[2.1,3['
-    implementation 'gradle.plugin.net.wooga.gradle:atlas-GithubReleaseNotes:[1.1,2['
+    implementation 'net.wooga.gradle:version:[2,3['
+    implementation 'net.wooga.gradle:paket:[3,4['
+    implementation 'net.wooga.gradle:github:[3,4['
+    implementation 'net.wooga.gradle:github-release-notes:[2,3['
 }
-
