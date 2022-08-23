@@ -417,31 +417,4 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         '0.3.0-a0000'    | 300
         '12.34.200-2334' | 123600
     }
-
-    @Unroll("prerelease #expectedMessage when project status is #status")
-    def "prerelease property is set correctly on by the plugin"() {
-        given: "a buildfile with release plugin applied"
-        buildFile << """            
-            ${applyPlugin(ReleasePlugin)}
-            project.status = "${status}"
-        """.stripIndent()
-
-        when:
-        def query = new PropertyQueryTaskWriter("${GithubPublishPlugin.PUBLISH_TASK_NAME}.prerelease")
-        query.write(buildFile)
-        def result = runTasksSuccessfully(query.taskName)
-
-        then:
-        result.wasExecuted(query.taskName)
-        query.matches(result, isPrerelease)
-
-        where:
-        status      | isPrerelease
-        "final"     | false
-        "release"   | false
-        "rc"        | true
-        "preflight" | true
-
-        expectedMessage = isPrerelease ? "set" : "not set"
-    }
 }
