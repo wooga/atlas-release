@@ -28,6 +28,8 @@ import org.gradle.cache.internal.VersionStrategy
 import spock.lang.Ignore
 import spock.lang.Unroll
 import wooga.gradle.github.publish.GithubPublishPlugin
+import wooga.gradle.github.publish.tasks.GithubPublish
+import wooga.gradle.githubReleaseNotes.tasks.GenerateReleaseNotes
 import wooga.gradle.paket.PaketPlugin
 import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
@@ -701,7 +703,7 @@ class ReleasePluginSpec extends ProjectSpec {
     }
 
     @Unroll
-    def "verifies that the default version scheme is #defaultScheme"(){
+    def "verifies that the default version scheme is #defaultScheme"() {
 
         when: "a gradle project with plugin applied and evaluated"
         project.plugins.apply(PLUGIN_NAME)
@@ -714,4 +716,41 @@ class ReleasePluginSpec extends ProjectSpec {
         defaultScheme = VersionScheme.semver
     }
 
+    @Unroll
+    def "configure github publishing"() {
+        given:
+        def fakeReleaseNotes = new File(project.projectDir, "build/outputs/release-notes.md").with {
+            it.parentFile.mkdirs()
+            it.text = "mock release notes"
+            return it
+        }
+        project.ext["release.stage"] = releaseStage
+        project.ext["release.scope"] = releaseScope
+        and: "git repository needed for test to track its own versions"
+        new File(projectDir, ".gitignore") << "\n*"
+        git.add(patterns: ['.gitignore'])
+        git.commit(message: "ignore everything")
+
+        when:
+        project.plugins.apply(ReleasePlugin)
+
+        then:
+        def releaseNotesTask = project.tasks.getByName(ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME) as GenerateReleaseNotes
+        def githubPublishTask = project.tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME) as GithubPublish
+        def ghPublishDependencies = githubPublishTask.taskDependencies.getDependencies(githubPublishTask)
+        ghPublishDependencies.contains(releaseNotesTask)
+        githubPublishTask.tagName.get() == expectedGHTag
+        githubPublishTask.releaseName.get() == expectedVersion
+        githubPublishTask.targetCommitish.get() == git.branch.current().name
+        githubPublishTask.prerelease.get() == !(releaseStage in ["final", "release"])
+        githubPublishTask.body.get() == fakeReleaseNotes.text
+
+        where:
+        expectedVersion     | releaseStage
+        "1.0.0-master00001" | "snapshot"
+        "1.0.0-rc00001"     | "rc"
+        "1.0.0"             | "final"
+        releaseScope = "major"
+        expectedGHTag = "v${expectedVersion}"
+    }
 }
