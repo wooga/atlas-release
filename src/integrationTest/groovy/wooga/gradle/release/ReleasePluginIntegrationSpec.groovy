@@ -16,22 +16,22 @@
 
 package wooga.gradle.release
 
-import com.wooga.gradle.test.PropertyQueryTaskWriter
+import com.wooga.gradle.test.executable.FakeExecutables
 import org.ajoberstar.grgit.Grgit
-import org.gradle.api.Task
-import org.gradle.api.specs.Spec
 import spock.lang.Ignore
 import spock.lang.Unroll
-import wooga.gradle.github.publish.GithubPublishPlugin
 import wooga.gradle.paket.get.PaketGetPlugin
 import wooga.gradle.unity.UnityPlugin
 
-class ReleasePluginIntegrationSpec extends IntegrationSpec {
+class ReleasePluginIntegrationSpec extends com.wooga.gradle.test.IntegrationSpec {
 
     Grgit git
     File gitIgnore
 
     def setup() {
+        def fakeUnity = FakeExecutables.argsReflector(File.createTempFile("fake_unity", ".bat").path, 0)
+
+        environmentVariables.set("UNITY_PATH", fakeUnity.executable.path)
         gitIgnore = createFile('.gitignore')
         gitIgnore << """
         .gradle/
@@ -44,6 +44,26 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         git.commit(message: 'initial commit')
         git.tag.add(name: "v0.0.1")
         createFile("paket.dependencies")
+    }
+
+    def "verify paket unity install is called before any unity task is executed"() {
+        given: "some subprojects with net.wooga.unity applied"
+
+        addSubproject("testSub", """
+            apply plugin: 'net.wooga.unity'
+        """.stripIndent())
+
+        and: "a buildfile with release plugin applied"
+        buildFile << """
+            ${applyPlugin(ReleasePlugin)}
+        """.stripIndent()
+
+        when:
+        def result = runTasks('ensureProjectManifest')
+
+        then:
+        result.standardOutput.indexOf("> Task :paketUnityInstall") < result.standardOutput.indexOf("> Task :testSub:ensureProjectManifest")
+        result.standardOutput.indexOf("> Task :paketUnityUnwrapUPMPackages") < result.standardOutput.indexOf("> Task :testSub:ensureProjectManifest")
     }
 
 //    @Unroll("verify dependency setup to #testType unity sub-projects")
@@ -200,21 +220,21 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         aSubDir2.mkdirs()
 
         def filesToDelete = [
-            createFile("file.cs.meta", assetsDir),
-            createFile("file.json.meta", assetsDir),
-            createFile(".meta", assetsDir),
-            createFile("test.cs", assetsDir),
-            createFile("test.json", assetsDir),
-            createFile("test.cs", aSubDir),
-            createFile("test.json", aSubDir),
+                createFile("file.cs.meta", assetsDir),
+                createFile("file.json.meta", assetsDir),
+                createFile(".meta", assetsDir),
+                createFile("test.cs", assetsDir),
+                createFile("test.json", assetsDir),
+                createFile("test.cs", aSubDir),
+                createFile("test.json", aSubDir),
         ]
 
         def filesToKeep = [
-            createFile("test.dll.meta", assetsDir),
-            createFile("file.cs.meta", aSubDir2),
-            createFile("file.json.meta", aSubDir2),
-            createFile(".meta", aSubDir2),
-            createFile("test.dll.meta", aSubDir),
+                createFile("test.dll.meta", assetsDir),
+                createFile("file.cs.meta", aSubDir2),
+                createFile("file.json.meta", aSubDir2),
+                createFile(".meta", aSubDir2),
+                createFile("test.dll.meta", aSubDir),
         ]
 
         and: "a buildfile with release plugin applied"
@@ -263,20 +283,20 @@ class ReleasePluginIntegrationSpec extends IntegrationSpec {
         def filesToDelete = []
 
         def filesToKeep = [
-            createFile("test.meta", assetsDir),
-            createFile(".meta", assetsDir),
-            createFile("test.meta", aSubDir),
-            createFile(".meta", aSubDir),
-            createFile("test.dll.meta", assetsDir),
-            createFile("test.cs", assetsDir),
-            createFile("test.json", assetsDir),
-            createFile("test.cs", aSubDir),
-            createFile("test.json", aSubDir),
-            createFile("test.so.meta", assetsDir),
-            createFile("test.dll.meta", aSubDir),
-            createFile("test.so.meta", aSubDir),
-            createFile("test.meta", unitySub),
-            createFile(".meta", unitySub)]
+                createFile("test.meta", assetsDir),
+                createFile(".meta", assetsDir),
+                createFile("test.meta", aSubDir),
+                createFile(".meta", aSubDir),
+                createFile("test.dll.meta", assetsDir),
+                createFile("test.cs", assetsDir),
+                createFile("test.json", assetsDir),
+                createFile("test.cs", aSubDir),
+                createFile("test.json", aSubDir),
+                createFile("test.so.meta", assetsDir),
+                createFile("test.dll.meta", aSubDir),
+                createFile("test.so.meta", aSubDir),
+                createFile("test.meta", unitySub),
+                createFile(".meta", unitySub)]
 
         and: "a buildfile with release plugin applied"
         buildFile << """

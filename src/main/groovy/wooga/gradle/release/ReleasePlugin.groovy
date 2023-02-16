@@ -337,10 +337,12 @@ class ReleasePlugin implements Plugin<Project> {
      */
     protected static void configureUnityPackageIfPresent(Project project, AtlasReleasePluginExtension extension) {
         DependencyHandler dependencies = project.dependencies
-        project.subprojects { sub ->
+        def rootPaketUnityInstall = project.rootProject.tasks[PaketUnityPlugin.INSTALL_TASK_NAME]
+        def rootPaketUnwrapUPM = project.rootProject.tasks[PaketUnityPlugin.UNWRAP_UPM_TASK_NAME]
+        project.subprojects { Project sub ->
             sub.pluginManager.withPlugin("net.wooga.unity", new Action<AppliedPlugin>() {
                 @Override
-                void execute(AppliedPlugin appliedPlugin) {
+                void execute(AppliedPlugin unityPlugin) {
                     logger.info("subproject {} has unity plugin.", sub.name)
                     logger.info("configure dependencies {}", sub.path)
                     logger.info("create cleanMetaFiles task")
@@ -360,6 +362,26 @@ class ReleasePlugin implements Plugin<Project> {
                             paketPack.dependsOn cleanTask
                         }
                     })
+
+                    /**
+                     * The release plugin has no real internal knowledge or dependency to the unity plugin.
+                     * We had cases where the release plugin was not being used along a unity project so
+                     * I'm very careful to keep this seperated as much as possible.
+                     *
+                     * To be able to pull the class with just the class name we have to make sure to provide
+                     * the correct class loader instance. Since we know that the unity plugin got applied,
+                     * otherwise this block would not be executed we pull the plugin class from gradle and from there
+                     * the classloader for that class. The unity task class should be in the same classloader.
+                     */
+                    try {
+                        ClassLoader unityLoader = sub.plugins.getPlugin(unityPlugin.id).class.classLoader
+                        Class<Task> unityTaskClass = Class.forName("wooga.gradle.unity.UnityTask", true, unityLoader) as Class<Task>
+                        sub.tasks.withType(unityTaskClass).configureEach {
+                            it.dependsOn(rootPaketUnityInstall, rootPaketUnwrapUPM)
+                        }
+                    } catch(Exception ignored) {
+                        logger.warn("plugin 'net.wooga.unity' added, but class 'wooga.gradle.unity.UnityTask' can't be found")
+                    }
                 }
             })
         }
