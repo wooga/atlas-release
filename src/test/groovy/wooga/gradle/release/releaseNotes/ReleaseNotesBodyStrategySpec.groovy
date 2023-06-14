@@ -72,7 +72,7 @@ class ReleaseNotesBodyStrategySpec extends ReleaseNotesStrategySpec<ReleaseNotes
         [ADD]: https://resources.atlas.wooga.com/icons/icon_add.svg
         [FIX]: https://resources.atlas.wooga.com/icons/icon_fix.svg
         [IMPROVE]: https://resources.atlas.wooga.com/icons/icon_improve.svg
-		""".stripIndent().trim().normalize()
+		""".stripIndent().trim().readLines().collect{it.stripIndent().trim() }.join("\n")
         def res = result.stripIndent().trim().normalize()
         res == expectedResult
     }
