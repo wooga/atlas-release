@@ -22,6 +22,7 @@ import nebula.test.ProjectSpec
 import org.ajoberstar.grgit.Grgit
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.internal.tasks.TaskExecutionOutcome
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.specs.Spec
 import org.gradle.cache.internal.VersionStrategy
@@ -736,6 +737,7 @@ class ReleasePluginSpec extends ProjectSpec {
 
         then:
         def releaseNotesTask = project.tasks.getByName(ReleasePlugin.RELEASE_NOTES_BODY_TASK_NAME) as GenerateReleaseNotes
+        releaseNotesTask.state.setOutcome(TaskExecutionOutcome.EXECUTED) //tells gradle this task finished execution, necessary to access output variables
         def githubPublishTask = project.tasks.getByName(GithubPublishPlugin.PUBLISH_TASK_NAME) as GithubPublish
         def ghPublishDependencies = githubPublishTask.taskDependencies.getDependencies(githubPublishTask)
         ghPublishDependencies.contains(releaseNotesTask)
