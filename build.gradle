@@ -60,8 +60,8 @@ dependencies {
         exclude module: 'logback-classic'
     }
 
-    testImplementation 'net.wooga.gradle:unity:[3,4['
-    testImplementation 'net.wooga.gradle:wdk-unity:[3,4['
+    testImplementation 'net.wooga.gradle:unity:[4,5['
+    testImplementation 'net.wooga.gradle:wdk-unity:[4,5['
     testImplementation 'com.wooga.gradle:gradle-commons-test:[1,2['
 
     implementation group: 'org.kohsuke', name: 'github-api', version: '1.135'
@@ -69,8 +69,8 @@ dependencies {
     implementation 'org.ajoberstar.grgit:grgit-gradle:[4.1.1,5['
     implementation 'com.wooga.gradle:gradle-commons:[1,2['
 
-    implementation 'net.wooga.gradle:version:[2,3['
+    implementation 'net.wooga.gradle:version:[3.0.0-rc.2,4['
     implementation 'net.wooga.gradle:paket:[4,5['
-    implementation 'net.wooga.gradle:github:[3,4['
-    implementation 'net.wooga.gradle:github-release-notes:[2,3['
+    implementation 'net.wooga.gradle:github:[4,5['
+    implementation 'net.wooga.gradle:github-release-notes:[3,4['
 }
