@@ -18,6 +18,7 @@ package wooga.gradle.release
 
 import com.wooga.gradle.test.executable.FakeExecutables
 import org.ajoberstar.grgit.Grgit
+import org.gradle.api.Task
 import spock.lang.Ignore
 import spock.lang.Unroll
 import wooga.gradle.paket.get.PaketGetPlugin
@@ -139,6 +140,31 @@ class ReleasePluginIntegrationSpec extends com.wooga.gradle.test.IntegrationSpec
         where:
         range << [1..1, 1..4]
         testType = range.size() > 1 ? "multiple" : "single"
+    }
+
+    @Unroll("verify main project unity tasks gets configured to run paketUnityInstall")
+    def "verify configureUnityPackageIfPresent of main project"() {
+        given: "a buildfile with net.wooga.wdk-unity and release plugin applied"
+        buildFile << """
+            apply plugin: 'net.wooga.wdk-unity'
+            ${applyPlugin(ReleasePlugin)}
+            import wooga.gradle.unity.UnityTask
+
+            project.tasks.register('myunitytask', UnityTask) {
+            }
+
+            task("printdeps") {
+                doLast {
+                    println "paketUnityInstall:[\${project.tasks.findByName('myunitytask').dependsOn.collect{it.name}.contains('paketUnityInstall')}]"
+                }
+            }
+        """.stripIndent()
+
+        when:
+        def result = runTasksSuccessfully("printdeps")
+
+        then:
+        result.standardOutput.contains("paketUnityInstall:[true]")
     }
 
     @Ignore
