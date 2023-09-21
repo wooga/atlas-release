@@ -150,10 +150,10 @@ class ReleasePlugin implements Plugin<Project> {
         // which was deprecated in favor of our own solution. These tasks have no action, they instead
         // work by mapping the 'release.stage' property.
         // For example, invoking the `final` task will have the `release.stage` property set to `final`
-        Task preflightTask = project.tasks.create(PREFLIGHT_TASK_NAME)
-        Task finalTask = project.tasks.create(FINAL_TASK_NAME)
-        Task rcTask = project.tasks.create(RC_TASK_NAME)
-        Task snapshotTask = project.tasks.create(SNAPSHOT_TASK_NAME)
+        Task preflightTask = project.tasks.maybeCreate(PREFLIGHT_TASK_NAME)
+        Task finalTask = project.tasks.maybeCreate(FINAL_TASK_NAME)
+        Task rcTask = project.tasks.maybeCreate(RC_TASK_NAME)
+        Task snapshotTask = project.tasks.maybeCreate(SNAPSHOT_TASK_NAME)
 
         [snapshotTask, preflightTask, rcTask, finalTask].each {
             it.dependsOn publishTask
@@ -339,7 +339,7 @@ class ReleasePlugin implements Plugin<Project> {
         DependencyHandler dependencies = project.dependencies
         def rootPaketUnityInstall = project.rootProject.tasks[PaketUnityPlugin.INSTALL_TASK_NAME]
         def rootPaketUnwrapUPM = project.rootProject.tasks[PaketUnityPlugin.UNWRAP_UPM_TASK_NAME]
-        project.subprojects { Project sub ->
+        project.allprojects { Project sub ->
             sub.pluginManager.withPlugin("net.wooga.unity", new Action<AppliedPlugin>() {
                 @Override
                 void execute(AppliedPlugin unityPlugin) {

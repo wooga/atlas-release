@@ -24,6 +24,7 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.internal.tasks.TaskExecutionOutcome
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.specs.Spec
 import org.gradle.cache.internal.VersionStrategy
 import spock.lang.Ignore
@@ -90,6 +91,26 @@ class ReleasePluginSpec extends ProjectSpec {
         "githubPublish" | GithubPublishPlugin
         "paket"         | PaketPlugin
         "paket-unity"   | PaketUnityPlugin
+    }
+
+    def 'Supports adding wdk-unity-release first'() {
+        given:
+        assert !project.plugins.hasPlugin(PLUGIN_NAME)
+        and:
+        project.tasks.register(ReleasePlugin.SNAPSHOT_TASK_NAME) {}
+        project.tasks.register(ReleasePlugin.RC_TASK_NAME) {}
+        project.tasks.register(ReleasePlugin.PREFLIGHT_TASK_NAME) {}
+        project.tasks.register(ReleasePlugin.FINAL_TASK_NAME) {}
+
+        when:
+        project.plugins.apply(PLUGIN_NAME)
+
+        then:
+        project.plugins.hasPlugin(PLUGIN_NAME)
+        project.tasks.findByName(ReleasePlugin.SNAPSHOT_TASK_NAME).dependsOn.collect{it.name}.contains(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
+        project.tasks.findByName(ReleasePlugin.RC_TASK_NAME).dependsOn.collect{it.name}.contains(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
+        project.tasks.findByName(ReleasePlugin.PREFLIGHT_TASK_NAME).dependsOn.collect{it.name}.contains(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
+        project.tasks.findByName(ReleasePlugin.FINAL_TASK_NAME).dependsOn.collect{it.name}.contains(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
     }
 
     def findStrategyByName(List<VersionStrategy> strategies, name) {
