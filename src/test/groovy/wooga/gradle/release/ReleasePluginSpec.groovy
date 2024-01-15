@@ -257,37 +257,37 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
         nearestAny      | distance | stage      | scope   | branchName      | expectedVersion
-        _               | 1        | "snapshot" | _       | "master"        | "1.0.1-master00001"
+        _               | 1        | "snapshot" | _       | "master"        | "1.1.0-master00001"
         _               | 2        | "snapshot" | "major" | "master"        | "2.0.0-master00002"
         _               | 3        | "snapshot" | "minor" | "master"        | "1.1.0-master00003"
         _               | 4        | "snapshot" | "patch" | "master"        | "1.0.1-master00004"
 
-        _               | 1        | "snapshot" | _       | "develop"       | "1.0.1-branchDevelop00001"
+        _               | 1        | "snapshot" | _       | "develop"       | "1.1.0-branchDevelop00001"
         _               | 2        | "snapshot" | "major" | "develop"       | "2.0.0-branchDevelop00002"
         _               | 3        | "snapshot" | "minor" | "develop"       | "1.1.0-branchDevelop00003"
         _               | 4        | "snapshot" | "patch" | "develop"       | "1.0.1-branchDevelop00004"
 
-        _               | 1        | "snapshot" | _       | "feature/check" | "1.0.1-branchFeatureCheck00001"
-        _               | 2        | "snapshot" | _       | "hotfix/check"  | "1.0.1-branchHotfixCheck00002"
-        _               | 3        | "snapshot" | _       | "fix/check"     | "1.0.1-branchFixCheck00003"
-        _               | 4        | "snapshot" | _       | "feature-check" | "1.0.1-branchFeatureCheck00004"
-        _               | 5        | "snapshot" | _       | "hotfix-check"  | "1.0.1-branchHotfixCheck00005"
-        _               | 6        | "snapshot" | _       | "fix-check"     | "1.0.1-branchFixCheck00006"
-        _               | 7        | "snapshot" | _       | "PR-22"         | "1.0.1-branchPRTwoTwo00007"
+        _               | 1        | "snapshot" | _       | "feature/check" | "1.1.0-branchFeatureCheck00001"
+        _               | 2        | "snapshot" | _       | "hotfix/check"  | "1.1.0-branchHotfixCheck00002"
+        _               | 3        | "snapshot" | _       | "fix/check"     | "1.1.0-branchFixCheck00003"
+        _               | 4        | "snapshot" | _       | "feature-check" | "1.1.0-branchFeatureCheck00004"
+        _               | 5        | "snapshot" | _       | "hotfix-check"  | "1.1.0-branchHotfixCheck00005"
+        _               | 6        | "snapshot" | _       | "fix-check"     | "1.1.0-branchFixCheck00006"
+        _               | 7        | "snapshot" | _       | "PR-22"         | "1.1.0-branchPRTwoTwo00007"
         // TODO: Not supported by the atlas-version plugin currently
 //        _               | 8        | "snapshot" | _       | "fix/a_-bug"    | "1.0.1-branchFixABug00008"
 //        _               | 9        | "snapshot" | _       | "fix/-_.bug"    | "1.0.1-branchFixDotbug00009"
 //        _               | 10       | "snapshot" | _       | "fix/-.-.-bug"  | "1.0.1-branchFixDotDotBug00010"
 
-        _               | 1        | "snapshot" | _       | "release/1.x"   | "1.0.1-branchReleaseOneDotx00001"
-        _               | 2        | "snapshot" | _       | "release-1.x"   | "1.0.1-branchReleaseOneDotx00002"
+        _               | 1        | "snapshot" | _       | "release/1.x"   | "1.1.0-branchReleaseOneDotx00001"
+        _               | 2        | "snapshot" | _       | "release-1.x"   | "1.1.0-branchReleaseOneDotx00002"
         _               | 3        | "snapshot" | _       | "release/1.0.x" | "1.0.1-branchReleaseOneDotZeroDotx00003"
         _               | 4        | "snapshot" | _       | "release-1.0.x" | "1.0.1-branchReleaseOneDotZeroDotx00004"
 
-        _               | 2        | "snapshot" | _       | "1.x"           | "1.0.1-branchOneDotx00002"
+        _               | 2        | "snapshot" | _       | "1.x"           | "1.1.0-branchOneDotx00002"
         _               | 4        | "snapshot" | _       | "1.0.x"         | "1.0.1-branchOneDotZeroDotx00004"
 
-        _               | 1        | "rc"       | _       | "master"        | "1.0.1-rc00001"
+        _               | 1        | "rc"       | _       | "master"        | "1.1.0-rc00001"
         _               | 2        | "rc"       | "major" | "master"        | "2.0.0-rc00001"
         _               | 3        | "rc"       | "minor" | "master"        | "1.1.0-rc00001"
         _               | 4        | "rc"       | "patch" | "master"        | "1.0.1-rc00001"
@@ -295,12 +295,12 @@ class ReleasePluginSpec extends ProjectSpec {
         '1.1.0-rc00001' | 1        | "rc"       | _       | "master"        | "1.1.0-rc00002"
         '1.1.0-rc00002' | 1        | "rc"       | _       | "master"        | "1.1.0-rc00003"
 
-        _               | 1        | "rc"       | _       | "release/1.x"   | "1.0.1-rc00001"
-        _               | 2        | "rc"       | _       | "release-1.x"   | "1.0.1-rc00001"
+        _               | 1        | "rc"       | _       | "release/1.x"   | "1.1.0-rc00001"
+        _               | 2        | "rc"       | _       | "release-1.x"   | "1.1.0-rc00001"
         _               | 3        | "rc"       | _       | "release/1.0.x" | "1.0.1-rc00001"
         _               | 4        | "rc"       | _       | "release-1.0.x" | "1.0.1-rc00001"
 
-        _               | 1        | "rc"       | _       | "1.x"           | "1.0.1-rc00001"
+        _               | 1        | "rc"       | _       | "1.x"           | "1.1.0-rc00001"
         _               | 3        | "rc"       | _       | "1.0.x"         | "1.0.1-rc00001"
 
         "1.1.0-rc00001" | 1        | "rc"       | _       | "release/1.x"   | "1.1.0-rc00002"
@@ -311,18 +311,18 @@ class ReleasePluginSpec extends ProjectSpec {
         "1.1.0-rc00001" | 1        | "rc"       | _       | "1.x"           | "1.1.0-rc00002"
         "1.0.1-rc00001" | 3        | "rc"       | _       | "1.0.x"         | "1.0.1-rc00002"
 
-        _               | 1        | "final"    | _       | "master"        | "1.0.1"
+        _               | 1        | "final"    | _       | "master"        | "1.1.0"
         _               | 2        | "final"    | "major" | "master"        | "2.0.0"
         _               | 3        | "final"    | "minor" | "master"        | "1.1.0"
         _               | 4        | "final"    | "patch" | "master"        | "1.0.1"
 
-        _               | 1        | "final"    | _       | "release/1.x"   | "1.0.1"
-        _               | 1        | "final"    | _       | "release/1.x"   | "1.0.1"
-        _               | 2        | "final"    | _       | "release-1.x"   | "1.0.1"
+        _               | 1        | "final"    | _       | "release/1.x"   | "1.1.0"
+        _               | 1        | "final"    | _       | "release/1.x"   | "1.1.0"
+        _               | 2        | "final"    | _       | "release-1.x"   | "1.1.0"
         _               | 3        | "final"    | _       | "release/1.0.x" | "1.0.1"
         _               | 4        | "final"    | _       | "release-1.0.x" | "1.0.1"
 
-        _               | 1        | "final"    | _       | "1.x"           | "1.0.1"
+        _               | 1        | "final"    | _       | "1.x"           | "1.1.0"
         _               | 3        | "final"    | _       | "1.0.x"         | "1.0.1"
 
         nearestNormal = '1.0.0'
@@ -551,12 +551,12 @@ class ReleasePluginSpec extends ProjectSpec {
 
         where:
         branchName          | expectedVersion
-        "master"            | "1.0.1-master00001"
-        "with/slash"        | "1.0.1-branchWithSlash00001"
-        "numbers0123456789" | "1.0.1-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
-        "with/slash"        | "1.0.1-branchWithSlash00001"
-        "with_underscore"   | "1.0.1-branchWithUnderscore00001"
-        "with-dash"         | "1.0.1-branchWithDash00001"
+        "master"            | "1.1.0-master00001"
+        "with/slash"        | "1.1.0-branchWithSlash00001"
+        "numbers0123456789" | "1.1.0-branchNumbersZeroOneTwoThreeFourFiveSixSevenEightNine00001"
+        "with/slash"        | "1.1.0-branchWithSlash00001"
+        "with_underscore"   | "1.1.0-branchWithUnderscore00001"
+        "with-dash"         | "1.1.0-branchWithDash00001"
     }
 
     def createFile(String fileName, File directory) {

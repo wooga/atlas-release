@@ -420,10 +420,10 @@ class ReleasePluginIntegrationSpec extends com.wooga.gradle.test.IntegrationSpec
 
         where:
         tagVersion       | versionCode
-        '1.1.0'          | 10101
+        '1.1.0'          | 10200
         '2.10.99'        | 21100
-        '0.3.0'          | 301
-        '12.34.200'      | 123601
+        '0.3.0'          | 400
+        '12.34.200'      | 123500
         '1.1.0-rc0001'   | 10100
         '2.10.99-branch' | 21099
         '0.3.0-a0000'    | 300
@@ -454,10 +454,10 @@ class ReleasePluginIntegrationSpec extends com.wooga.gradle.test.IntegrationSpec
 
         where:
         tagVersion       | versionCode
-        '1.1.0'          | 10101
+        '1.1.0'          | 10200
         '2.10.99'        | 21100
-        '0.3.0'          | 301
-        '12.34.200'      | 123601
+        '0.3.0'          | 400
+        '12.34.200'      | 123500
         '1.1.0-rc0001'   | 10100
         '2.10.99-branch' | 21099
         '0.3.0-a0000'    | 300
