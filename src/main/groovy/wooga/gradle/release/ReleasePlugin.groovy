@@ -46,12 +46,11 @@ import wooga.gradle.release.internal.DefaultAtlasReleasePluginExtension
 import wooga.gradle.release.releasenotes.ReleaseNotesBodyStrategy
 import wooga.gradle.githubReleaseNotes.GithubReleaseNotesPlugin
 import wooga.gradle.release.utils.ProjectPropertyValueTaskSpec
-
-//import wooga.gradle.releaseNotesGenerator.ReleaseNotesGeneratorPlugin
-//import wooga.gradle.releaseNotesGenerator.utils.ReleaseBodyStrategy
+import wooga.gradle.version.ReleaseStage
 import wooga.gradle.version.VersionPlugin
 import wooga.gradle.version.VersionPluginExtension
 import wooga.gradle.version.VersionScheme
+import wooga.gradle.version.VersionSchemes
 
 /**
  * A Wooga internal plugin to develop and publish Unity library packages.
@@ -84,7 +83,6 @@ class ReleasePlugin implements Plugin<Project> {
     public static final String RELEASE_NOTES_BODY_TASK_NAME = "generateReleaseNotesBody"
 
     static final String ARCHIVES_CONFIGURATION = "archives"
-    static final VersionScheme defaultVersionScheme = VersionScheme.semver
 
     @Override
     void apply(Project project) {
@@ -239,8 +237,9 @@ class ReleasePlugin implements Plugin<Project> {
         // Gradle defaults to 'release' for the project status, as seen here:
         // https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#getStatus--
         //keeping project.status as a fallback to avoid potential breaking change
+        def isFinal = versionExt.releaseStage.map {it == ReleaseStage.Final }
         githubPublishTask.prerelease.set(
-                versionExt.isFinal.map { !it as boolean}
+                isFinal.map { !it as boolean}
                         .orElse(project.provider {project.status != 'final' && project.status != 'release'})
         )
 

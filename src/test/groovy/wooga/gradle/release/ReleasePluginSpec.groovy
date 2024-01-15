@@ -37,6 +37,7 @@ import wooga.gradle.paket.pack.tasks.PaketPack
 import wooga.gradle.paket.unity.PaketUnityPlugin
 import wooga.gradle.version.VersionPluginExtension
 import wooga.gradle.version.VersionScheme
+import wooga.gradle.version.VersionSchemes
 
 class ReleasePluginSpec extends ProjectSpec {
     public static final String PLUGIN_NAME = 'net.wooga.release'
@@ -735,7 +736,7 @@ class ReleasePluginSpec extends ProjectSpec {
         versionExtension.versionScheme.get() == defaultScheme
 
         where:
-        defaultScheme = VersionScheme.semver
+        defaultScheme = VersionSchemes.semver
     }
 
     @Unroll
